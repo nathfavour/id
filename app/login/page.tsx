@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Client, Account } from 'appwrite';
 import Link from 'next/link';
@@ -44,6 +44,18 @@ function publicKeyCredentialToJSON(pubKeyCred: unknown): unknown {
 }
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#181711' }}>
+        <CircularProgress sx={{ color: '#f9c806' }} />
+      </Box>
+    }>
+      <LoginContent />
+    </Suspense>
+  );
+}
+
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState('user@example.com');
@@ -78,6 +90,8 @@ export default function LoginPage() {
     };
     localStorage.setItem('id_accounts', JSON.stringify(accounts));
   };
+
+  async function registerPasskey() {
     setMessage(null);
     if (!('credentials' in navigator)) {
       setMessage('WebAuthn is not supported in this browser');
@@ -597,4 +611,5 @@ export default function LoginPage() {
       </Box>
     </Box>
   );
+}
 

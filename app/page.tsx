@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { account } from '@/lib/appwrite';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAccountSync } from '@/lib/use-account-sync';
@@ -39,6 +39,18 @@ const SOURCE_STORAGE_KEY = 'id_redirect_source';
 const BROADCAST_CHANNEL = 'id_account_switch';
 
 export default function Home() {
+  return (
+    <Suspense fallback={
+      <Box sx={{ minHeight: '100vh', backgroundColor: '#181711', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <CircularProgress sx={{ color: '#f9c806' }} />
+      </Box>
+    }>
+      <HomeContent />
+    </Suspense>
+  );
+}
+
+function HomeContent() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [accounts, setAccounts] = useState<StoredAccount[]>([]);
