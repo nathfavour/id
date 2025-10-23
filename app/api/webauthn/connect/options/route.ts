@@ -26,6 +26,7 @@ import { NextResponse } from 'next/server';
 import { generateRegistrationOptions } from '@simplewebauthn/server';
 import { issueChallenge } from '../../../../../lib/passkeys';
 import crypto from 'crypto';
+import { createServerClient } from '../../../../../lib/appwrite-server';
 
 export async function POST(req: Request) {
   try {
@@ -35,6 +36,27 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: 'email required' },
         { status: 400 }
+      );
+    }
+
+    // SECURITY: Verify user has active session and owns this email
+    const { account } = createServerClient(req);
+    let sessionUser;
+    try {
+      sessionUser = await account.get();
+    } catch (err) {
+      return NextResponse.json(
+        { error: 'Authentication required. Please log in first.' },
+        { status: 401 }
+      );
+    }
+
+    // SECURITY: Verify session user matches requested email (prevent hijacking)
+    const sessionEmail = sessionUser.email?.toLowerCase();
+    if (sessionEmail !== email) {
+      return NextResponse.json(
+        { error: 'Email mismatch. You can only add passkeys to your own account.' },
+        { status: 403 }
       );
     }
 

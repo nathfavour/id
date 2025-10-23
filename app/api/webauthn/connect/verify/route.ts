@@ -29,6 +29,7 @@ import { verifyRegistrationResponse } from '@simplewebauthn/server';
 import { verifyChallengeToken } from '../../../../../lib/passkeys';
 import { PasskeyServer } from '../../../../../lib/passkey-server';
 import { rateLimit, buildRateKey } from '../../../../../lib/rateLimit';
+import { createServerClient } from '../../../../../lib/appwrite-server';
 
 export async function POST(req: Request) {
   try {
@@ -37,6 +38,27 @@ export async function POST(req: Request) {
     const email = String(rawEmail || '').trim().toLowerCase();
     if (!email || !attestation || !challengeToken || !challenge) {
       return NextResponse.json({ error: 'email, attestation, challenge and challengeToken required' }, { status: 400 });
+    }
+
+    // SECURITY: Verify user has active session and owns this email
+    const { account } = createServerClient(req);
+    let sessionUser;
+    try {
+      sessionUser = await account.get();
+    } catch (err) {
+      return NextResponse.json(
+        { error: 'Authentication required. Please log in first.' },
+        { status: 401 }
+      );
+    }
+
+    // SECURITY: Verify session user matches requested email (prevent hijacking)
+    const sessionEmail = sessionUser.email?.toLowerCase();
+    if (sessionEmail !== email) {
+      return NextResponse.json(
+        { error: 'Email mismatch. You can only add passkeys to your own account.' },
+        { status: 403 }
+      );
     }
 
     // Rate limit verification attempts (per IP + email)
@@ -144,7 +166,7 @@ export async function POST(req: Request) {
 
     // Persist passkey in user prefs - reuse same logic as registration
     const server = new PasskeyServer();
-    const result = await server.registerPasskey(email, attestation, challenge, { rpID, origin });
+    const result = await server.registerPasskey(email, attestation, challenge, { rpID, origin, skipBlockCheck: true });
     if (!result?.token?.secret) {
       return NextResponse.json({ error: 'Failed to register passkey' }, { status: 500 });
     }

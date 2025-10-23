@@ -68,10 +68,10 @@ export class PasskeyServer {
     email: string,
     credentialData: any,
     challenge: string,
-    opts?: { rpID?: string; origin?: string }
+    opts?: { rpID?: string; origin?: string; skipBlockCheck?: boolean }
   ) {
-    // Block if account exists without passkeys
-    if (await this.shouldBlockPasskeyForEmail(email)) {
+    // Block if account exists without passkeys (unless explicitly bypassed for connect flow)
+    if (!opts?.skipBlockCheck && await this.shouldBlockPasskeyForEmail(email)) {
       throw new Error('Account already exists');
     }
     // Prepare user (create new or retrieve if it has passkeys)
