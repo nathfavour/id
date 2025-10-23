@@ -1,0 +1,14 @@
+
+> out@0.1.0 build
+> next build --turbopack
+
+   ▲ Next.js 15.5.3 (Turbopack)
+   - Environments: .env
+
+   Creating an optimized production build ...
+ ✓ Finished writing to disk in 165ms
+ ✓ Compiled successfully in 55s
+   Skipping validation of types
+   Skipping linting
+   Collecting page data ...
+   Generating static pages (0/20) ...
