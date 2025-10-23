@@ -75,11 +75,15 @@ export default function SettingsPage() {
           setWalletAddress(userData.prefs?.walletEth || null);
           
           await loadPasskeys(userData.email);
-          setLoading(false);
         }
       } catch (err) {
         if (mounted) {
+          setLoading(false);
           router.replace('/login');
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
         }
       }
     }
@@ -128,7 +132,7 @@ export default function SettingsPage() {
     router.replace('/login');
   };
 
-  if (loading) {
+  if (loading || !user) {
     return (
       <Box
         sx={{
@@ -146,8 +150,6 @@ export default function SettingsPage() {
       </Box>
     );
   }
-
-  if (!user) return null;
 
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#181711', color: 'white', display: 'flex', flexDirection: 'column' }}>

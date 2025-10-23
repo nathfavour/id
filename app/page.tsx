@@ -72,12 +72,15 @@ export default function Home() {
           if (source) {
             localStorage.setItem(SOURCE_STORAGE_KEY, source);
           }
-
-          setLoading(false);
         }
       } catch (err) {
         if (mounted) {
+          setLoading(false);
           router.replace('/login');
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
         }
       }
     }
@@ -134,7 +137,7 @@ export default function Home() {
     router.replace('/login');
   };
 
-  if (loading) {
+  if (loading || !user) {
     return (
       <Box sx={{ minHeight: '100vh', backgroundColor: '#181711', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Box sx={{ textAlign: 'center' }}>
@@ -144,8 +147,6 @@ export default function Home() {
       </Box>
     );
   }
-
-  if (!user) return null;
 
   const getInitials = () => {
     return user.name
