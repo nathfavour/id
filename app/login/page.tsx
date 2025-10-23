@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Client, Account, OAuthProvider } from 'appwrite';
 import { Box, Typography, Stack, TextField, Button, Alert, CircularProgress, IconButton, Tabs, Tab, useMediaQuery, useTheme } from '@mui/material';
 import { Visibility, VisibilityOff, Close, Edit, VpnKey, Wallet } from '@mui/icons-material';
+import { addAccountToList } from '@/lib/multi-account';
+import { AccountSwitcher } from '@/app/components/AccountSwitcher';
 
 const client = new Client();
 if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT) client.setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT);
@@ -73,6 +75,17 @@ function LoginContent() {
   
   const appName = process.env.NEXT_PUBLIC_APP_NAME || 'auth';
 
+  // Initialize email from most recent stored account
+  useEffect(() => {
+    const { getAccountsList } = require('@/lib/multi-account');
+    const accounts = getAccountsList();
+    if (accounts.length > 0) {
+      // Sort by most recently added and use the most recent
+      const sorted = accounts.sort((a: any, b: any) => b.addedAt - a.addedAt);
+      setEmail(sorted[0].email);
+    }
+  }, []);
+
   // Email validation regex
   const isValidEmail = useCallback((email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -120,6 +133,31 @@ function LoginContent() {
       setLoading(false);
     }
   };
+
+  // Capture session after OAuth returns and store it for multi-account
+  useEffect(() => {
+    const captureOAuthSession = async () => {
+      try {
+        const session = await account.getSession('current');
+        const user = await account.get();
+        if (session && user) {
+          // Store this account for future multi-account switching
+          await addAccountToList(
+            user.$id,
+            user.email,
+            user.name || user.email.split('@')[0],
+            session.secret
+          );
+        }
+      } catch (e) {
+        // Session not yet established or OAuth in progress
+      }
+    };
+
+    // Give OAuth a moment to complete
+    const timer = setTimeout(captureOAuthSession, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Handle password login
   const handlePasswordLogin = async () => {
@@ -178,6 +216,19 @@ function LoginContent() {
         userId: response.userId,
         secret: response.secret
       });
+
+      // Store this account for multi-account switching
+      try {
+        const userData = await account.get();
+        await addAccountToList(
+          userData.$id,
+          userData.email,
+          userData.name || email.split('@')[0],
+          response.secret
+        );
+      } catch (e) {
+        // Ignore account storage errors
+      }
 
       router.push('/settings');
       router.refresh();
@@ -256,6 +307,18 @@ function LoginContent() {
           } else {
             if (verifyJson.token?.secret) {
               await account.createSession({ userId: verifyJson.token.userId || email, secret: verifyJson.token.secret });
+              // Store this account for multi-account switching
+              try {
+                const userData = await account.get();
+                await addAccountToList(
+                  userData.$id,
+                  userData.email,
+                  userData.name || email.split('@')[0],
+                  verifyJson.token.secret
+                );
+              } catch (e) {
+                // Ignore account storage errors
+              }
               router.replace('/');
               return;
             }
@@ -309,6 +372,18 @@ function LoginContent() {
       }
       if (regVerifyJson.token?.secret) {
         await account.createSession({ userId: regVerifyJson.token.userId || email, secret: regVerifyJson.token.secret });
+        // Store this account for multi-account switching
+        try {
+          const userData = await account.get();
+          await addAccountToList(
+            userData.$id,
+            userData.email,
+            userData.name || email.split('@')[0],
+            regVerifyJson.token.secret
+          );
+        } catch (e) {
+          // Ignore account storage errors
+        }
         router.replace('/');
         return;
       }
@@ -384,6 +459,9 @@ function LoginContent() {
               },
             }}
           >
+            {/* Account Switcher - Show stored accounts first */}
+            <AccountSwitcher />
+
             {/* OAuth Buttons - Side by side on desktop, centered */}
             <Box sx={{ display: 'flex', justifyContent: 'center', gap: isDesktop ? 2 : 3, flexDirection: isDesktop ? 'row' : 'column', mb: 5, width: '100%' }}>
               {/* Google */}
