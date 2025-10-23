@@ -59,6 +59,20 @@ export default function SettingsPage() {
   // Listen for account switches from other tabs
   useAccountSync();
 
+  const loadPasskeys = async (email: string) => {
+    setLoadingPasskeys(true);
+    setError(null);
+    try {
+      const data = await listPasskeys(email);
+      setPasskeys(data);
+    } catch (err) {
+      setError((err as Error).message);
+      setPasskeys([]);
+    } finally {
+      setLoadingPasskeys(false);
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
     async function initializeSettings() {
@@ -75,35 +89,18 @@ export default function SettingsPage() {
           setWalletAddress(userData.prefs?.walletEth || null);
           
           await loadPasskeys(userData.email);
+          setLoading(false);
         }
       } catch (err) {
         if (mounted) {
           setLoading(false);
           router.replace('/login');
         }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
       }
     }
     initializeSettings();
     return () => { mounted = false; };
   }, [router]);
-
-  const loadPasskeys = async (email: string) => {
-    setLoadingPasskeys(true);
-    setError(null);
-    try {
-      const data = await listPasskeys(email);
-      setPasskeys(data);
-    } catch (err) {
-      setError((err as Error).message);
-      setPasskeys([]);
-    } finally {
-      setLoadingPasskeys(false);
-    }
-  };
 
   const handleAddPasskeySuccess = async () => {
     if (user) {

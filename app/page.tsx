@@ -72,15 +72,13 @@ export default function Home() {
           if (source) {
             localStorage.setItem(SOURCE_STORAGE_KEY, source);
           }
+          
+          setLoading(false);
         }
       } catch (err) {
         if (mounted) {
           setLoading(false);
           router.replace('/login');
-        }
-      } finally {
-        if (mounted) {
-          setLoading(false);
         }
       }
     }
