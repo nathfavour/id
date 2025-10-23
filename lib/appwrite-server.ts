@@ -1,7 +1,7 @@
 import { Client, Account } from 'node-appwrite';
 import { cookies } from 'next/headers';
 
-export function createServerClient(req?: Request) {
+export async function createServerClient(req?: Request) {
   const client = new Client();
   
   if (process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT) {
@@ -33,7 +33,7 @@ export function createServerClient(req?: Request) {
   // Fallback to cookies() function (for server components)
   if (!sessionValue) {
     try {
-      const cookieStore = cookies();
+      const cookieStore = await cookies();
       const sessionCookie = cookieStore.get(`a_session_${process.env.NEXT_PUBLIC_APPWRITE_PROJECT}`);
       if (sessionCookie?.value) {
         sessionValue = sessionCookie.value;

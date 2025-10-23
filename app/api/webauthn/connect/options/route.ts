@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     }
 
     // SECURITY: Verify user has active session and owns this email
-    const { account } = createServerClient(req);
+    const { account } = await createServerClient(req);
     let sessionUser;
     try {
       sessionUser = await account.get();
