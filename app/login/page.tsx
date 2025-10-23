@@ -540,7 +540,14 @@ export default function LoginPage() {
             fullWidth
             variant="contained"
             startIcon={<Fingerprint />}
-            onClick={continueWithPasskey}
+            onClick={() => {
+              if (emailLogin.trim()) {
+                setEmail(emailLogin.trim());
+                continueWithPasskey();
+              } else {
+                setMessage('Please enter an email address');
+              }
+            }}
             disabled={loading}
             sx={{
               backgroundColor: '#3a3627',
