@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { account } from '@/lib/appwrite';
 import { useRouter } from 'next/navigation';
-import Navigation from '@/app/components/Navigation';
 import PasskeyList from '@/app/components/PasskeyList';
 import AddPasskeyModal from '@/app/components/AddPasskeyModal';
 import RenamePasskeyModal from '@/app/components/RenamePasskeyModal';
@@ -12,16 +11,18 @@ import {
   Container,
   Box,
   Typography,
-  Card,
-  CardContent,
   Button,
   CircularProgress,
   Stack,
   Grid,
   Alert,
   AlertTitle,
+  Switch,
+  Divider,
+  IconButton,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import { Person, Lock, Settings as SettingsIcon, AccountBalanceWallet, Fingerprint } from '@mui/icons-material';
 
 interface UserData {
   email: string;
@@ -46,7 +47,10 @@ export default function SettingsPage() {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [renameModalOpen, setRenameModalOpen] = useState(false);
   const [selectedPasskey, setSelectedPasskey] = useState<Passkey | null>(null);
+  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'account'>('profile');
+  const [mfaEnabled, setMfaEnabled] = useState(true);
   const router = useRouter();
+  const appName = process.env.NEXT_PUBLIC_APP_NAME || 'Auth System';
 
   useEffect(() => {
     let mounted = true;
@@ -109,12 +113,12 @@ export default function SettingsPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%)',
+          backgroundColor: '#181711',
         }}
       >
         <Box sx={{ textAlign: 'center' }}>
-          <CircularProgress size={60} sx={{ color: '#2563eb' }} />
-          <Typography sx={{ mt: 2, color: '#64748b' }}>Loading settings...</Typography>
+          <CircularProgress size={60} sx={{ color: '#f9c806' }} />
+          <Typography sx={{ mt: 2, color: '#bbb49b' }}>Loading settings...</Typography>
         </Box>
       </Box>
     );
@@ -123,159 +127,547 @@ export default function SettingsPage() {
   if (!user) return null;
 
   return (
-    <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%)' }}>
-      <Navigation userEmail={user.email} />
-
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-            Settings
-          </Typography>
-          <Typography sx={{ color: '#64748b' }}>Manage your account and passkeys</Typography>
-        </Box>
-
-        {/* Account Section */}
-        <Card sx={{ mb: 4, boxShadow: 1 }}>
-          <CardContent>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 3 }}>
-              Account Information
-            </Typography>
-
-            <Stack spacing={3}>
-              <Box>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#64748b', mb: 1 }}>
-                  Email
+    <Box sx={{ minHeight: '100vh', backgroundColor: '#181711', color: 'white' }}>
+      {/* Main Container */}
+      <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+        {/* Sidebar */}
+        <Box
+          sx={{
+            width: { xs: '0', md: '25%' },
+            display: { xs: 'none', md: 'flex' },
+            flexDirection: 'column',
+            borderRight: '1px solid rgba(255, 255, 255, 0.1)',
+            p: 3,
+            backgroundColor: '#181711',
+            maxHeight: '100vh',
+            overflowY: 'auto',
+          }}
+        >
+          {/* User Profile Card */}
+          <Box
+            sx={{
+              p: 2,
+              borderRadius: '0.75rem',
+              backgroundColor: '#231f0f',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              mb: 4,
+            }}
+          >
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+              <Box
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  backgroundColor: '#3a3627',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#f9c806',
+                  fontSize: '20px',
+                  flexShrink: 0,
+                }}
+              >
+                👤
+              </Box>
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography sx={{ fontSize: '1rem', fontWeight: 500, color: 'white' }}>
+                  {user.name}
                 </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                <Typography
+                  sx={{
+                    fontSize: '0.875rem',
+                    color: '#bbb49b',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                >
                   {user.email}
                 </Typography>
               </Box>
-
-              <Box>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#64748b', mb: 1 }}>
-                  User ID
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontFamily: 'monospace',
-                    color: '#64748b',
-                    backgroundColor: '#f1f5f9',
-                    p: 1.5,
-                    borderRadius: 1,
-                    wordBreak: 'break-all',
-                  }}
-                >
-                  {user.userId}
-                </Typography>
-              </Box>
-            </Stack>
-          </CardContent>
-        </Card>
-
-        {/* Passkey Management Section */}
-        <Card sx={{ boxShadow: 1 }}>
-          <CardContent>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
-              <Box>
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                  Passkey Management
-                </Typography>
-                <Typography variant="body2" sx={{ color: '#64748b', mt: 1 }}>
-                  Add, rename, or delete passkeys to manage your authentication methods
-                </Typography>
-              </Box>
-              <Button
-                onClick={() => setAddModalOpen(true)}
-                variant="contained"
-                startIcon={<AddIcon />}
-                sx={{
-                  background: 'linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)',
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  '&:hover': {
-                    background: 'linear-gradient(135deg, #1d4ed8 0%, #4338ca 100%)',
-                  },
-                }}
-              >
-                Add Passkey
-              </Button>
             </Box>
 
-            {error && (
-              <Alert severity="error" sx={{ mb: 2 }}>
-                <AlertTitle>Error</AlertTitle>
-                {error}
-              </Alert>
-            )}
-
-            {loadingPasskeys ? (
-              <Box sx={{ textAlign: 'center', py: 4 }}>
-                <CircularProgress size={40} sx={{ color: '#2563eb' }} />
-                <Typography sx={{ mt: 2, color: '#64748b' }}>Loading your passkeys...</Typography>
+            {/* Navigation Items */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 3 }}>
+              <Box
+                onClick={() => setActiveTab('profile')}
+                sx={{
+                  display: 'flex',
+                  gap: 2,
+                  alignItems: 'center',
+                  p: '0.5rem 0.75rem',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer',
+                  backgroundColor: activeTab === 'profile' ? 'rgba(249, 200, 6, 0.2)' : 'transparent',
+                  '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
+                  transition: 'background-color 0.2s',
+                }}
+              >
+                <Person sx={{ color: activeTab === 'profile' ? '#f9c806' : 'white', fontSize: 24 }} />
+                <Typography
+                  sx={{
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                    color: activeTab === 'profile' ? '#f9c806' : 'white',
+                  }}
+                >
+                  Profile
+                </Typography>
               </Box>
-            ) : (
-              <PasskeyList
-                passkeys={passkeys}
-                email={user.email}
-                onUpdate={() => loadPasskeys(user.email)}
-                onRenameClick={handleRenameClick}
-              />
-            )}
-          </CardContent>
-        </Card>
 
-        {/* API Reference Section */}
-        <Card sx={{ mt: 4, backgroundColor: '#1e293b', color: 'white', boxShadow: 1 }}>
-          <CardContent>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-              🔌 API Endpoints Used
+              <Box
+                onClick={() => setActiveTab('security')}
+                sx={{
+                  display: 'flex',
+                  gap: 2,
+                  alignItems: 'center',
+                  p: '0.5rem 0.75rem',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer',
+                  backgroundColor: activeTab === 'security' ? 'rgba(249, 200, 6, 0.2)' : 'transparent',
+                  '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
+                  transition: 'background-color 0.2s',
+                }}
+              >
+                <Lock sx={{ color: activeTab === 'security' ? '#f9c806' : 'white', fontSize: 24 }} />
+                <Typography
+                  sx={{
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                    color: activeTab === 'security' ? '#f9c806' : 'white',
+                  }}
+                >
+                  Security
+                </Typography>
+              </Box>
+
+              <Box
+                onClick={() => setActiveTab('account')}
+                sx={{
+                  display: 'flex',
+                  gap: 2,
+                  alignItems: 'center',
+                  p: '0.5rem 0.75rem',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer',
+                  backgroundColor: activeTab === 'account' ? 'rgba(249, 200, 6, 0.2)' : 'transparent',
+                  '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
+                  transition: 'background-color 0.2s',
+                }}
+              >
+                <SettingsIcon sx={{ color: activeTab === 'account' ? '#f9c806' : 'white', fontSize: 24 }} />
+                <Typography
+                  sx={{
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                    color: activeTab === 'account' ? '#f9c806' : 'white',
+                  }}
+                >
+                  Account
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+
+        {/* Main Content */}
+        <Box sx={{ flex: 1, p: { xs: 2, md: 4 }, backgroundColor: '#181711' }}>
+          {/* Header */}
+          <Box sx={{ mb: 6 }}>
+            <Typography
+              sx={{
+                fontSize: '2.25rem',
+                fontWeight: 900,
+                color: 'white',
+                lineHeight: 1.2,
+                letterSpacing: '-0.033em',
+              }}
+            >
+              Account Settings
             </Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <Box>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-                    On this page:
-                  </Typography>
-                  <Stack spacing={0.5}>
-                    {[
-                      'GET /api/webauthn/passkeys/list',
-                      'POST /api/webauthn/passkeys/rename',
-                      'POST /api/webauthn/passkeys/delete',
-                      'POST /api/webauthn/passkeys/disable',
-                    ].map((endpoint, idx) => (
-                      <Typography key={idx} variant="body2" sx={{ color: '#e2e8f0' }}>
-                        ✓ {endpoint}
-                      </Typography>
-                    ))}
-                  </Stack>
-                </Box>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Box>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-                    When adding passkey:
-                  </Typography>
-                  <Stack spacing={0.5}>
-                    {[
-                      'POST /api/webauthn/connect/options',
-                      'POST /api/webauthn/connect/verify',
-                    ].map((endpoint, idx) => (
-                      <Typography key={idx} variant="body2" sx={{ color: '#e2e8f0' }}>
-                        ✓ {endpoint}
-                      </Typography>
-                    ))}
-                  </Stack>
-                </Box>
-              </Grid>
-            </Grid>
-          </CardContent>
-        </Card>
-      </Container>
+          </Box>
 
+          {/* Profile Section */}
+          {activeTab === 'profile' && (
+            <Box>
+              <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>Profile</Typography>
+              <Box
+                sx={{
+                  backgroundColor: '#1f1e18',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '0.75rem',
+                  overflow: 'hidden',
+                }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    p: '1rem',
+                    minHeight: '3.5rem',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
+                    <Typography sx={{ fontSize: '1rem', color: 'white', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      Username
+                    </Typography>
+                    <Typography sx={{ color: '#666' }}>@johndoe</Typography>
+                  </Box>
+                  <Button
+                    sx={{
+                      color: '#f9c806',
+                      fontSize: '1rem',
+                      fontWeight: 500,
+                      textTransform: 'none',
+                      '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' },
+                    }}
+                  >
+                    Edit
+                  </Button>
+                </Box>
+              </Box>
+            </Box>
+          )}
+
+          {/* Security Section */}
+          {activeTab === 'security' && (
+            <Box sx={{ space: 4 }}>
+              {/* Passkeys */}
+              <Box sx={{ mb: 6 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    mb: 3,
+                  }}
+                >
+                  <Typography sx={{ fontSize: '1.375rem', fontWeight: 700 }}>Passkeys</Typography>
+                  <Button
+                    onClick={() => setAddModalOpen(true)}
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    sx={{
+                      backgroundColor: '#f9c806',
+                      color: '#231f0f',
+                      fontWeight: 700,
+                      fontSize: '0.875rem',
+                      textTransform: 'none',
+                      borderRadius: '0.5rem',
+                      '&:hover': { backgroundColor: '#ffd633' },
+                    }}
+                  >
+                    Add Passkey
+                  </Button>
+                </Box>
+
+                <Box
+                  sx={{
+                    backgroundColor: '#1f1e18',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '0.75rem',
+                    overflow: 'hidden',
+                    p: 2,
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, minHeight: '3.5rem', justifyContent: 'space-between' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Box
+                        sx={{
+                          backgroundColor: '#3a3627',
+                          borderRadius: '0.5rem',
+                          p: 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#f9c806',
+                        }}
+                      >
+                        <Fingerprint />
+                      </Box>
+                      <Typography sx={{ fontSize: '1rem', color: 'white', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        My Desktop Key
+                      </Typography>
+                    </Box>
+                    <Button
+                      sx={{
+                        color: '#ef4444',
+                        fontSize: '1rem',
+                        fontWeight: 500,
+                        textTransform: 'none',
+                        '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' },
+                      }}
+                    >
+                      Remove
+                    </Button>
+                  </Box>
+                </Box>
+
+                {loadingPasskeys && (
+                  <Box sx={{ textAlign: 'center', py: 3 }}>
+                    <CircularProgress size={40} sx={{ color: '#f9c806' }} />
+                  </Box>
+                )}
+
+                {passkeys.length > 0 && (
+                  <Box sx={{ mt: 2 }}>
+                    <PasskeyList
+                      passkeys={passkeys}
+                      email={user.email}
+                      onUpdate={() => loadPasskeys(user.email)}
+                      onRenameClick={handleRenameClick}
+                    />
+                  </Box>
+                )}
+
+                {error && (
+                  <Alert severity="error" sx={{ mt: 2 }}>
+                    <AlertTitle>Error</AlertTitle>
+                    {error}
+                  </Alert>
+                )}
+              </Box>
+
+              {/* Wallets */}
+              <Box sx={{ mb: 6 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    mb: 3,
+                  }}
+                >
+                  <Typography sx={{ fontSize: '1.375rem', fontWeight: 700 }}>Connected Wallets</Typography>
+                  <Button
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    sx={{
+                      backgroundColor: '#f9c806',
+                      color: '#231f0f',
+                      fontWeight: 700,
+                      fontSize: '0.875rem',
+                      textTransform: 'none',
+                      borderRadius: '0.5rem',
+                      '&:hover': { backgroundColor: '#ffd633' },
+                    }}
+                  >
+                    Connect New Wallet
+                  </Button>
+                </Box>
+
+                <Box
+                  sx={{
+                    backgroundColor: '#1f1e18',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '0.75rem',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      p: 2,
+                      minHeight: '3.5rem',
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Box
+                        sx={{
+                          backgroundColor: '#3a3627',
+                          borderRadius: '0.5rem',
+                          p: 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'white',
+                        }}
+                      >
+                        <AccountBalanceWallet />
+                      </Box>
+                      <Typography sx={{ fontSize: '1rem', color: 'white' }}>0x1234...abcd</Typography>
+                    </Box>
+                    <Button
+                      sx={{
+                        color: '#ef4444',
+                        fontSize: '1rem',
+                        fontWeight: 500,
+                        textTransform: 'none',
+                        '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' },
+                      }}
+                    >
+                      Disconnect
+                    </Button>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      p: 2,
+                      minHeight: '3.5rem',
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Box
+                        sx={{
+                          backgroundColor: '#3a3627',
+                          borderRadius: '0.5rem',
+                          p: 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'white',
+                        }}
+                      >
+                        <AccountBalanceWallet />
+                      </Box>
+                      <Typography sx={{ fontSize: '1rem', color: 'white' }}>0x5678...efgh</Typography>
+                    </Box>
+                    <Button
+                      sx={{
+                        color: '#ef4444',
+                        fontSize: '1rem',
+                        fontWeight: 500,
+                        textTransform: 'none',
+                        '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' },
+                      }}
+                    >
+                      Disconnect
+                    </Button>
+                  </Box>
+                </Box>
+              </Box>
+
+              {/* MFA */}
+              <Box>
+                <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>Multi-Factor Authentication (MFA)</Typography>
+                <Box
+                  sx={{
+                    backgroundColor: '#1f1e18',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '0.75rem',
+                    p: 2,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Box>
+                      <Typography sx={{ fontSize: '1rem', fontWeight: 500, color: 'white' }}>
+                        Multi-Factor Authentication (MFA)
+                      </Typography>
+                      <Typography sx={{ fontSize: '0.875rem', color: '#bbb49b', mt: 0.5 }}>
+                        Add an extra layer of security to your account.
+                      </Typography>
+                    </Box>
+                    <Switch
+                      checked={mfaEnabled}
+                      onChange={(e) => setMfaEnabled(e.target.checked)}
+                      sx={{
+                        '& .MuiSwitch-switchBase.Mui-checked': {
+                          color: '#f9c806',
+                        },
+                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                          backgroundColor: '#f9c806',
+                        },
+                      }}
+                    />
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
+          )}
+
+          {/* Account Section */}
+          {activeTab === 'account' && (
+            <Box>
+              <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>Account</Typography>
+              <Box
+                sx={{
+                  backgroundColor: '#1f1e18',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '0.75rem',
+                  overflow: 'hidden',
+                  divide: '1px solid rgba(255, 255, 255, 0.1)',
+                }}
+              >
+                <Box sx={{ p: 2, borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box>
+                      <Typography sx={{ fontSize: '1rem', fontWeight: 500, color: 'white' }}>
+                        Export Data
+                      </Typography>
+                      <Typography sx={{ fontSize: '0.875rem', color: '#bbb49b', mt: 0.5 }}>
+                        Download a copy of your account data.
+                      </Typography>
+                    </Box>
+                    <Button
+                      variant="outlined"
+                      sx={{
+                        color: 'white',
+                        borderColor: 'rgba(255, 255, 255, 0.2)',
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                        textTransform: 'none',
+                        borderRadius: '0.5rem',
+                        '&:hover': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                      }}
+                    >
+                      Export
+                    </Button>
+                  </Box>
+                </Box>
+
+                <Box sx={{ p: 2 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box>
+                      <Typography sx={{ fontSize: '1rem', fontWeight: 500, color: 'white' }}>
+                        Delete Account
+                      </Typography>
+                      <Typography sx={{ fontSize: '0.875rem', color: '#bbb49b', mt: 0.5 }}>
+                        Permanently delete your account and all associated data.
+                      </Typography>
+                    </Box>
+                    <Button
+                      variant="outlined"
+                      sx={{
+                        color: '#ef4444',
+                        borderColor: 'rgba(239, 68, 68, 0.3)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                        textTransform: 'none',
+                        borderRadius: '0.5rem',
+                        '&:hover': {
+                          backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                          borderColor: 'rgba(239, 68, 68, 0.5)',
+                        },
+                      }}
+                    >
+                      Delete Account
+                    </Button>
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
+          )}
+        </Box>
+      </Box>
+
+      {/* Modals */}
       <AddPasskeyModal
         isOpen={addModalOpen}
-        email={user.email}
+        email={user?.email || ''}
         onClose={() => setAddModalOpen(false)}
         onSuccess={handleAddPasskeySuccess}
       />
@@ -283,7 +675,7 @@ export default function SettingsPage() {
       <RenamePasskeyModal
         isOpen={renameModalOpen}
         passkey={selectedPasskey}
-        email={user.email}
+        email={user?.email || ''}
         onClose={() => {
           setRenameModalOpen(false);
           setSelectedPasskey(null);

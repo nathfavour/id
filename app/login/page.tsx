@@ -321,11 +321,6 @@ export default function LoginPage() {
     }
   }
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [emailLogin, setEmailLogin] = useState('');
-  const [passwordLogin, setPasswordLogin] = useState('');
-  const appName = process.env.NEXT_PUBLIC_APP_NAME || 'Auth System';
-
   return (
     <Box
       sx={{
