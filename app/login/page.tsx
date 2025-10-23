@@ -635,4 +635,4 @@ function publicKeyCredentialToJSON(pubKeyCred: unknown): unknown {
       </Box>
     </Box>
   );
-}
+
