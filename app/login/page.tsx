@@ -159,7 +159,7 @@ function LoginContent() {
         </Box>
 
         {/* OAuth Buttons - Side by side on desktop, centered */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', gap: isDesktop ? 2 : 0, flexDirection: isDesktop ? 'row' : 'column', mb: 5, width: '100%' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', gap: isDesktop ? 2 : 3, flexDirection: isDesktop ? 'row' : 'column', mb: 5, width: '100%' }}>
           {/* Google */}
           <Button
             onClick={() => handleOAuthLogin(OAuthProvider.Google)}
@@ -262,15 +262,15 @@ function LoginContent() {
               disabled={!emailValid || loading}
               fullWidth
               sx={{
-                backgroundColor: '#3a3627',
-                color: emailValid ? '#f9c806' : '#bbb49b',
+                backgroundColor: '#f9c806',
+                color: '#231f0f',
                 height: 48,
                 borderRadius: '0.5rem',
                 fontWeight: 600,
                 textTransform: 'none',
-                border: '1px solid #55503a',
-                '&:hover:not(:disabled)': { backgroundColor: '#4a4637' },
-                '&:disabled': { cursor: 'not-allowed' },
+                border: 'none',
+                '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
+                '&:disabled': { cursor: 'not-allowed', backgroundColor: '#d4a813' },
               }}
             >
               Passkey
@@ -284,15 +284,15 @@ function LoginContent() {
               disabled={!emailValid || loading}
               fullWidth
               sx={{
-                backgroundColor: '#3a3627',
-                color: emailValid ? '#f9c806' : '#bbb49b',
+                backgroundColor: '#f9c806',
+                color: '#231f0f',
                 height: 48,
                 borderRadius: '0.5rem',
                 fontWeight: 600,
                 textTransform: 'none',
-                border: '1px solid #55503a',
-                '&:hover:not(:disabled)': { backgroundColor: '#4a4637' },
-                '&:disabled': { cursor: 'not-allowed' },
+                border: 'none',
+                '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
+                '&:disabled': { cursor: 'not-allowed', backgroundColor: '#d4a813' },
               }}
             >
               Wallet
@@ -358,7 +358,7 @@ function LoginContent() {
                   textTransform: 'none',
                   mt: 2,
                   '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
-                  '&:disabled': { opacity: 0.5, cursor: 'not-allowed' },
+                  '&:disabled': { cursor: 'not-allowed', backgroundColor: '#d4a813' },
                 }}
               >
                 Sign in
