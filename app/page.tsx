@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { account } from '@/lib/appwrite';
+import { safeCreateSession, safeDeleteCurrentSession } from '@/lib/safe-session';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAccountSync } from '@/lib/use-account-sync';
 import Topbar from '@/app/components/Topbar';
@@ -105,15 +106,8 @@ function HomeContent() {
 
   const handleSwitchAccount = async (accountToSwitch: StoredAccount) => {
     try {
-      // Delete current session
-      try {
-        await account.deleteSession('current');
-      } catch (e) {
-        // Ignore
-      }
-
-      // Create new session with stored token
-      await account.createSession(accountToSwitch.userId, accountToSwitch.refreshToken);
+      // Use safe session creation to switch accounts
+      await safeCreateSession(accountToSwitch.userId, accountToSwitch.refreshToken);
 
       // Broadcast to other tabs
       const bc = new BroadcastChannel(BROADCAST_CHANNEL);
@@ -139,7 +133,7 @@ function HomeContent() {
 
   const handleSignOut = async () => {
     try {
-      await account.deleteSession('current');
+      await safeDeleteCurrentSession();
     } catch (e) {
       // Ignore
     }

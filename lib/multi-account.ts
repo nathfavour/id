@@ -1,4 +1,5 @@
 import { account } from './appwrite';
+import { safeDeleteCurrentSession } from './safe-session';
 
 export interface StoredAccount {
   userId: string;
@@ -98,6 +99,13 @@ export async function addAccountToList(
 }
 
 /**
+ * Safely delete the current session, handling "no session" errors gracefully
+ */
+async function safeDeleteSession(): Promise<void> {
+  await safeDeleteCurrentSession();
+}
+
+/**
  * Switch to a different account (account switching - like Google)
  * This performs a "session swap" but keeps the account stored
  */
@@ -110,12 +118,8 @@ export async function switchAccount(userIdToSwitchTo: string): Promise<void> {
   }
 
   try {
-    // Kill current session
-    try {
-      await account.deleteSession('current');
-    } catch (e) {
-      // Ignore - session might not exist
-    }
+    // Kill current session before creating a new one
+    await safeDeleteSession();
 
     // Create new session using refresh token
     await account.createSession({
@@ -141,11 +145,7 @@ export async function switchAccount(userIdToSwitchTo: string): Promise<void> {
  * User won't need to log in manually again on this device
  */
 export async function softLogout(): Promise<void> {
-  try {
-    await account.deleteSession('current');
-  } catch (e) {
-    // Ignore
-  }
+  await safeDeleteCurrentSession();
 
   // Account remains in localStorage
   // Email will auto-fill on login page
@@ -166,11 +166,7 @@ export async function hardLogout(userIdToRemove?: string): Promise<void> {
   try {
     // Kill the current session (if this is the active account)
     if (getPrimaryUserId() === targetUserId) {
-      try {
-        await account.deleteSession('current');
-      } catch (e) {
-        // Ignore
-      }
+      await safeDeleteCurrentSession();
     }
   } catch (e) {
     // Ignore

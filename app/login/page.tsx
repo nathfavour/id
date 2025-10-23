@@ -6,6 +6,7 @@ import { Client, Account, OAuthProvider } from 'appwrite';
 import { Box, Typography, Stack, TextField, Button, Alert, CircularProgress, IconButton, Tabs, Tab, useMediaQuery, useTheme } from '@mui/material';
 import { Visibility, VisibilityOff, Close, Edit, VpnKey, Wallet } from '@mui/icons-material';
 import { addAccountToList } from '@/lib/multi-account';
+import { safeCreateSession, safeDeleteCurrentSession } from '@/lib/safe-session';
 import { AccountSwitcher } from '@/app/components/AccountSwitcher';
 
 const client = new Client();
@@ -121,6 +122,9 @@ function LoginContent() {
     setLoading(true);
     setMessage(null);
     try {
+      // Clear any existing session before OAuth
+      await safeDeleteCurrentSession();
+      
       const success = `${window.location.origin}/`;
       const failure = `${window.location.origin}/login?error=oauth_failed`;
       await account.createOAuth2Session({
@@ -212,10 +216,7 @@ function LoginContent() {
       }
 
       const { account } = await import('@/lib/appwrite');
-      await account.createSession({
-        userId: response.userId,
-        secret: response.secret
-      });
+      await safeCreateSession(response.userId, response.secret);
 
       // Store this account for multi-account switching
       try {
@@ -306,7 +307,7 @@ function LoginContent() {
             }
           } else {
             if (verifyJson.token?.secret) {
-              await account.createSession({ userId: verifyJson.token.userId || email, secret: verifyJson.token.secret });
+              await safeCreateSession(verifyJson.token.userId || email, verifyJson.token.secret);
               // Store this account for multi-account switching
               try {
                 const userData = await account.get();
@@ -371,7 +372,7 @@ function LoginContent() {
         return;
       }
       if (regVerifyJson.token?.secret) {
-        await account.createSession({ userId: regVerifyJson.token.userId || email, secret: regVerifyJson.token.secret });
+        await safeCreateSession(regVerifyJson.token.userId || email, regVerifyJson.token.secret);
         // Store this account for multi-account switching
         try {
           const userData = await account.get();
