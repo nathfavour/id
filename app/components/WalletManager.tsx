@@ -130,7 +130,7 @@ export default function WalletManager({
   };
 
   return (
-    <Box sx={{ space: 3 }}>
+    <Box sx={{ spacing: 3 }}>
       {/* Wallet Status */}
       {connectedWallet && (
         <Box
