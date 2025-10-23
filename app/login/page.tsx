@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Client, Account, OAuthProvider } from 'appwrite';
 import { Box, Typography, Stack, TextField, Button, Alert, CircularProgress, IconButton, Tabs, Tab, useMediaQuery, useTheme } from '@mui/material';
-import { Visibility, VisibilityOff, Close, Edit } from '@mui/icons-material';
+import { Visibility, VisibilityOff, Close, Edit, VpnKey, Wallet } from '@mui/icons-material';
 
 const client = new Client();
 if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT) client.setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT);
@@ -102,9 +102,58 @@ function LoginContent() {
     try {
       // TODO: Implement password auth endpoint
       setMessage('Password login not yet implemented');
-      setLoading(false);
     } catch (err: any) {
       setMessage(err.message || 'Login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleWalletLogin = async () => {
+    setLoading(true);
+    setMessage(null);
+
+    try {
+      if (!window.ethereum) {
+        throw new Error('MetaMask not installed. Please install MetaMask.');
+      }
+
+      const accounts = await window.ethereum.request({ 
+        method: 'eth_requestAccounts' 
+      });
+      const address = accounts[0];
+
+      const message = `auth-${Date.now()}`;
+      const fullMessage = `Sign this message to authenticate: ${message}`;
+      const signature = await window.ethereum.request({
+        method: 'personal_sign',
+        params: [fullMessage, address]
+      });
+
+      const { functions } = await import('@/lib/appwrite');
+      const execution = await functions.createExecution(
+        process.env.NEXT_PUBLIC_FUNCTION_ID!,
+        JSON.stringify({ email, address, signature, message }),
+        false
+      );
+
+      const response = JSON.parse(execution.responseBody);
+
+      if (execution.responseStatusCode !== 200) {
+        throw new Error(response.error || 'Authentication failed');
+      }
+
+      const { account } = await import('@/lib/appwrite');
+      await account.createSession({
+        userId: response.userId,
+        secret: response.secret
+      });
+
+      router.push('/settings');
+      router.refresh();
+    } catch (error: any) {
+      setMessage(error.message || 'Wallet authentication failed');
+    } finally {
       setLoading(false);
     }
   };
@@ -277,18 +326,22 @@ function LoginContent() {
                   disabled={!emailValid || loading}
                   fullWidth
                   sx={{
-                    backgroundColor: emailValid ? '#f9c806' : '#4a4a4a',
-                    color: '#231f0f',
+                    backgroundColor: emailValid ? '#f9c806' : '#6b6551',
+                    color: '#ffffff',
                     height: 48,
                     borderRadius: '0.5rem',
                     fontWeight: 600,
                     textTransform: 'none',
                     border: 'none',
                     cursor: emailValid ? 'pointer' : 'not-allowed',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 1,
                     '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
-                    '&:disabled': {},
                   }}
                 >
+                  <VpnKey sx={{ fontSize: '1.2rem' }} />
                   Passkey
                 </Button>
               </Box>
@@ -296,12 +349,12 @@ function LoginContent() {
               {/* Wallet Option */}
               <Box sx={{ width: '100%' }}>
                 <Button
-                  onClick={() => {}}
+                  onClick={handleWalletLogin}
                   disabled={!emailValid || loading}
                   fullWidth
                   sx={{
                     backgroundColor: emailValid ? '#f9c806' : '#4a4a4a',
-                    color: '#231f0f',
+                    color: emailValid ? '#231f0f' : '#ffffff',
                     height: 48,
                     borderRadius: '0.5rem',
                     fontWeight: 600,
@@ -309,7 +362,6 @@ function LoginContent() {
                     border: 'none',
                     cursor: emailValid ? 'pointer' : 'not-allowed',
                     '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
-                    '&:disabled': {},
                   }}
                 >
                   Wallet
