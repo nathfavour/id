@@ -290,7 +290,7 @@ export default function SettingsPage() {
           {/* Profile Section */}
           {activeTab === 'profile' && (
             <Box>
-              <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>Profile</Typography>
+              <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>Username</Typography>
               <Box
                 sx={{
                   backgroundColor: '#1f1e18',
@@ -306,14 +306,12 @@ export default function SettingsPage() {
                     alignItems: 'center',
                     p: '1rem',
                     minHeight: '3.5rem',
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
                   }}
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
                     <Typography sx={{ fontSize: '1rem', color: 'white', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      Username
+                      {user.name || user.email.split('@')[0]}
                     </Typography>
-                    <Typography sx={{ color: '#666' }}>@johndoe</Typography>
                   </Box>
                   <Button
                     sx={{
@@ -325,6 +323,64 @@ export default function SettingsPage() {
                     }}
                   >
                     Edit
+                  </Button>
+                </Box>
+              </Box>
+
+              <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3, mt: 6 }}>Email</Typography>
+              <Box
+                sx={{
+                  backgroundColor: '#1f1e18',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '0.75rem',
+                  overflow: 'hidden',
+                  p: 2,
+                }}
+              >
+                <Typography sx={{ fontSize: '1rem', color: 'white' }}>
+                  {user.email}
+                </Typography>
+              </Box>
+
+              <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3, mt: 6 }}>User ID</Typography>
+              <Box
+                sx={{
+                  backgroundColor: '#1f1e18',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '0.75rem',
+                  overflow: 'hidden',
+                  p: 2,
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
+                  <Typography
+                    sx={{
+                      fontSize: '0.875rem',
+                      color: '#bbb49b',
+                      fontFamily: 'monospace',
+                      flex: 1,
+                      wordBreak: 'break-all',
+                    }}
+                  >
+                    {user.userId}
+                  </Typography>
+                  <Button
+                    onClick={() => {
+                      navigator.clipboard.writeText(user.userId);
+                    }}
+                    variant="contained"
+                    sx={{
+                      backgroundColor: '#f9c806',
+                      color: '#231f0f',
+                      fontWeight: 700,
+                      fontSize: '0.875rem',
+                      textTransform: 'none',
+                      borderRadius: '0.5rem',
+                      whiteSpace: 'nowrap',
+                      '&:hover': { backgroundColor: '#ffd633' },
+                    }}
+                  >
+                    Copy
                   </Button>
                 </Box>
               </Box>
@@ -363,51 +419,24 @@ export default function SettingsPage() {
                   </Button>
                 </Box>
 
-                <Box
-                  sx={{
-                    backgroundColor: '#1f1e18',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '0.75rem',
-                    overflow: 'hidden',
-                    p: 2,
-                  }}
-                >
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, minHeight: '3.5rem', justifyContent: 'space-between' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Box
-                        sx={{
-                          backgroundColor: '#3a3627',
-                          borderRadius: '0.5rem',
-                          p: 1,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#f9c806',
-                        }}
-                      >
-                        <Fingerprint />
-                      </Box>
-                      <Typography sx={{ fontSize: '1rem', color: 'white', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        My Desktop Key
-                      </Typography>
-                    </Box>
-                    <Button
-                      sx={{
-                        color: '#ef4444',
-                        fontSize: '1rem',
-                        fontWeight: 500,
-                        textTransform: 'none',
-                        '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' },
-                      }}
-                    >
-                      Remove
-                    </Button>
-                  </Box>
-                </Box>
-
                 {loadingPasskeys && (
                   <Box sx={{ textAlign: 'center', py: 3 }}>
                     <CircularProgress size={40} sx={{ color: '#f9c806' }} />
+                    <Typography sx={{ mt: 2, color: '#bbb49b' }}>Loading passkeys...</Typography>
+                  </Box>
+                )}
+
+                {!loadingPasskeys && passkeys.length === 0 && !error && (
+                  <Box
+                    sx={{
+                      backgroundColor: '#1f1e18',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      borderRadius: '0.75rem',
+                      p: 3,
+                      textAlign: 'center',
+                    }}
+                  >
+                    <Typography sx={{ color: '#bbb49b' }}>No passkeys yet. Add one to get started.</Typography>
                   </Box>
                 )}
 
@@ -463,84 +492,11 @@ export default function SettingsPage() {
                     backgroundColor: '#1f1e18',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '0.75rem',
-                    overflow: 'hidden',
+                    p: 3,
+                    textAlign: 'center',
                   }}
                 >
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      p: 2,
-                      minHeight: '3.5rem',
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Box
-                        sx={{
-                          backgroundColor: '#3a3627',
-                          borderRadius: '0.5rem',
-                          p: 1,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: 'white',
-                        }}
-                      >
-                        <AccountBalanceWallet />
-                      </Box>
-                      <Typography sx={{ fontSize: '1rem', color: 'white' }}>0x1234...abcd</Typography>
-                    </Box>
-                    <Button
-                      sx={{
-                        color: '#ef4444',
-                        fontSize: '1rem',
-                        fontWeight: 500,
-                        textTransform: 'none',
-                        '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' },
-                      }}
-                    >
-                      Disconnect
-                    </Button>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      p: 2,
-                      minHeight: '3.5rem',
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Box
-                        sx={{
-                          backgroundColor: '#3a3627',
-                          borderRadius: '0.5rem',
-                          p: 1,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: 'white',
-                        }}
-                      >
-                        <AccountBalanceWallet />
-                      </Box>
-                      <Typography sx={{ fontSize: '1rem', color: 'white' }}>0x5678...efgh</Typography>
-                    </Box>
-                    <Button
-                      sx={{
-                        color: '#ef4444',
-                        fontSize: '1rem',
-                        fontWeight: 500,
-                        textTransform: 'none',
-                        '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' },
-                      }}
-                    >
-                      Disconnect
-                    </Button>
-                  </Box>
+                  <Typography sx={{ color: '#bbb49b' }}>No wallets connected yet. Connect one to get started.</Typography>
                 </Box>
               </Box>
 
