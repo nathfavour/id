@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Client, Account } from 'appwrite';
 import Link from 'next/link';
+import OAuthButtons from '@/app/components/OAuthButtons';
 import { Box, Typography, Stack, TextField, Button, Alert, CircularProgress, Divider, IconButton } from '@mui/material';
 import { Visibility, VisibilityOff, Fingerprint, AccountBalanceWallet, Close } from '@mui/icons-material';
 
@@ -44,6 +45,7 @@ function publicKeyCredentialToJSON(pubKeyCred: unknown): unknown {
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('user@example.com');
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -51,6 +53,11 @@ export default function LoginPage() {
   const [emailLogin, setEmailLogin] = useState('');
   const [passwordLogin, setPasswordLogin] = useState('');
   const appName = process.env.NEXT_PUBLIC_APP_NAME || 'Auth System';
+
+  // Check for OAuth error from URL
+  if (searchParams.get('error') === 'oauth_failed' && !message) {
+    setMessage('OAuth login failed. Please try again.');
+  }
 
   // Get source for redirect after login
   const getRedirectUrl = () => {
@@ -398,63 +405,9 @@ export default function LoginPage() {
         </Box>
 
         {/* OAuth Buttons */}
-        <Stack spacing={1.5} sx={{ mb: 6 }}>
-          <Button
-            fullWidth
-            variant="contained"
-            startIcon={
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <g clipPath="url(#clip0_302_3)">
-                  <path d="M22.56 12.25C22.56 11.45 22.49 10.68 22.36 9.92H12.24V14.16H18.15C17.92 15.65 17.15 16.92 15.93 17.75V20.44H19.62C21.58 18.66 22.56 15.74 22.56 12.25Z" fill="#4285F4"></path>
-                  <path d="M12.24 23C15.11 23 17.55 22.05 19.62 20.44L15.93 17.75C15.02 18.39 13.77 18.79 12.24 18.79C9.31 18.79 6.81 16.94 5.92 14.28H2.13V17.07C3.99 20.73 7.8 23 12.24 23Z" fill="#34A853"></path>
-                  <path d="M5.92 14.28C5.69 13.58 5.56 12.82 5.56 12C5.56 11.18 5.69 10.42 5.92 9.72V6.93H2.13C1.43 8.35 1 10.12 1 12C1 13.88 1.43 15.65 2.13 17.07L5.92 14.28Z" fill="#FBBC05"></path>
-                  <path d="M12.24 5.21C13.87 5.21 15.22 5.76 16.27 6.75L19.7 3.32C17.55 1.26 15.11 0 12.24 0C7.8 0 3.99 2.27 2.13 5.93L5.92 8.72C6.81 6.06 9.31 4.21 12.24 4.21V5.21Z" fill="#EA4335"></path>
-                </g>
-                <defs>
-                  <clipPath id="clip0_302_3">
-                    <rect fill="white" height="24" width="24"></rect>
-                  </clipPath>
-                </defs>
-              </svg>
-            }
-            sx={{
-              backgroundColor: '#3a3627',
-              color: 'white',
-              fontSize: '1rem',
-              fontWeight: 700,
-              height: 48,
-              borderRadius: '0.5rem',
-              textTransform: 'none',
-              letterSpacing: '0.015em',
-              '&:hover': { backgroundColor: '#4a4637' },
-            }}
-          >
-            Continue with Google
-          </Button>
-
-          <Button
-            fullWidth
-            variant="contained"
-            startIcon={
-              <svg className="h-6 w-6" fill="white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 0C5.373 0 0 5.373 0 12C0 17.204 3.438 21.57 8.207 23.09C8.805 23.2 9.023 22.822 9.023 22.5C9.023 22.206 9.012 21.29 9.008 20.21C5.534 20.932 4.846 18.662 4.846 18.662C4.305 17.31 3.548 16.948 3.548 16.948C2.468 16.208 3.636 16.22 3.636 16.22C4.823 16.304 5.438 17.43 5.438 17.43C6.51 19.264 8.28 18.736 8.974 18.432C9.08 17.652 9.394 17.132 9.73 16.84C7.098 16.536 4.352 15.52 4.352 11.082C4.352 9.782 4.82 8.728 5.566 7.91C5.454 7.604 5.092 6.552 5.682 5.044C5.682 5.044 6.72 4.71 8.98 6.134C9.972 5.86 11.022 5.726 12.066 5.72C13.11 5.726 14.16 5.86 15.152 6.134C17.41 4.71 18.448 5.044 18.448 5.044C19.042 6.552 18.68 7.604 18.566 7.91C19.314 8.728 19.78 9.782 19.78 11.082C19.78 15.532 17.03 16.532 14.39 16.832C14.81 17.206 15.14 18.006 15.14 19.168C15.14 20.828 15.126 22.14 15.126 22.5C15.126 22.824 15.344 23.208 15.947 23.088C20.562 21.568 24 17.204 24 12C24 5.373 18.627 0 12 0Z"></path>
-              </svg>
-            }
-            sx={{
-              backgroundColor: '#3a3627',
-              color: 'white',
-              fontSize: '1rem',
-              fontWeight: 700,
-              height: 48,
-              borderRadius: '0.5rem',
-              textTransform: 'none',
-              letterSpacing: '0.015em',
-              '&:hover': { backgroundColor: '#4a4637' },
-            }}
-          >
-            Continue with Github
-          </Button>
-        </Stack>
+        <Box sx={{ mb: 6 }}>
+          <OAuthButtons disabled={loading} />
+        </Box>
 
         {/* Divider */}
         <Box sx={{ display: 'flex', alignItems: 'center', my: 3, gap: 2 }}>
