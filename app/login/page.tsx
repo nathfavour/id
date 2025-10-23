@@ -3,8 +3,8 @@
 import { useState, useEffect, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Client, Account, OAuthProvider } from 'appwrite';
-import { Box, Typography, Stack, TextField, Button, Alert, CircularProgress, IconButton, useMediaQuery, useTheme } from '@mui/material';
-import { Visibility, VisibilityOff, Close } from '@mui/icons-material';
+import { Box, Typography, Stack, TextField, Button, Alert, CircularProgress, IconButton, Tabs, Tab, useMediaQuery, useTheme } from '@mui/material';
+import { Visibility, VisibilityOff, Close, Edit2 } from '@mui/icons-material';
 
 const client = new Client();
 if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT) client.setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT);
@@ -29,16 +29,19 @@ function LoginContent() {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
   
+  const [step, setStep] = useState(1); // Step 1: OAuth, Step 2: Choose method
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [otp, setOtp] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [emailValid, setEmailValid] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
   const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [authMethod, setAuthMethod] = useState(0); // 0 = Password, 1 = OTP
   
-  const appName = process.env.NEXT_PUBLIC_APP_NAME || 'ID';
+  const appName = process.env.NEXT_PUBLIC_APP_NAME || 'auth';
 
   // Email validation regex
   const isValidEmail = useCallback((email: string) => {
@@ -152,220 +155,356 @@ function LoginContent() {
               fontWeight: 900,
               lineHeight: 1.2,
               letterSpacing: '-0.033em',
+              textTransform: 'capitalize',
             }}
           >
-            Continue with:
+            {step === 1 ? `Continue with ${appName}:` : `Sign in to ${appName}`}
           </Typography>
         </Box>
 
-        {/* OAuth Buttons - Side by side on desktop, centered */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', gap: isDesktop ? 2 : 3, flexDirection: isDesktop ? 'row' : 'column', mb: 5, width: '100%' }}>
-          {/* Google */}
-          <Button
-            onClick={() => handleOAuthLogin(OAuthProvider.Google)}
-            disabled={loading}
-            fullWidth={!isDesktop}
-            sx={{
-              width: isDesktop ? 120 : '100%',
-              backgroundColor: '#fff',
-              color: '#1f2937',
-              height: 48,
-              borderRadius: '0.5rem',
-              fontWeight: 600,
-              textTransform: 'none',
-              border: '1px solid #d1d5db',
-              '&:hover:not(:disabled)': { backgroundColor: '#f3f4f6' },
-              '&:disabled': { opacity: 0.5, cursor: 'not-allowed' },
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 1.5,
-            }}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-            </svg>
-            Google
-          </Button>
-
-          {/* GitHub */}
-          <Button
-            onClick={() => handleOAuthLogin(OAuthProvider.Github)}
-            disabled={loading}
-            fullWidth={!isDesktop}
-            sx={{
-              width: isDesktop ? 120 : '100%',
-              backgroundColor: '#1f2937',
-              color: '#fff',
-              height: 48,
-              borderRadius: '0.5rem',
-              fontWeight: 600,
-              textTransform: 'none',
-              border: '1px solid #111827',
-              '&:hover:not(:disabled)': { backgroundColor: '#111827' },
-              '&:disabled': { opacity: 0.5, cursor: 'not-allowed' },
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 1.5,
-            }}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
-            </svg>
-            GitHub
-          </Button>
-        </Box>
-
-        {/* Divider */}
-        <Box sx={{ display: 'flex', alignItems: 'center', my: 4, gap: 2 }}>
-          <Box sx={{ flex: 1, height: '1px', backgroundColor: '#3a3627' }} />
-          <Typography sx={{ fontSize: '0.875rem', color: '#bbb49b', whiteSpace: 'nowrap' }}>or enter email</Typography>
-          <Box sx={{ flex: 1, height: '1px', backgroundColor: '#3a3627' }} />
-        </Box>
-
-        {/* Email & Options - Center aligned */}
-        <Stack spacing={3} sx={{ mb: 5, display: 'flex', alignItems: 'center', width: '100%' }}>
-          <Box sx={{ width: '100%' }}>
-            <TextField
-              type="email"
-              value={email}
-              onChange={handleEmailChange}
-              placeholder="your@email.com"
-              fullWidth
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  color: 'white',
-                  height: '3rem',
-                  borderRadius: '0.5rem',
-                  backgroundColor: '#27251b',
-                  border: '1px solid #55503a',
-                  '&:hover': { borderColor: '#6b6551' },
-                  '&.Mui-focused': { borderColor: '#f9c806' },
-                  '& fieldset': { border: 'none' },
-                },
-                '& .MuiOutlinedInput-input::placeholder': {
-                  color: '#8b8671',
-                  opacity: 1,
-                },
-              }}
-            />
-          </Box>
-
-          {/* Passkey Option */}
-          <Box sx={{ width: '100%' }}>
-            <Button
-              onClick={() => {}}
-              disabled={!emailValid || loading}
-              fullWidth
-              sx={{
-                backgroundColor: '#f9c806',
-                color: '#231f0f',
-                height: 48,
-                borderRadius: '0.5rem',
-                fontWeight: 600,
-                textTransform: 'none',
-                border: 'none',
-                '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
-                '&:disabled': { cursor: 'not-allowed', backgroundColor: '#d4a813' },
-              }}
-            >
-              Passkey
-            </Button>
-          </Box>
-
-          {/* Wallet Option */}
-          <Box sx={{ width: '100%' }}>
-            <Button
-              onClick={() => {}}
-              disabled={!emailValid || loading}
-              fullWidth
-              sx={{
-                backgroundColor: '#f9c806',
-                color: '#231f0f',
-                height: 48,
-                borderRadius: '0.5rem',
-                fontWeight: 600,
-                textTransform: 'none',
-                border: 'none',
-                '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
-                '&:disabled': { cursor: 'not-allowed', backgroundColor: '#d4a813' },
-              }}
-            >
-              Wallet
-            </Button>
-          </Box>
-
-          {/* Password Option */}
-          <Box sx={{ width: '100%' }}>
-            <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <TextField
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password"
-                fullWidth
-                disabled={!emailValid}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    color: 'white',
-                    height: '3rem',
-                    borderRadius: '0.5rem',
-                    backgroundColor: '#27251b',
-                    border: '1px solid #55503a',
-                    '&:hover:not(.Mui-disabled)': { borderColor: '#6b6551' },
-                    '&.Mui-focused': { borderColor: '#f9c806' },
-                    '& fieldset': { border: 'none' },
-                  },
-                  '& .MuiOutlinedInput-input::placeholder': {
-                    color: '#8b8671',
-                    opacity: 1,
-                  },
-                  '& .Mui-disabled': {
-                    backgroundColor: '#27251b',
-                    color: '#8b8671',
-                  },
-                }}
-              />
-              {emailValid && (
-                <IconButton
-                  onClick={() => setShowPassword(!showPassword)}
-                  sx={{
-                    position: 'absolute',
-                    right: 12,
-                    color: '#bbb49b',
-                    '&:hover': { color: 'white' },
-                  }}
-                >
-                  {showPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
-                </IconButton>
-              )}
-            </Box>
-            {emailValid && (
+        {/* Step 1: OAuth & Email */}
+        {step === 1 ? (
+          <>
+            {/* OAuth Buttons - Side by side on desktop, centered */}
+            <Box sx={{ display: 'flex', justifyContent: 'center', gap: isDesktop ? 2 : 3, flexDirection: isDesktop ? 'row' : 'column', mb: 5, width: '100%' }}>
+              {/* Google */}
               <Button
-                onClick={handlePasswordLogin}
-                disabled={!password.trim() || loading}
-                fullWidth
+                onClick={() => handleOAuthLogin(OAuthProvider.Google)}
+                disabled={loading}
+                fullWidth={!isDesktop}
                 sx={{
-                  backgroundColor: '#f9c806',
-                  color: '#231f0f',
+                  width: isDesktop ? 120 : '100%',
+                  backgroundColor: '#fff',
+                  color: '#1f2937',
                   height: 48,
                   borderRadius: '0.5rem',
-                  fontWeight: 700,
+                  fontWeight: 600,
                   textTransform: 'none',
-                  mt: 2,
-                  '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
-                  '&:disabled': { cursor: 'not-allowed', backgroundColor: '#d4a813' },
+                  border: '1px solid #d1d5db',
+                  '&:hover:not(:disabled)': { backgroundColor: '#f3f4f6' },
+                  '&:disabled': { opacity: 0.5, cursor: 'not-allowed' },
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 1.5,
                 }}
               >
-                Sign in
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                </svg>
+                Google
               </Button>
-            )}
-          </Box>
-        </Stack>
+
+              {/* GitHub */}
+              <Button
+                onClick={() => handleOAuthLogin(OAuthProvider.Github)}
+                disabled={loading}
+                fullWidth={!isDesktop}
+                sx={{
+                  width: isDesktop ? 120 : '100%',
+                  backgroundColor: '#1f2937',
+                  color: '#fff',
+                  height: 48,
+                  borderRadius: '0.5rem',
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  border: '1px solid #111827',
+                  '&:hover:not(:disabled)': { backgroundColor: '#111827' },
+                  '&:disabled': { opacity: 0.5, cursor: 'not-allowed' },
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 1.5,
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+                </svg>
+                GitHub
+              </Button>
+            </Box>
+
+            {/* Divider */}
+            <Box sx={{ display: 'flex', alignItems: 'center', my: 4, gap: 2 }}>
+              <Box sx={{ flex: 1, height: '1px', backgroundColor: '#3a3627' }} />
+              <Typography sx={{ fontSize: '0.875rem', color: '#bbb49b', whiteSpace: 'nowrap' }}>or enter email</Typography>
+              <Box sx={{ flex: 1, height: '1px', backgroundColor: '#3a3627' }} />
+            </Box>
+
+            {/* Email & Options - Center aligned */}
+            <Stack spacing={3} sx={{ mb: 5, display: 'flex', alignItems: 'center', width: '100%' }}>
+              <Box sx={{ width: '100%' }}>
+                <TextField
+                  type="email"
+                  value={email}
+                  onChange={handleEmailChange}
+                  placeholder="your@email.com"
+                  fullWidth
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      color: 'white',
+                      height: '3rem',
+                      borderRadius: '0.5rem',
+                      backgroundColor: '#27251b',
+                      border: '1px solid #55503a',
+                      '&:hover': { borderColor: '#6b6551' },
+                      '&.Mui-focused': { borderColor: '#f9c806' },
+                      '& fieldset': { border: 'none' },
+                    },
+                    '& .MuiOutlinedInput-input::placeholder': {
+                      color: '#8b8671',
+                      opacity: 1,
+                    },
+                  }}
+                />
+              </Box>
+
+              {/* Passkey Option */}
+              <Box sx={{ width: '100%' }}>
+                <Button
+                  onClick={() => {}}
+                  disabled={!emailValid || loading}
+                  fullWidth
+                  sx={{
+                    backgroundColor: '#f9c806',
+                    color: '#231f0f',
+                    height: 48,
+                    borderRadius: '0.5rem',
+                    fontWeight: 600,
+                    textTransform: 'none',
+                    border: 'none',
+                    '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
+                    '&:disabled': { cursor: 'not-allowed', backgroundColor: '#d4a813' },
+                  }}
+                >
+                  Passkey
+                </Button>
+              </Box>
+
+              {/* Wallet Option */}
+              <Box sx={{ width: '100%' }}>
+                <Button
+                  onClick={() => {}}
+                  disabled={!emailValid || loading}
+                  fullWidth
+                  sx={{
+                    backgroundColor: '#f9c806',
+                    color: '#231f0f',
+                    height: 48,
+                    borderRadius: '0.5rem',
+                    fontWeight: 600,
+                    textTransform: 'none',
+                    border: 'none',
+                    '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
+                    '&:disabled': { cursor: 'not-allowed', backgroundColor: '#d4a813' },
+                  }}
+                >
+                  Wallet
+                </Button>
+              </Box>
+
+              {/* Continue with Other Methods */}
+              <Box sx={{ width: '100%' }}>
+                <Button
+                  onClick={() => setStep(2)}
+                  disabled={!emailValid || loading}
+                  fullWidth
+                  sx={{
+                    backgroundColor: '#f9c806',
+                    color: '#231f0f',
+                    height: 48,
+                    borderRadius: '0.5rem',
+                    fontWeight: 600,
+                    textTransform: 'none',
+                    border: 'none',
+                    '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
+                    '&:disabled': { cursor: 'not-allowed', backgroundColor: '#d4a813' },
+                  }}
+                >
+                  Continue with other methods
+                </Button>
+              </Box>
+            </Stack>
+          </>
+        ) : (
+          <>
+            {/* Step 2: Choose Auth Method */}
+            {/* Email Display with Edit Button */}
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 4, pb: 3, borderBottom: '1px solid #3a3627' }}>
+              <Typography sx={{ color: '#bbb49b', fontSize: '0.9rem' }}>
+                {email}
+              </Typography>
+              <IconButton
+                onClick={() => setStep(1)}
+                size="small"
+                sx={{
+                  color: '#bbb49b',
+                  '&:hover': { color: '#f9c806' },
+                  width: 24,
+                  height: 24,
+                }}
+              >
+                <Edit2 sx={{ fontSize: '0.875rem' }} />
+              </IconButton>
+            </Box>
+
+            {/* Auth Method Tabs */}
+            <Box sx={{ mb: 4, borderBottom: '1px solid #3a3627' }}>
+              <Tabs
+                value={authMethod}
+                onChange={(e, newValue) => setAuthMethod(newValue)}
+                sx={{
+                  '& .MuiTab-root': {
+                    color: '#bbb49b',
+                    textTransform: 'none',
+                    fontWeight: 500,
+                    fontSize: '0.9rem',
+                    '&.Mui-selected': { color: '#f9c806' },
+                  },
+                  '& .MuiTabs-indicator': { backgroundColor: '#f9c806' },
+                }}
+              >
+                <Tab label="Password" />
+                <Tab label="OTP" />
+              </Tabs>
+            </Box>
+
+            {/* Tab Content */}
+            <Stack spacing={3} sx={{ mb: 5, display: 'flex', alignItems: 'center', width: '100%' }}>
+              {authMethod === 0 ? (
+                <>
+                  {/* Password Fields */}
+                  <Box sx={{ width: '100%', position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <TextField
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your password"
+                      fullWidth
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          color: 'white',
+                          height: '3rem',
+                          borderRadius: '0.5rem',
+                          backgroundColor: '#27251b',
+                          border: '1px solid #55503a',
+                          '&:hover': { borderColor: '#6b6551' },
+                          '&.Mui-focused': { borderColor: '#f9c806' },
+                          '& fieldset': { border: 'none' },
+                        },
+                        '& .MuiOutlinedInput-input::placeholder': {
+                          color: '#8b8671',
+                          opacity: 1,
+                        },
+                      }}
+                    />
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
+                      sx={{
+                        position: 'absolute',
+                        right: 12,
+                        color: '#bbb49b',
+                        '&:hover': { color: 'white' },
+                      }}
+                    >
+                      {showPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
+                    </IconButton>
+                  </Box>
+
+                  {/* Forgot Password Link */}
+                  <Box sx={{ width: '100%', textAlign: 'center' }}>
+                    <Button
+                      href="#"
+                      sx={{
+                        textTransform: 'none',
+                        color: '#f9c806',
+                        '&:hover': { color: '#ffd633', textDecoration: 'underline' },
+                        fontSize: '0.85rem',
+                        p: 0,
+                      }}
+                    >
+                      Forgot password?
+                    </Button>
+                  </Box>
+
+                  {/* Sign In Button */}
+                  <Box sx={{ width: '100%' }}>
+                    <Button
+                      onClick={handlePasswordLogin}
+                      disabled={!password.trim() || loading}
+                      fullWidth
+                      sx={{
+                        backgroundColor: '#f9c806',
+                        color: '#231f0f',
+                        height: 48,
+                        borderRadius: '0.5rem',
+                        fontWeight: 700,
+                        textTransform: 'none',
+                        '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
+                        '&:disabled': { cursor: 'not-allowed', backgroundColor: '#d4a813' },
+                      }}
+                    >
+                      Sign in
+                    </Button>
+                  </Box>
+                </>
+              ) : (
+                <>
+                  {/* OTP Field */}
+                  <Box sx={{ width: '100%' }}>
+                    <TextField
+                      type="text"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      placeholder="000000"
+                      fullWidth
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          color: 'white',
+                          height: '3rem',
+                          borderRadius: '0.5rem',
+                          backgroundColor: '#27251b',
+                          border: '1px solid #55503a',
+                          '&:hover': { borderColor: '#6b6551' },
+                          '&.Mui-focused': { borderColor: '#f9c806' },
+                          '& fieldset': { border: 'none' },
+                        },
+                        '& .MuiOutlinedInput-input::placeholder': {
+                          color: '#8b8671',
+                          opacity: 1,
+                        },
+                      }}
+                    />
+                  </Box>
+
+                  {/* Verify OTP Button */}
+                  <Box sx={{ width: '100%' }}>
+                    <Button
+                      onClick={() => {}}
+                      disabled={otp.length !== 6 || loading}
+                      fullWidth
+                      sx={{
+                        backgroundColor: '#f9c806',
+                        color: '#231f0f',
+                        height: 48,
+                        borderRadius: '0.5rem',
+                        fontWeight: 700,
+                        textTransform: 'none',
+                        '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
+                        '&:disabled': { cursor: 'not-allowed', backgroundColor: '#d4a813' },
+                      }}
+                    >
+                      Verify OTP
+                    </Button>
+                  </Box>
+                </>
+              )}
+            </Stack>
+          </>
+        )}
 
         {/* Message Alert */}
         {message && (
