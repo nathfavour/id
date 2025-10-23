@@ -327,17 +327,18 @@ function LoginContent() {
                   fullWidth
                   sx={{
                     backgroundColor: emailValid ? '#f9c806' : '#6b6551',
-                    color: '#ffffff',
+                    color: '#ffffff !important',
                     height: 48,
                     borderRadius: '0.5rem',
                     fontWeight: 600,
                     textTransform: 'none',
                     border: 'none',
-                    cursor: emailValid ? 'pointer' : 'not-allowed',
+                    cursor: !emailValid ? 'not-allowed' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 1,
+                    '& svg': { color: '#ffffff !important' },
                     '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
                   }}
                 >
@@ -353,17 +354,23 @@ function LoginContent() {
                   disabled={!emailValid || loading}
                   fullWidth
                   sx={{
-                    backgroundColor: emailValid ? '#f9c806' : '#4a4a4a',
-                    color: emailValid ? '#231f0f' : '#ffffff',
+                    backgroundColor: emailValid ? '#f9c806' : '#6b6551',
+                    color: '#ffffff !important',
                     height: 48,
                     borderRadius: '0.5rem',
                     fontWeight: 600,
                     textTransform: 'none',
                     border: 'none',
-                    cursor: emailValid ? 'pointer' : 'not-allowed',
+                    cursor: !emailValid ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 1,
+                    '& svg': { color: '#ffffff !important' },
                     '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
                   }}
                 >
+                  <Wallet sx={{ fontSize: '1.2rem' }} />
                   Wallet
                 </Button>
               </Box>
