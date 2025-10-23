@@ -221,12 +221,11 @@ function LoginContent() {
       // Store this account for multi-account switching
       try {
         const userData = await account.get();
-        const currentSession = await account.getSession('current');
         await addAccountToList(
           userData.$id,
           userData.email,
           userData.name || email.split('@')[0],
-          currentSession.secret
+          response.secret
         );
       } catch (e) {
         // Ignore account storage errors
@@ -312,12 +311,11 @@ function LoginContent() {
               // Store this account for multi-account switching
               try {
                 const userData = await account.get();
-                const currentSession = await account.getSession('current');
                 await addAccountToList(
                   userData.$id,
                   userData.email,
                   userData.name || email.split('@')[0],
-                  currentSession.secret
+                  verifyJson.token.secret
                 );
               } catch (e) {
                 // Ignore account storage errors
@@ -378,12 +376,11 @@ function LoginContent() {
         // Store this account for multi-account switching
         try {
           const userData = await account.get();
-          const currentSession = await account.getSession('current');
           await addAccountToList(
             userData.$id,
             userData.email,
             userData.name || email.split('@')[0],
-            currentSession.secret
+            regVerifyJson.token.secret
           );
         } catch (e) {
           // Ignore account storage errors

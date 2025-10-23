@@ -22,6 +22,14 @@ export async function safeDeleteCurrentSession(): Promise<void> {
  * This prevents the "Creation of a session is prohibited when a session is active" error
  */
 export async function safeCreateSession(userId: string, secret: string): Promise<void> {
+  // Validate inputs
+  if (!userId || typeof userId !== 'string' || userId.trim() === '') {
+    throw new Error('Invalid userId: must be a non-empty string');
+  }
+  if (!secret || typeof secret !== 'string' || secret.trim() === '') {
+    throw new Error('Invalid secret: must be a non-empty string');
+  }
+  
   // First ensure no active session exists
   await safeDeleteCurrentSession();
   

@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { account } from '@/lib/appwrite';
 import { safeCreateSession, safeDeleteCurrentSession } from '@/lib/safe-session';
+import { getAccountsList, hardLogout, StoredAccount } from '@/lib/multi-account';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAccountSync } from '@/lib/use-account-sync';
 import Topbar from '@/app/components/Topbar';
@@ -22,20 +23,12 @@ import {
 } from '@mui/material';
 import { Add, SwapHoriz } from '@mui/icons-material';
 
-interface StoredAccount {
-  userId: string;
-  email: string;
-  name: string;
-  refreshToken: string;
-}
-
 interface CurrentUser {
   email: string;
   name: string;
   userId: string;
 }
 
-const ACCOUNTS_STORAGE_KEY = 'id_accounts';
 const SOURCE_STORAGE_KEY = 'id_redirect_source';
 const BROADCAST_CHANNEL = 'id_account_switch';
 
@@ -75,9 +68,8 @@ function HomeContent() {
             userId: userData.$id,
           });
 
-          // Load stored accounts
-          const storedAccounts = JSON.parse(localStorage.getItem(ACCOUNTS_STORAGE_KEY) || '{}');
-          const accountList = Object.values(storedAccounts) as StoredAccount[];
+          // Load stored accounts from multi-account system
+          const accountList = getAccountsList();
           setAccounts(accountList);
 
           // Check for source parameter and store it
@@ -122,13 +114,15 @@ function HomeContent() {
   };
 
   const handleRemoveAccount = async (accountId: string) => {
-    const storedAccounts = JSON.parse(localStorage.getItem(ACCOUNTS_STORAGE_KEY) || '{}');
-    delete storedAccounts[accountId];
-    localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(storedAccounts));
-
-    // Remove from local state
-    setAccounts(accounts.filter((acc) => acc.userId !== accountId));
-    setDeleteConfirm(null);
+    try {
+      await hardLogout(accountId);
+      // Update local state
+      const updatedList = getAccountsList();
+      setAccounts(updatedList);
+      setDeleteConfirm(null);
+    } catch (err) {
+      console.error('Failed to remove account:', err);
+    }
   };
 
   const handleSignOut = async () => {
