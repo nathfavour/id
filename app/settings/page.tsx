@@ -8,6 +8,7 @@ import Topbar from '@/app/components/Topbar';
 import PasskeyList from '@/app/components/PasskeyList';
 import AddPasskeyModal from '@/app/components/AddPasskeyModal';
 import RenamePasskeyModal from '@/app/components/RenamePasskeyModal';
+import WalletManager from '@/app/components/WalletManager';
 import { listPasskeys } from '@/lib/passkey-client-utils';
 import {
   Container,
@@ -51,6 +52,7 @@ export default function SettingsPage() {
   const [selectedPasskey, setSelectedPasskey] = useState<Passkey | null>(null);
   const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'account'>('profile');
   const [mfaEnabled, setMfaEnabled] = useState(true);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const router = useRouter();
   const appName = process.env.NEXT_PUBLIC_APP_NAME || 'Auth System';
 
@@ -68,6 +70,10 @@ export default function SettingsPage() {
             name: userData.name || userData.email.split('@')[0],
             userId: userData.$id,
           });
+          
+          // Load wallet address from prefs
+          setWalletAddress(userData.prefs?.walletEth || null);
+          
           await loadPasskeys(userData.email);
           setLoading(false);
         }
@@ -483,42 +489,29 @@ export default function SettingsPage() {
 
               {/* Wallets */}
               <Box sx={{ mb: 6 }}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    mb: 3,
-                  }}
-                >
-                  <Typography sx={{ fontSize: '1.375rem', fontWeight: 700 }}>Connected Wallets</Typography>
-                  <Button
-                    variant="contained"
-                    startIcon={<AddIcon />}
-                    sx={{
-                      backgroundColor: '#f9c806',
-                      color: '#231f0f',
-                      fontWeight: 700,
-                      fontSize: '0.875rem',
-                      textTransform: 'none',
-                      borderRadius: '0.5rem',
-                      '&:hover': { backgroundColor: '#ffd633' },
-                    }}
-                  >
-                    Connect New Wallet
-                  </Button>
-                </Box>
-
+                <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>
+                  Connected Wallet
+                </Typography>
                 <Box
                   sx={{
                     backgroundColor: '#1f1e18',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '0.75rem',
                     p: 3,
-                    textAlign: 'center',
                   }}
                 >
-                  <Typography sx={{ color: '#bbb49b' }}>No wallets connected yet. Connect one to get started.</Typography>
+                  {user && (
+                    <WalletManager
+                      userId={user.userId}
+                      connectedWallet={walletAddress || undefined}
+                      onWalletConnected={(address) => {
+                        setWalletAddress(address);
+                      }}
+                      onWalletDisconnected={() => {
+                        setWalletAddress(null);
+                      }}
+                    />
+                  )}
                 </Box>
               </Box>
 
