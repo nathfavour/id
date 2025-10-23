@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Client, Account, OAuthProvider } from 'appwrite';
 import { Box, Typography, Stack, TextField, Button, Alert, CircularProgress, IconButton, Tabs, Tab, useMediaQuery, useTheme } from '@mui/material';
-import { Visibility, VisibilityOff, Close, Edit2 } from '@mui/icons-material';
+import { Visibility, VisibilityOff, Close, Edit } from '@mui/icons-material';
 
 const client = new Client();
 if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT) client.setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT);
@@ -347,7 +347,7 @@ function LoginContent() {
                   height: 24,
                 }}
               >
-                <Edit2 sx={{ fontSize: '0.875rem' }} />
+                <Edit sx={{ fontSize: '0.875rem' }} />
               </IconButton>
             </Box>
 
