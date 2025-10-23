@@ -54,6 +54,7 @@ export class PasskeyServer {
     const prefs = user.prefs || {};
     return Object.keys(prefs).some(key => key.startsWith('wallet'));
   }
+  
   async prepareUser(email: string) {
     // Find existing by email
     const usersList = await users.list([Query.equal('email', email), Query.limit(1)]);

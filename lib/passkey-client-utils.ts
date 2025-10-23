@@ -12,6 +12,7 @@ export async function addPasskeyToAccount(email: string) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: email }),
+    credentials: 'include',
   });
 
   if (!res.ok) {
@@ -45,6 +46,7 @@ export async function addPasskeyToAccount(email: string) {
       challenge: options.challenge, 
       challengeToken: options.challengeToken 
     }),
+    credentials: 'include',
   });
 
   if (!verifyRes.ok) {
@@ -56,7 +58,9 @@ export async function addPasskeyToAccount(email: string) {
 }
 
 export async function listPasskeys(email: string) {
-  const res = await fetch(`/api/webauthn/passkeys/list?email=${encodeURIComponent(email)}`);
+  const res = await fetch(`/api/webauthn/passkeys/list?email=${encodeURIComponent(email)}`, {
+    credentials: 'include',
+  });
   
   if (!res.ok) {
     const data = await res.json();
@@ -72,6 +76,7 @@ export async function deletePasskey(email: string, credentialId: string) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, credentialId }),
+    credentials: 'include',
   });
 
   if (!res.ok) {
@@ -87,6 +92,7 @@ export async function renamePasskey(email: string, credentialId: string, name: s
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, credentialId, name }),
+    credentials: 'include',
   });
 
   if (!res.ok) {
@@ -102,6 +108,7 @@ export async function disablePasskey(email: string, credentialId: string) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, credentialId }),
+    credentials: 'include',
   });
 
   if (!res.ok) {
@@ -117,6 +124,7 @@ export async function enablePasskey(email: string, credentialId: string) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, credentialId }),
+    credentials: 'include',
   });
 
   if (!res.ok) {
