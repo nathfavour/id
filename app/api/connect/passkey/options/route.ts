@@ -1,32 +1,25 @@
 /**
- * Connect Passkey to Existing Session
+ * Connect Passkey to Existing Session - Client-only flow
  * 
- * Endpoint: POST /api/webauthn/connect/options
+ * Endpoint: POST /api/connect/passkey/options
  * 
  * Purpose: Generate WebAuthn registration options for connecting a passkey
- * to an existing authenticated user session.
+ * to an existing authenticated user session (client-side validation only).
  * 
  * Flow:
- * 1. Verify user has active session (required)
- * 2. Verify session user matches requested email (prevent hijacking)
- * 3. Generate registration options (same as standard registration)
- * 4. Stateless challenge token (no session creation)
+ * 1. Client sends email (user provides from settings page)
+ * 2. Generate registration options without server auth check
+ * 3. Client will perform user verification in browser using navigator.credentials
+ * 4. Return options + challenge token
  * 
- * Body: { email: string }
- * Response: WebAuthn registration options + challengeToken
- * 
- * Differences from /api/webauthn/register/options:
- * - Requires active session
- * - Verifies session user matches email parameter
- * - No session created at end (user already has one)
- * - Same security as registration flow
+ * No server-side session validation - relies on client passing correct email
+ * and subsequent verification being signed by user's authenticator.
  */
 
 import { NextResponse } from 'next/server';
 import { generateRegistrationOptions } from '@simplewebauthn/server';
 import { issueChallenge } from '../../../../../lib/passkeys';
 import crypto from 'crypto';
-import { createServerClient } from '../../../../../lib/appwrite-server';
 
 export async function POST(req: Request) {
   try {
@@ -39,27 +32,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // SECURITY: Verify user has active session and owns this email
-    const { account } = await createServerClient(req);
-    let sessionUser;
-    try {
-      sessionUser = await account.get();
-    } catch (err) {
-      return NextResponse.json(
-        { error: 'Authentication required. Please log in first.' },
-        { status: 401 }
-      );
-    }
-
-    // SECURITY: Verify session user matches requested email (prevent hijacking)
-    const sessionEmail = sessionUser.email?.toLowerCase();
-    if (sessionEmail !== email) {
-      return NextResponse.json(
-        { error: 'Email mismatch. You can only add passkeys to your own account.' },
-        { status: 403 }
-      );
-    }
-
     const rpName = process.env.NEXT_PUBLIC_RP_NAME || 'Appwrite Passkey';
     
     const url = new URL(req.url);
@@ -68,7 +40,7 @@ export async function POST(req: Request) {
     const hostNoPort = hostHeader.split(':')[0];
     const rpID = process.env.NEXT_PUBLIC_RP_ID || hostNoPort || 'localhost';
 
-    // User handle (same as registration)
+    // User handle
     const userIdHash = crypto.createHash('sha256').update(email).digest();
     const userIdBuffer = new Uint8Array(Buffer.from(userIdHash));
 
@@ -83,7 +55,7 @@ export async function POST(req: Request) {
       },
     });
 
-    // Create stateless challenge (same as registration)
+    // Create stateless challenge
     const issued = issueChallenge(
       email,
       parseInt(process.env.WEBAUTHN_CHALLENGE_TTL_MS || '120000', 10)

@@ -1,35 +1,27 @@
 /**
- * Verify and Store Connected Passkey
+ * Verify WebAuthn Attestation - Client-initiated, server-verified
  * 
- * Endpoint: POST /api/webauthn/connect/verify
+ * Endpoint: POST /api/connect/passkey/verify
  * 
- * Purpose: Verify the WebAuthn registration response and store the passkey
- * for an existing authenticated user.
+ * Purpose: Verify the WebAuthn registration attestation signature.
  * 
- * Differences from /api/webauthn/register/verify:
- * - Requires active session (must be authenticated)
- * - Verifies session user matches email parameter (prevent hijacking)
- * - Stores passkey WITHOUT creating a session (user already authenticated)
- * - Uses rate limiting but no session creation
- * - Same security as registration, but additive (adding to existing account)
+ * Flow:
+ * 1. Client sends attestation + challenge
+ * 2. Server verifies cryptographic signature
+ * 3. Server returns credential data
+ * 4. Client receives data and stores in account prefs using client SDK
  * 
- * Body: {
- *   email: string,
- *   assertion: any,
- *   challenge: string,
- *   challengeToken: string
- * }
- * 
- * Response: { success: true } (no session token, user stays authenticated)
+ * Security: 
+ * - Server verifies attestation is valid
+ * - Client (must be authenticated) updates their own prefs
+ * - No session spoofing possible since client uses their own session
  */
 
 export const runtime = 'nodejs';
 import { NextResponse } from 'next/server';
 import { verifyRegistrationResponse } from '@simplewebauthn/server';
 import { verifyChallengeToken } from '../../../../../lib/passkeys';
-import { PasskeyServer } from '../../../../../lib/passkey-server';
 import { rateLimit, buildRateKey } from '../../../../../lib/rateLimit';
-import { createServerClient } from '../../../../../lib/appwrite-server';
 
 export async function POST(req: Request) {
   try {
@@ -40,32 +32,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'email, attestation, challenge and challengeToken required' }, { status: 400 });
     }
 
-    // SECURITY: Verify user has active session and owns this email
-    const { account } = await createServerClient(req);
-    let sessionUser;
-    try {
-      sessionUser = await account.get();
-    } catch (err) {
-      return NextResponse.json(
-        { error: 'Authentication required. Please log in first.' },
-        { status: 401 }
-      );
-    }
-
-    // SECURITY: Verify session user matches requested email (prevent hijacking)
-    const sessionEmail = sessionUser.email?.toLowerCase();
-    if (sessionEmail !== email) {
-      return NextResponse.json(
-        { error: 'Email mismatch. You can only add passkeys to your own account.' },
-        { status: 403 }
-      );
-    }
-
     // Rate limit verification attempts (per IP + email)
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
     const windowMs = parseInt(process.env.WEBAUTHN_RATE_LIMIT_WINDOW_MS || '60000', 10);
     const max = parseInt(process.env.WEBAUTHN_RATE_LIMIT_MAX || '20', 10);
-    const rl = rateLimit(buildRateKey(['webauthn','connect','verify', ip, email]), max, windowMs);
+    const rl = rateLimit(buildRateKey(['connect','passkey','verify', ip, email]), max, windowMs);
     if (!rl.allowed) {
       return NextResponse.json({ error: 'Too many verification attempts. Wait and retry.' }, { status: 429, headers: { 'Retry-After': Math.ceil((rl.reset - Date.now())/1000).toString() } });
     }
@@ -77,7 +48,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: (e as Error).message }, { status: 400 });
     }
 
-    // Derive expected RP ID and Origin dynamically from request headers, with env overrides
+    // Derive expected RP ID and Origin
     const url = new URL(req.url);
     const forwardedProto = req.headers.get('x-forwarded-proto');
     const forwardedHost = req.headers.get('x-forwarded-host');
@@ -87,7 +58,7 @@ export async function POST(req: Request) {
     const rpID = process.env.NEXT_PUBLIC_RP_ID || hostNoPort || 'localhost';
     const origin = process.env.NEXT_PUBLIC_ORIGIN || `${protocol}://${hostHeader}`;
 
-    // Shape & type validation + reconstruction to avoid prototype issues
+    // Shape validation
     const att: any = attestation;
     const shapeErrors: string[] = [];
     if (typeof att !== 'object' || !att) shapeErrors.push('attestation not object');
@@ -101,18 +72,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Malformed attestation', detail: shapeErrors }, { status: 400 });
     }
 
-    // Reconstruct minimal credential object expected by simplewebauthn
-    const credential = {
-      id: att.id,
-      rawId: att.rawId,
-      type: att.type,
-      response: {
-        clientDataJSON: att.response.clientDataJSON,
-        attestationObject: att.response.attestationObject,
-      },
-      clientExtensionResults: att.clientExtensionResults || {},
-    };
-
     const debug = process.env.WEBAUTHN_DEBUG === '1';
 
     let verification: any;
@@ -125,11 +84,11 @@ export async function POST(req: Request) {
       });
     } catch (libErr) {
       const msg = (libErr as Error).message || String(libErr);
-      return NextResponse.json({ error: 'WebAuthn library verification threw', detail: msg, ...(debug ? { attestationShape: Object.keys(attestation || {}), responseKeys: attestation?.response ? Object.keys(attestation.response) : [], idLength: attestation?.id?.length, expectedOrigin: origin, expectedRPID: rpID, expectedChallenge: String(challenge).slice(0,8)+'...' } : {}) }, { status: 400 });
+      return NextResponse.json({ error: 'WebAuthn library verification threw', detail: msg, ...(debug ? { expectedOrigin: origin, expectedRPID: rpID } : {}) }, { status: 400 });
     }
 
     if (!verification?.verified) {
-      return NextResponse.json({ error: 'Registration verification failed', detail: verification, ...(debug ? { idLen: (credential.id||'').length, rawIdType: typeof credential.rawId, rawIdLen: (credential.rawId||'').length, expectedOrigin: origin, expectedRPID: rpID, expectedChallenge: challenge.slice(0,8)+'...' } : {}) }, { status: 400 });
+      return NextResponse.json({ error: 'Registration verification failed', ...(debug ? { expectedOrigin: origin, expectedRPID: rpID } : {}) }, { status: 400 });
     }
 
     const registrationInfo: any = (verification as any).registrationInfo;
@@ -140,9 +99,7 @@ export async function POST(req: Request) {
     // Normalize binary fields to base64url strings
     const toBase64Url = (val: unknown): string | null => {
       if (!val) return null;
-      if (typeof val === 'string') {
-        return val;
-      }
+      if (typeof val === 'string') return val;
       const anyVal: any = val;
       if (typeof Buffer !== 'undefined' && (Buffer.isBuffer?.(anyVal) || anyVal instanceof Uint8Array)) {
         return Buffer.from(anyVal).toString('base64url');
@@ -153,7 +110,6 @@ export async function POST(req: Request) {
       return null;
     };
 
-    // Support both v7 and v8 shapes from simplewebauthn
     const credObj = registrationInfo.credential || {};
     const credId = toBase64Url(credObj.id) || toBase64Url((registrationInfo as any).credentialID);
     const pubKey = toBase64Url(credObj.publicKey) || toBase64Url((registrationInfo as any).credentialPublicKey);
@@ -161,20 +117,19 @@ export async function POST(req: Request) {
     const transports = credObj.transports ?? [];
 
     if (!credId || !pubKey) {
-      return NextResponse.json({ error: 'Registration returned incomplete credential', ...(debug ? { registrationInfoKeys: Object.keys(registrationInfo || {}), credentialKeys: Object.keys(credObj || {}) } : {}) }, { status: 500 });
+      return NextResponse.json({ error: 'Registration returned incomplete credential' }, { status: 500 });
     }
 
-    // Persist passkey in user prefs - reuse same logic as registration
-    const server = new PasskeyServer();
-    const result = await server.registerPasskey(email, attestation, challenge, { rpID, origin, skipBlockCheck: true });
-    if (!result?.token?.secret) {
-      return NextResponse.json({ error: 'Failed to register passkey' }, { status: 500 });
-    }
-
-    // Success - no session created (user already authenticated)
+    // Return credential data for client to store
+    // Client will use account.updatePrefs() to store this
     return NextResponse.json({
       success: true,
-      message: 'Passkey connected successfully. You can now sign in with it.',
+      credential: {
+        id: credId,
+        publicKey: pubKey,
+        counter: counter,
+        transports: transports,
+      },
     });
   } catch (err) {
     const debug = process.env.WEBAUTHN_DEBUG === '1';
@@ -182,3 +137,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: errorMsg, ...(debug ? { stack: (err as Error).stack } : {}) }, { status: 500 });
   }
 }
+

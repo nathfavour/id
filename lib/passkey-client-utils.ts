@@ -8,11 +8,17 @@ export async function addPasskeyToAccount(email: string) {
     throw new Error('WebAuthn is not supported in this browser');
   }
 
-  const res = await fetch('/api/webauthn/connect/options', {
+  // Get current user to verify email matches
+  const user = await account.get();
+  if (user.email?.toLowerCase() !== email.toLowerCase()) {
+    throw new Error('Email mismatch. You can only add passkeys to your own account.');
+  }
+
+  // Step 1: Get registration options (no auth needed)
+  const res = await fetch('/api/connect/passkey/options', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: email }),
-    credentials: 'include',
   });
 
   if (!res.ok) {
@@ -22,6 +28,7 @@ export async function addPasskeyToAccount(email: string) {
 
   const options = await res.json();
 
+  // Step 2: Create passkey (browser handles biometric)
   const publicKey: Record<string, unknown> = { ...options };
   publicKey.challenge = base64UrlToBuffer(options.challenge as string);
   if (publicKey.user?.id) publicKey.user.id = base64UrlToBuffer(options.user.id as string);
@@ -37,7 +44,8 @@ export async function addPasskeyToAccount(email: string) {
 
   const json = publicKeyCredentialToJSON(cred);
 
-  const verifyRes = await fetch('/api/webauthn/connect/verify', {
+  // Step 3: Verify attestation server-side
+  const verifyRes = await fetch('/api/connect/passkey/verify', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ 
@@ -46,7 +54,6 @@ export async function addPasskeyToAccount(email: string) {
       challenge: options.challenge, 
       challengeToken: options.challengeToken 
     }),
-    credentials: 'include',
   });
 
   if (!verifyRes.ok) {
@@ -54,7 +61,45 @@ export async function addPasskeyToAccount(email: string) {
     throw new Error(data.error || 'Failed to verify passkey');
   }
 
-  return verifyRes.json();
+  const verifyData = await verifyRes.json();
+
+  // Step 4: Store passkey in account prefs (client SDK)
+  const user_data = await account.get();
+  const currentPrefs = user_data.prefs || {};
+  
+  // Parse existing credentials
+  const credentialsStr = (currentPrefs.passkey_credentials || '') as string;
+  const countersStr = (currentPrefs.passkey_counter || '') as string;
+  const metadataStr = (currentPrefs.passkey_metadata || '') as string;
+
+  const credObj: Record<string, string> = credentialsStr ? JSON.parse(credentialsStr) : {};
+  const counterObj: Record<string, number> = countersStr ? JSON.parse(countersStr) : {};
+  let metadataObj: Record<string, any> = metadataStr ? JSON.parse(metadataStr) : {};
+
+  // Add new passkey
+  const cred_data = verifyData.credential;
+  credObj[cred_data.id] = cred_data.publicKey;
+  counterObj[cred_data.id] = cred_data.counter;
+
+  // Initialize metadata for new passkey
+  const now = Date.now();
+  const timeStr = new Date(now).toISOString().split('T')[0];
+  metadataObj[cred_data.id] = {
+    name: `Passkey ${timeStr}`,
+    createdAt: now,
+    lastUsedAt: null,
+    status: 'active'
+  };
+
+  // Update prefs with new passkey
+  await account.updatePrefs({
+    ...currentPrefs,
+    passkey_credentials: JSON.stringify(credObj),
+    passkey_counter: JSON.stringify(counterObj),
+    passkey_metadata: JSON.stringify(metadataObj),
+  });
+
+  return { success: true, message: 'Passkey connected successfully. You can now sign in with it.' };
 }
 
 export async function listPasskeys(email: string) {
