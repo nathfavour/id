@@ -2,35 +2,51 @@
 
 import { useEffect, useState } from 'react';
 import { account } from '@/lib/appwrite';
-import { useRouter } from 'next/navigation';
-import Navigation from '@/app/components/Navigation';
-import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
-  Container,
   Box,
   Typography,
-  Grid,
-  Card,
-  CardContent,
   Button,
   CircularProgress,
   Stack,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Alert,
+  AlertTitle,
 } from '@mui/material';
+import { Add, Logout, SwapHoriz } from '@mui/icons-material';
 
-interface UserData {
+interface StoredAccount {
+  userId: string;
+  email: string;
+  name: string;
+  refreshToken: string;
+}
+
+interface CurrentUser {
   email: string;
   name: string;
   userId: string;
 }
 
+const ACCOUNTS_STORAGE_KEY = 'id_accounts';
+const SOURCE_STORAGE_KEY = 'id_redirect_source';
+const BROADCAST_CHANNEL = 'id_account_switch';
+
 export default function Home() {
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<UserData | null>(null);
+  const [user, setUser] = useState<CurrentUser | null>(null);
+  const [accounts, setAccounts] = useState<StoredAccount[]>([]);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     let mounted = true;
-    async function check() {
+
+    async function init() {
       try {
         const userData = await account.get();
         if (mounted) {
@@ -39,15 +55,76 @@ export default function Home() {
             name: userData.name || userData.email.split('@')[0],
             userId: userData.$id,
           });
+
+          // Load stored accounts
+          const storedAccounts = JSON.parse(localStorage.getItem(ACCOUNTS_STORAGE_KEY) || '{}');
+          const accountList = Object.values(storedAccounts) as StoredAccount[];
+          setAccounts(accountList);
+
+          // Check for source parameter and store it
+          const source = searchParams.get('source');
+          if (source) {
+            localStorage.setItem(SOURCE_STORAGE_KEY, source);
+          }
+
           setLoading(false);
         }
       } catch {
         router.replace('/login');
       }
     }
-    check();
+
+    init();
     return () => { mounted = false; };
-  }, [router]);
+  }, [router, searchParams]);
+
+  const handleAddAccount = () => {
+    router.push('/login');
+  };
+
+  const handleSwitchAccount = async (accountToSwitch: StoredAccount) => {
+    try {
+      // Delete current session
+      try {
+        await account.deleteSession('current');
+      } catch (e) {
+        // Ignore
+      }
+
+      // Create new session with stored token
+      await account.createSession(accountToSwitch.userId, accountToSwitch.refreshToken);
+
+      // Broadcast to other tabs
+      const bc = new BroadcastChannel(BROADCAST_CHANNEL);
+      bc.postMessage({ activeUserId: accountToSwitch.userId });
+      bc.close();
+
+      // Reload to get new context
+      window.location.reload();
+    } catch (err) {
+      console.error('Failed to switch account:', err);
+    }
+  };
+
+  const handleRemoveAccount = async (accountId: string) => {
+    const storedAccounts = JSON.parse(localStorage.getItem(ACCOUNTS_STORAGE_KEY) || '{}');
+    delete storedAccounts[accountId];
+    localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(storedAccounts));
+
+    // Remove from local state
+    setAccounts(accounts.filter((acc) => acc.userId !== accountId));
+    setDeleteConfirm(null);
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await account.deleteSession('current');
+    } catch (e) {
+      // Ignore
+    }
+    localStorage.removeItem(SOURCE_STORAGE_KEY);
+    router.replace('/login');
+  };
 
   if (loading) {
     return (
@@ -57,12 +134,12 @@ export default function Home() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%)',
+          backgroundColor: '#181711',
         }}
       >
         <Box sx={{ textAlign: 'center' }}>
-          <CircularProgress size={60} sx={{ color: '#2563eb' }} />
-          <Typography sx={{ mt: 2, color: '#64748b' }}>Loading...</Typography>
+          <CircularProgress size={60} sx={{ color: '#f9c806' }} />
+          <Typography sx={{ mt: 2, color: '#bbb49b' }}>Loading accounts...</Typography>
         </Box>
       </Box>
     );
@@ -70,160 +147,181 @@ export default function Home() {
 
   if (!user) return null;
 
-  return (
-    <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%)' }}>
-      <Navigation userEmail={user.email} />
+  const appName = process.env.NEXT_PUBLIC_APP_NAME || 'Auth System';
 
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Box sx={{ mb: 4 }}>
+  return (
+    <Box sx={{ minHeight: '100vh', backgroundColor: '#181711', color: 'white', p: 3 }}>
+      {/* Header */}
+      <Box sx={{ mb: 6 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Typography
-            variant="h3"
             sx={{
-              fontWeight: 700,
-              background: 'linear-gradient(90deg, #2563eb 0%, #4f46e5 100%)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              mb: 1,
+              fontSize: '2.25rem',
+              fontWeight: 900,
+              lineHeight: 1.2,
+              letterSpacing: '-0.033em',
             }}
           >
-            Welcome, {user.name}
+            {appName}
           </Typography>
-          <Typography variant="h6" sx={{ color: '#64748b' }}>
-            Explore the power of passkey authentication with Appwrite
-          </Typography>
+          <Button
+            onClick={handleSignOut}
+            variant="outlined"
+            startIcon={<Logout />}
+            sx={{
+              color: '#ef4444',
+              borderColor: 'rgba(239, 68, 68, 0.3)',
+              '&:hover': { backgroundColor: 'rgba(239, 68, 68, 0.1)' },
+            }}
+          >
+            Sign Out
+          </Button>
         </Box>
+        <Typography sx={{ color: '#bbb49b', fontSize: '1rem' }}>
+          Manage your accounts
+        </Typography>
+      </Box>
 
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={4}>
-            <Card sx={{ height: '100%', boxShadow: 1 }}>
-              <CardContent>
-                <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-start' }}>
-                  <Box sx={{ fontSize: 24 }}>👤</Box>
-                  <Box sx={{ flex: 1 }}>
-                    <Typography variant="caption" sx={{ color: '#64748b' }}>
-                      User ID
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600, wordBreak: 'break-all', mt: 0.5 }}>
-                      {user.userId.substring(0, 8)}...
-                    </Typography>
-                  </Box>
-                </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
+      {/* Current Account */}
+      <Box sx={{ mb: 6 }}>
+        <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>Active Account</Typography>
+        <Box
+          sx={{
+            backgroundColor: '#1f1e18',
+            border: '2px solid #f9c806',
+            borderRadius: '0.75rem',
+            p: 3,
+          }}
+        >
+          <Stack spacing={2}>
+            <Box>
+              <Typography sx={{ fontSize: '0.875rem', color: '#bbb49b', mb: 0.5 }}>Name</Typography>
+              <Typography sx={{ fontSize: '1.25rem', fontWeight: 600, color: 'white' }}>
+                {user.name}
+              </Typography>
+            </Box>
+            <Box>
+              <Typography sx={{ fontSize: '0.875rem', color: '#bbb49b', mb: 0.5 }}>Email</Typography>
+              <Typography sx={{ fontSize: '1rem', color: 'white', wordBreak: 'break-all' }}>
+                {user.email}
+              </Typography>
+            </Box>
+            <Button
+              href="/settings"
+              component="a"
+              variant="contained"
+              sx={{
+                backgroundColor: '#f9c806',
+                color: '#231f0f',
+                fontWeight: 700,
+                textTransform: 'none',
+                alignSelf: 'flex-start',
+                '&:hover': { backgroundColor: '#ffd633' },
+              }}
+            >
+              Manage Settings
+            </Button>
+          </Stack>
+        </Box>
+      </Box>
 
-          <Grid item xs={12} sm={6} md={4}>
-            <Card sx={{ height: '100%', boxShadow: 1 }}>
-              <CardContent>
-                <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-start' }}>
-                  <Box sx={{ fontSize: 24 }}>📧</Box>
-                  <Box sx={{ flex: 1 }}>
-                    <Typography variant="caption" sx={{ color: '#64748b' }}>
-                      Email
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600, wordBreak: 'break-all', mt: 0.5 }}>
-                      {user.email}
-                    </Typography>
-                  </Box>
-                </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={4}>
-            <Card sx={{ height: '100%', boxShadow: 1 }}>
-              <CardContent>
-                <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-start' }}>
-                  <Box sx={{ fontSize: 24 }}>✓</Box>
-                  <Box sx={{ flex: 1 }}>
-                    <Typography variant="caption" sx={{ color: '#64748b' }}>
-                      Status
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600, mt: 0.5 }}>
-                      Authenticated
-                    </Typography>
-                  </Box>
-                </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-
-        <Card sx={{ mb: 4, boxShadow: 1 }}>
-          <CardContent sx={{ p: 3 }}>
-            <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
-              Passkey Management
-            </Typography>
-            <Typography sx={{ color: '#64748b', mb: 3 }}>
-              Manage your passkeys in the settings. You can add new passkeys, rename them, and remove old ones. Each passkey is a cryptographic credential that authenticates you without a password.
-            </Typography>
-            <Link href="/settings" style={{ textDecoration: 'none' }}>
-              <Button
-                variant="contained"
+      {/* Other Accounts */}
+      {accounts.length > 0 && (
+        <Box sx={{ mb: 6 }}>
+          <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>Other Accounts</Typography>
+          <Stack spacing={2}>
+            {accounts.map((acc) => (
+              <Box
+                key={acc.userId}
                 sx={{
-                  background: 'linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)',
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  '&:hover': {
-                    background: 'linear-gradient(135deg, #1d4ed8 0%, #4338ca 100%)',
-                  },
+                  backgroundColor: '#1f1e18',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '0.75rem',
+                  p: 3,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
                 }}
               >
-                Go to Settings →
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <Card sx={{ boxShadow: 1 }}>
-              <CardContent>
-                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-                  📡 Authentication APIs
-                </Typography>
-                <Stack spacing={1}>
-                  {[
-                    '/api/webauthn/register/options - Get registration challenge',
-                    '/api/webauthn/register/verify - Verify attestation',
-                    '/api/webauthn/auth/options - Get authentication challenge',
-                    '/api/webauthn/auth/verify - Verify assertion',
-                  ].map((item, idx) => (
-                    <Typography key={idx} variant="body2" sx={{ color: '#64748b', display: 'flex', gap: 1 }}>
-                      <span style={{ color: '#2563eb', fontWeight: 'bold' }}>•</span>
-                      {item}
-                    </Typography>
-                  ))}
+                <Box>
+                  <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: 'white' }}>
+                    {acc.name}
+                  </Typography>
+                  <Typography sx={{ fontSize: '0.875rem', color: '#bbb49b' }}>{acc.email}</Typography>
+                </Box>
+                <Stack direction="row" spacing={1}>
+                  <Button
+                    onClick={() => handleSwitchAccount(acc)}
+                    variant="contained"
+                    startIcon={<SwapHoriz />}
+                    sx={{
+                      backgroundColor: '#3a3627',
+                      color: 'white',
+                      textTransform: 'none',
+                      '&:hover': { backgroundColor: '#4a4637' },
+                    }}
+                  >
+                    Switch
+                  </Button>
+                  <Button
+                    onClick={() => setDeleteConfirm(acc.userId)}
+                    variant="outlined"
+                    sx={{
+                      color: '#ef4444',
+                      borderColor: 'rgba(239, 68, 68, 0.3)',
+                      '&:hover': { backgroundColor: 'rgba(239, 68, 68, 0.1)' },
+                    }}
+                  >
+                    Remove
+                  </Button>
                 </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
+              </Box>
+            ))}
+          </Stack>
+        </Box>
+      )}
 
-          <Grid item xs={12} md={6}>
-            <Card sx={{ boxShadow: 1 }}>
-              <CardContent>
-                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-                  🔑 Passkey Management APIs
-                </Typography>
-                <Stack spacing={1}>
-                  {[
-                    '/api/webauthn/passkeys/list - List user passkeys',
-                    '/api/webauthn/passkeys/rename - Rename passkey',
-                    '/api/webauthn/passkeys/delete - Delete passkey',
-                    '/api/webauthn/passkeys/disable - Disable passkey',
-                  ].map((item, idx) => (
-                    <Typography key={idx} variant="body2" sx={{ color: '#64748b', display: 'flex', gap: 1 }}>
-                      <span style={{ color: '#4f46e5', fontWeight: 'bold' }}>•</span>
-                      {item}
-                    </Typography>
-                  ))}
-                </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-      </Container>
+      {/* Add Account Button */}
+      <Box sx={{ mb: 6 }}>
+        <Button
+          onClick={handleAddAccount}
+          variant="contained"
+          startIcon={<Add />}
+          size="large"
+          sx={{
+            backgroundColor: '#f9c806',
+            color: '#231f0f',
+            fontWeight: 700,
+            fontSize: '1rem',
+            textTransform: 'none',
+            p: '12px 24px',
+            '&:hover': { backgroundColor: '#ffd633' },
+          }}
+        >
+          Add Another Account
+        </Button>
+      </Box>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteConfirm} onClose={() => setDeleteConfirm(null)}>
+        <DialogTitle>Remove Account</DialogTitle>
+        <DialogContent>
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            <AlertTitle>Confirm Removal</AlertTitle>
+            This will remove the account from your list. You can re-add it later by logging in again.
+          </Alert>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteConfirm(null)}>Cancel</Button>
+          <Button
+            onClick={() => deleteConfirm && handleRemoveAccount(deleteConfirm)}
+            variant="contained"
+            color="error"
+          >
+            Remove
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

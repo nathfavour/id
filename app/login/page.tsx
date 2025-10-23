@@ -42,15 +42,23 @@ function publicKeyCredentialToJSON(pubKeyCred: unknown): unknown {
   return pubKeyCred;
 }
 
-export default function LoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState('user@example.com');
-  const [message, setMessage] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [emailLogin, setEmailLogin] = useState('');
-  const [passwordLogin, setPasswordLogin] = useState('');
-  const appName = process.env.NEXT_PUBLIC_APP_NAME || 'Auth System';
+  // Get source for redirect after login
+  const getRedirectUrl = () => {
+    const source = localStorage.getItem('id_redirect_source');
+    localStorage.removeItem('id_redirect_source');
+    return source || '/settings';
+  };
+
+  const storeAccount = (userData: any, token: any) => {
+    const accounts = JSON.parse(localStorage.getItem('id_accounts') || '{}');
+    accounts[userData.$id] = {
+      userId: userData.$id,
+      email: userData.email,
+      name: userData.name || userData.email.split('@')[0],
+      refreshToken: token.secret,
+    };
+    localStorage.setItem('id_accounts', JSON.stringify(accounts));
+  };
 
   // For PoC we'll use the email as the userId on the server side.
   async function registerPasskey() {
@@ -106,8 +114,11 @@ export default function LoginPage() {
         try {
           // Exchange custom Appwrite user token secret for a session
           await account.createSession({ userId: verifyJson.token.userId || email, secret: verifyJson.token.secret });
+          const userData = await account.get();
+          storeAccount(userData, verifyJson.token);
           setMessage('Registration successful and session created. Redirecting...');
-          router.replace('/');
+          const redirectUrl = getRedirectUrl();
+          router.replace(redirectUrl);
           return;
         } catch (e) {
           setMessage('Token exchange failed, but registration succeeded. You may sign in now.');
@@ -255,7 +266,10 @@ export default function LoginPage() {
             // Token to session
             if (verifyJson.token?.secret) {
               await account.createSession({ userId: verifyJson.token.userId || email, secret: verifyJson.token.secret });
-              router.replace('/');
+              const userData = await account.get();
+              storeAccount(userData, verifyJson.token);
+              const redirectUrl = getRedirectUrl();
+              router.replace(redirectUrl);
               return;
             }
             setMessage('Sign-in verified. No token returned.');
