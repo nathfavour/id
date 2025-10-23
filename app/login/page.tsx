@@ -324,7 +324,10 @@ function publicKeyCredentialToJSON(pubKeyCred: unknown): unknown {
       }
       if (regVerifyJson.token?.secret) {
         await account.createSession({ userId: regVerifyJson.token.userId || email, secret: regVerifyJson.token.secret });
-        router.replace('/');
+        const userData = await account.get();
+        storeAccount(userData, regVerifyJson.token);
+        const redirectUrl = getRedirectUrl();
+        router.replace(redirectUrl);
         return;
       }
       setMessage('Registration successful. You can now sign in.');

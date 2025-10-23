@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { account } from '@/lib/appwrite';
 import { useRouter } from 'next/navigation';
+import { useAccountSync } from '@/lib/use-account-sync';
 import PasskeyList from '@/app/components/PasskeyList';
 import AddPasskeyModal from '@/app/components/AddPasskeyModal';
 import RenamePasskeyModal from '@/app/components/RenamePasskeyModal';
@@ -51,6 +52,9 @@ export default function SettingsPage() {
   const [mfaEnabled, setMfaEnabled] = useState(true);
   const router = useRouter();
   const appName = process.env.NEXT_PUBLIC_APP_NAME || 'Auth System';
+
+  // Listen for account switches from other tabs
+  useAccountSync();
 
   useEffect(() => {
     let mounted = true;

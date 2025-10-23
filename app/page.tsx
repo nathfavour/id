@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { account } from '@/lib/appwrite';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useAccountSync } from '@/lib/use-account-sync';
 import {
   Box,
   Typography,
@@ -42,6 +43,9 @@ export default function Home() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  // Listen for account switches from other tabs
+  useAccountSync();
 
   useEffect(() => {
     let mounted = true;
