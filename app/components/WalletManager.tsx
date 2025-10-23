@@ -130,7 +130,7 @@ export default function WalletManager({
   };
 
   return (
-    <Box sx={{ spacing: 3 }}>
+    <Stack sx={{ spacing: 3 }}>
       {/* Wallet Status */}
       {connectedWallet && (
         <Box
@@ -237,6 +237,6 @@ export default function WalletManager({
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </Stack>
   );
 }
