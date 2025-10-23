@@ -269,15 +269,15 @@ function LoginContent() {
                   disabled={!emailValid || loading}
                   fullWidth
                   sx={{
-                    backgroundColor: '#f9c806',
-                    color: '#231f0f',
+                    backgroundColor: emailValid ? '#4a4a4a' : '#666666',
+                    color: '#ffffff',
                     height: 48,
                     borderRadius: '0.5rem',
                     fontWeight: 600,
                     textTransform: 'none',
                     border: 'none',
-                    '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
-                    '&:disabled': { cursor: 'not-allowed', backgroundColor: '#d4a813' },
+                    '&:hover:not(:disabled)': { backgroundColor: '#555555' },
+                    '&:disabled': { cursor: 'not-allowed' },
                   }}
                 >
                   Passkey
@@ -291,15 +291,15 @@ function LoginContent() {
                   disabled={!emailValid || loading}
                   fullWidth
                   sx={{
-                    backgroundColor: '#f9c806',
-                    color: '#231f0f',
+                    backgroundColor: emailValid ? '#4a4a4a' : '#666666',
+                    color: '#ffffff',
                     height: 48,
                     borderRadius: '0.5rem',
                     fontWeight: 600,
                     textTransform: 'none',
                     border: 'none',
-                    '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
-                    '&:disabled': { cursor: 'not-allowed', backgroundColor: '#d4a813' },
+                    '&:hover:not(:disabled)': { backgroundColor: '#555555' },
+                    '&:disabled': { cursor: 'not-allowed' },
                   }}
                 >
                   Wallet
@@ -307,21 +307,19 @@ function LoginContent() {
               </Box>
 
               {/* Continue with Other Methods */}
-              <Box sx={{ width: '100%' }}>
+              <Box sx={{ width: '100%', textAlign: 'center' }}>
                 <Button
                   onClick={() => setStep(2)}
                   disabled={!emailValid || loading}
-                  fullWidth
                   sx={{
-                    backgroundColor: '#f9c806',
-                    color: '#231f0f',
-                    height: 48,
-                    borderRadius: '0.5rem',
-                    fontWeight: 600,
                     textTransform: 'none',
-                    border: 'none',
-                    '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
-                    '&:disabled': { cursor: 'not-allowed', backgroundColor: '#d4a813' },
+                    color: emailValid ? '#f9c806' : '#999999',
+                    '&:hover:not(:disabled)': { textDecoration: 'underline', color: '#ffd633' },
+                    '&:disabled': { cursor: 'not-allowed' },
+                    fontSize: '0.9rem',
+                    fontWeight: 500,
+                    textDecoration: 'underline',
+                    p: 0,
                   }}
                 >
                   Continue with other methods
