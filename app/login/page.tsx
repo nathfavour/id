@@ -164,7 +164,15 @@ function LoginContent() {
 
         {/* Step 1: OAuth & Email */}
         {step === 1 ? (
-          <>
+          <Box
+            sx={{
+              animation: 'fadeIn 0.3s ease-in-out',
+              '@keyframes fadeIn': {
+                from: { opacity: 0 },
+                to: { opacity: 1 },
+              },
+            }}
+          >
             {/* OAuth Buttons - Side by side on desktop, centered */}
             <Box sx={{ display: 'flex', justifyContent: 'center', gap: isDesktop ? 2 : 3, flexDirection: isDesktop ? 'row' : 'column', mb: 5, width: '100%' }}>
               {/* Google */}
@@ -269,15 +277,16 @@ function LoginContent() {
                   disabled={!emailValid || loading}
                   fullWidth
                   sx={{
-                    backgroundColor: emailValid ? '#4a4a4a' : '#666666',
-                    color: '#ffffff',
+                    backgroundColor: emailValid ? '#f9c806' : '#4a4a4a',
+                    color: '#231f0f',
                     height: 48,
                     borderRadius: '0.5rem',
                     fontWeight: 600,
                     textTransform: 'none',
                     border: 'none',
-                    '&:hover:not(:disabled)': { backgroundColor: '#555555' },
-                    '&:disabled': { cursor: 'not-allowed' },
+                    cursor: emailValid ? 'pointer' : 'not-allowed',
+                    '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
+                    '&:disabled': {},
                   }}
                 >
                   Passkey
@@ -291,15 +300,16 @@ function LoginContent() {
                   disabled={!emailValid || loading}
                   fullWidth
                   sx={{
-                    backgroundColor: emailValid ? '#4a4a4a' : '#666666',
-                    color: '#ffffff',
+                    backgroundColor: emailValid ? '#f9c806' : '#4a4a4a',
+                    color: '#231f0f',
                     height: 48,
                     borderRadius: '0.5rem',
                     fontWeight: 600,
                     textTransform: 'none',
                     border: 'none',
-                    '&:hover:not(:disabled)': { backgroundColor: '#555555' },
-                    '&:disabled': { cursor: 'not-allowed' },
+                    cursor: emailValid ? 'pointer' : 'not-allowed',
+                    '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
+                    '&:disabled': {},
                   }}
                 >
                   Wallet
@@ -310,43 +320,65 @@ function LoginContent() {
               <Box sx={{ width: '100%', textAlign: 'center' }}>
                 <Button
                   onClick={() => setStep(2)}
-                  disabled={!emailValid || loading}
+                  disabled={false}
                   sx={{
                     textTransform: 'none',
-                    color: emailValid ? '#f9c806' : '#999999',
-                    '&:hover:not(:disabled)': { textDecoration: 'underline', color: '#ffd633' },
-                    '&:disabled': { cursor: 'not-allowed' },
+                    color: '#f9c806',
+                    '&:hover': { color: '#ffd633', textDecoration: 'underline' },
                     fontSize: '0.9rem',
                     fontWeight: 500,
                     textDecoration: 'underline',
                     p: 0,
+                    cursor: 'pointer',
                   }}
                 >
                   Continue with other methods
                 </Button>
               </Box>
             </Stack>
-          </>
+          </Box>
         ) : (
-          <>
+          <Box
+            sx={{
+              animation: 'fadeIn 0.3s ease-in-out',
+              '@keyframes fadeIn': {
+                from: { opacity: 0 },
+                to: { opacity: 1 },
+              },
+            }}
+          >
             {/* Step 2: Choose Auth Method */}
-            {/* Email Display with Edit Button */}
+            {/* Email Display with Edit Button - Can click pencil or directly edit email */}
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 4, pb: 3, borderBottom: '1px solid #3a3627' }}>
-              <Typography sx={{ color: '#bbb49b', fontSize: '0.9rem' }}>
-                {email}
-              </Typography>
-              <IconButton
-                onClick={() => setStep(1)}
-                size="small"
-                sx={{
-                  color: '#bbb49b',
-                  '&:hover': { color: '#f9c806' },
-                  width: 24,
-                  height: 24,
-                }}
-              >
-                <Edit sx={{ fontSize: '0.875rem' }} />
-              </IconButton>
+              <Box sx={{ flex: 1, textAlign: 'center' }}>
+                <TextField
+                  type="email"
+                  value={email}
+                  onChange={handleEmailChange}
+                  placeholder="your@email.com"
+                  fullWidth
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      color: 'white',
+                      height: '2.5rem',
+                      borderRadius: '0.5rem',
+                      backgroundColor: '#27251b',
+                      border: '1px solid #55503a',
+                      '&:hover': { borderColor: '#6b6551' },
+                      '&.Mui-focused': { borderColor: '#f9c806' },
+                      '& fieldset': { border: 'none' },
+                      textAlign: 'center',
+                    },
+                    '& .MuiOutlinedInput-input': {
+                      textAlign: 'center',
+                    },
+                    '& .MuiOutlinedInput-input::placeholder': {
+                      color: '#8b8671',
+                      opacity: 1,
+                    },
+                  }}
+                />
+              </Box>
             </Box>
 
             {/* Auth Method Tabs */}
@@ -501,7 +533,7 @@ function LoginContent() {
                 </>
               )}
             </Stack>
-          </>
+          </Box>
         )}
 
         {/* Message Alert */}
