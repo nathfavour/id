@@ -77,8 +77,10 @@ export default function SettingsPage() {
           await loadPasskeys(userData.email);
           setLoading(false);
         }
-      } catch {
-        router.replace('/login');
+      } catch (err) {
+        if (mounted) {
+          router.replace('/login');
+        }
       }
     }
     initializeSettings();

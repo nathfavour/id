@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Client, Account } from 'appwrite';
 import Link from 'next/link';
@@ -55,9 +55,11 @@ export default function LoginPage() {
   const appName = process.env.NEXT_PUBLIC_APP_NAME || 'Auth System';
 
   // Check for OAuth error from URL
-  if (searchParams.get('error') === 'oauth_failed' && !message) {
-    setMessage('OAuth login failed. Please try again.');
-  }
+  useEffect(() => {
+    if (searchParams.get('error') === 'oauth_failed' && !message) {
+      setMessage('OAuth login failed. Please try again.');
+    }
+  }, [searchParams, message]);
 
   // Get source for redirect after login
   const getRedirectUrl = () => {

@@ -75,8 +75,10 @@ export default function Home() {
 
           setLoading(false);
         }
-      } catch {
-        router.replace('/login');
+      } catch (err) {
+        if (mounted) {
+          router.replace('/login');
+        }
       }
     }
 
