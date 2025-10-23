@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { account } from '@/lib/appwrite';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAccountSync } from '@/lib/use-account-sync';
+import Topbar from '@/app/components/Topbar';
 import {
   Box,
   Typography,
@@ -16,8 +17,9 @@ import {
   DialogActions,
   Alert,
   AlertTitle,
+  Avatar,
 } from '@mui/material';
-import { Add, Logout, SwapHoriz } from '@mui/icons-material';
+import { Add, SwapHoriz } from '@mui/icons-material';
 
 interface StoredAccount {
   userId: string;
@@ -132,15 +134,7 @@ export default function Home() {
 
   if (loading) {
     return (
-      <Box
-        sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#181711',
-        }}
-      >
+      <Box sx={{ minHeight: '100vh', backgroundColor: '#181711', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Box sx={{ textAlign: 'center' }}>
           <CircularProgress size={60} sx={{ color: '#f9c806' }} />
           <Typography sx={{ mt: 2, color: '#bbb49b' }}>Loading accounts...</Typography>
@@ -151,62 +145,54 @@ export default function Home() {
 
   if (!user) return null;
 
-  const appName = process.env.NEXT_PUBLIC_APP_NAME || 'Auth System';
+  const getInitials = () => {
+    return user.name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase();
+  };
+
+  const avatarColor = (email: string) => {
+    const colors = ['#f9c806', '#4f46e5', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6'];
+    let hash = 0;
+    for (let i = 0; i < email.length; i++) {
+      hash = email.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+  };
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: '#181711', color: 'white', p: 3 }}>
-      {/* Header */}
-      <Box sx={{ mb: 6 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography
-            sx={{
-              fontSize: '2.25rem',
-              fontWeight: 900,
-              lineHeight: 1.2,
-              letterSpacing: '-0.033em',
-            }}
-          >
-            {appName}
-          </Typography>
-          <Button
-            onClick={handleSignOut}
-            variant="outlined"
-            startIcon={<Logout />}
-            sx={{
-              color: '#ef4444',
-              borderColor: 'rgba(239, 68, 68, 0.3)',
-              '&:hover': { backgroundColor: 'rgba(239, 68, 68, 0.1)' },
-            }}
-          >
-            Sign Out
-          </Button>
-        </Box>
-        <Typography sx={{ color: '#bbb49b', fontSize: '1rem' }}>
-          Manage your accounts
-        </Typography>
-      </Box>
+    <Box sx={{ minHeight: '100vh', backgroundColor: '#181711', color: 'white', display: 'flex', flexDirection: 'column' }}>
+      <Topbar
+        userName={user.name}
+        userEmail={user.email}
+        onAddAccount={handleAddAccount}
+        onManageAccount={() => router.push('/settings')}
+        onSignOut={handleSignOut}
+      />
 
-      {/* Current Account */}
-      <Box sx={{ mb: 6 }}>
-        <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>Active Account</Typography>
-        <Box
-          sx={{
-            backgroundColor: '#1f1e18',
-            border: '2px solid #f9c806',
-            borderRadius: '0.75rem',
-            p: 3,
-          }}
-        >
-          <Stack spacing={2}>
+      {/* Main Content - Centered */}
+      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', p: 3 }}>
+        <Box sx={{ textAlign: 'center', maxWidth: 400 }}>
+          {/* Current Account */}
+          <Stack spacing={3} sx={{ alignItems: 'center', mb: 6 }}>
+            <Avatar
+              sx={{
+                width: 80,
+                height: 80,
+                backgroundColor: avatarColor(user.email),
+                fontSize: '2rem',
+                fontWeight: 600,
+              }}
+            >
+              {getInitials()}
+            </Avatar>
             <Box>
-              <Typography sx={{ fontSize: '0.875rem', color: '#bbb49b', mb: 0.5 }}>Name</Typography>
-              <Typography sx={{ fontSize: '1.25rem', fontWeight: 600, color: 'white' }}>
+              <Typography sx={{ fontSize: '1.5rem', fontWeight: 600, color: 'white', mb: 0.5 }}>
                 {user.name}
               </Typography>
-            </Box>
-            <Box>
-              <Typography sx={{ fontSize: '0.875rem', color: '#bbb49b', mb: 0.5 }}>Email</Typography>
-              <Typography sx={{ fontSize: '1rem', color: 'white', wordBreak: 'break-all' }}>
+              <Typography sx={{ fontSize: '0.875rem', color: '#bbb49b' }}>
                 {user.email}
               </Typography>
             </Box>
@@ -219,108 +205,126 @@ export default function Home() {
                 color: '#231f0f',
                 fontWeight: 700,
                 textTransform: 'none',
-                alignSelf: 'flex-start',
+                borderRadius: '0.5rem',
+                px: 3,
                 '&:hover': { backgroundColor: '#ffd633' },
               }}
             >
               Manage Settings
             </Button>
           </Stack>
-        </Box>
-      </Box>
 
-      {/* Other Accounts */}
-      {accounts.length > 0 && (
-        <Box sx={{ mb: 6 }}>
-          <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>Other Accounts</Typography>
-          <Stack spacing={2}>
-            {accounts.map((acc) => (
-              <Box
-                key={acc.userId}
-                sx={{
-                  backgroundColor: '#1f1e18',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  borderRadius: '0.75rem',
-                  p: 3,
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <Box>
-                  <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: 'white' }}>
-                    {acc.name}
-                  </Typography>
-                  <Typography sx={{ fontSize: '0.875rem', color: '#bbb49b' }}>{acc.email}</Typography>
-                </Box>
-                <Stack direction="row" spacing={1}>
-                  <Button
+          {/* Other Accounts */}
+          {accounts.length > 0 && (
+            <Box sx={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', pt: 4 }}>
+              <Typography sx={{ fontSize: '0.75rem', fontWeight: 600, color: '#bbb49b', textTransform: 'uppercase', mb: 2 }}>
+                Other Accounts
+              </Typography>
+              <Stack spacing={2}>
+                {accounts.map((acc) => (
+                  <Box
+                    key={acc.userId}
+                    sx={{
+                      display: 'flex',
+                      gap: 2,
+                      alignItems: 'center',
+                      p: 2,
+                      borderRadius: '0.5rem',
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      '&:hover': {
+                        backgroundColor: 'rgba(249, 200, 6, 0.1)',
+                        borderColor: '#f9c806',
+                      },
+                    }}
                     onClick={() => handleSwitchAccount(acc)}
-                    variant="contained"
-                    startIcon={<SwapHoriz />}
-                    sx={{
-                      backgroundColor: '#3a3627',
-                      color: 'white',
-                      textTransform: 'none',
-                      '&:hover': { backgroundColor: '#4a4637' },
-                    }}
                   >
-                    Switch
-                  </Button>
-                  <Button
-                    onClick={() => setDeleteConfirm(acc.userId)}
-                    variant="outlined"
-                    sx={{
-                      color: '#ef4444',
-                      borderColor: 'rgba(239, 68, 68, 0.3)',
-                      '&:hover': { backgroundColor: 'rgba(239, 68, 68, 0.1)' },
-                    }}
-                  >
-                    Remove
-                  </Button>
-                </Stack>
-              </Box>
-            ))}
-          </Stack>
-        </Box>
-      )}
+                    <Avatar
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        backgroundColor: avatarColor(acc.email),
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {acc.name
+                        .split(' ')
+                        .map((n) => n[0])
+                        .join('')
+                        .toUpperCase()}
+                    </Avatar>
+                    <Box sx={{ flex: 1, textAlign: 'left', minWidth: 0 }}>
+                      <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: 'white', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {acc.name}
+                      </Typography>
+                      <Typography sx={{ fontSize: '0.75rem', color: '#bbb49b', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {acc.email}
+                      </Typography>
+                    </Box>
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeleteConfirm(acc.userId);
+                      }}
+                      sx={{
+                        color: '#ef4444',
+                        fontSize: '0.75rem',
+                        fontWeight: 500,
+                        textTransform: 'none',
+                        '&:hover': { backgroundColor: 'rgba(239, 68, 68, 0.1)' },
+                      }}
+                    >
+                      Remove
+                    </Button>
+                  </Box>
+                ))}
+              </Stack>
+            </Box>
+          )}
 
-      {/* Add Account Button */}
-      <Box sx={{ mb: 6 }}>
-        <Button
-          onClick={handleAddAccount}
-          variant="contained"
-          startIcon={<Add />}
-          size="large"
-          sx={{
-            backgroundColor: '#f9c806',
-            color: '#231f0f',
-            fontWeight: 700,
-            fontSize: '1rem',
-            textTransform: 'none',
-            p: '12px 24px',
-            '&:hover': { backgroundColor: '#ffd633' },
-          }}
-        >
-          Add Another Account
-        </Button>
+          {/* Add Account */}
+          <Box sx={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', pt: 4, mt: 4 }}>
+            <Button
+              onClick={handleAddAccount}
+              startIcon={<Add />}
+              sx={{
+                color: '#f9c806',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                textTransform: 'none',
+                '&:hover': { backgroundColor: 'rgba(249, 200, 6, 0.1)' },
+              }}
+            >
+              Add Another Account
+            </Button>
+          </Box>
+        </Box>
       </Box>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!deleteConfirm} onClose={() => setDeleteConfirm(null)}>
-        <DialogTitle>Remove Account</DialogTitle>
-        <DialogContent>
-          <Alert severity="warning" sx={{ mb: 2 }}>
+        <DialogTitle sx={{ backgroundColor: '#1f1e18', color: 'white' }}>Remove Account</DialogTitle>
+        <DialogContent sx={{ backgroundColor: '#1f1e18', color: 'white' }}>
+          <Alert severity="warning" sx={{ mb: 2, mt: 2 }}>
             <AlertTitle>Confirm Removal</AlertTitle>
             This will remove the account from your list. You can re-add it later by logging in again.
           </Alert>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteConfirm(null)}>Cancel</Button>
+        <DialogActions sx={{ backgroundColor: '#1f1e18' }}>
+          <Button onClick={() => setDeleteConfirm(null)} sx={{ color: '#bbb49b' }}>
+            Cancel
+          </Button>
           <Button
             onClick={() => deleteConfirm && handleRemoveAccount(deleteConfirm)}
             variant="contained"
-            color="error"
+            sx={{
+              backgroundColor: '#ef4444',
+              '&:hover': { backgroundColor: '#dc2626' },
+            }}
           >
             Remove
           </Button>

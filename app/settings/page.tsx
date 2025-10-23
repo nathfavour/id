@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { account } from '@/lib/appwrite';
 import { useRouter } from 'next/navigation';
 import { useAccountSync } from '@/lib/use-account-sync';
+import Topbar from '@/app/components/Topbar';
 import PasskeyList from '@/app/components/PasskeyList';
 import AddPasskeyModal from '@/app/components/AddPasskeyModal';
 import RenamePasskeyModal from '@/app/components/RenamePasskeyModal';
@@ -109,6 +110,16 @@ export default function SettingsPage() {
     }
   };
 
+  const handleSignOut = async () => {
+    try {
+      await account.deleteSession('current');
+    } catch (e) {
+      // Ignore
+    }
+    localStorage.removeItem('id_redirect_source');
+    router.replace('/login');
+  };
+
   if (loading) {
     return (
       <Box
@@ -131,9 +142,16 @@ export default function SettingsPage() {
   if (!user) return null;
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: '#181711', color: 'white' }}>
+    <Box sx={{ minHeight: '100vh', backgroundColor: '#181711', color: 'white', display: 'flex', flexDirection: 'column' }}>
+      <Topbar
+        userName={user.name}
+        userEmail={user.email}
+        onAddAccount={() => router.push('/login')}
+        onManageAccount={() => {}}
+        onSignOut={handleSignOut}
+      />
       {/* Main Container */}
-      <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+      <Box sx={{ display: 'flex', flex: 1 }}>
         {/* Sidebar */}
         <Box
           sx={{

@@ -42,6 +42,16 @@ function publicKeyCredentialToJSON(pubKeyCred: unknown): unknown {
   return pubKeyCred;
 }
 
+export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState('user@example.com');
+  const [message, setMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [emailLogin, setEmailLogin] = useState('');
+  const [passwordLogin, setPasswordLogin] = useState('');
+  const appName = process.env.NEXT_PUBLIC_APP_NAME || 'Auth System';
+
   // Get source for redirect after login
   const getRedirectUrl = () => {
     const source = localStorage.getItem('id_redirect_source');
@@ -59,9 +69,6 @@ function publicKeyCredentialToJSON(pubKeyCred: unknown): unknown {
     };
     localStorage.setItem('id_accounts', JSON.stringify(accounts));
   };
-
-  // For PoC we'll use the email as the userId on the server side.
-  async function registerPasskey() {
     setMessage(null);
     if (!('credentials' in navigator)) {
       setMessage('WebAuthn is not supported in this browser');
