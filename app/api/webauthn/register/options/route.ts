@@ -14,17 +14,7 @@ export async function POST(req: Request) {
     if (!userId || !userName) return NextResponse.json({ error: 'userId and userName required' }, { status: 400 });
 
     const rpName = process.env.NEXT_PUBLIC_RP_NAME || 'Appwrite Passkey';
-    // Block passkey registration if account exists without passkeys
-    const { PasskeyServer } = await import('../../../../../lib/passkey-server');
-    const gate = new PasskeyServer();
-    if (await gate.shouldBlockPasskeyForEmail(userId)) {
-      // Check if the account has a wallet preference
-      const hasWallet = await gate.hasWalletPreference(userId);
-      const errorMessage = hasWallet 
-        ? 'Account already connected with wallet'
-        : 'Account already exists';
-      return NextResponse.json({ error: errorMessage }, { status: 403 });
-    }
+    
     // Prefer dynamic RP based on host header for dev/proxy environments
     const url = new URL(req.url);
     const forwardedHost = req.headers.get('x-forwarded-host');
