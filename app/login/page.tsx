@@ -11,6 +11,36 @@ if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT) 
 if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_APPWRITE_PROJECT) client.setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT);
 const account = new Account(client);
 
+function bufferToBase64Url(buffer: ArrayBuffer) {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+  const base64 = btoa(binary);
+  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function base64UrlToBuffer(base64url: string) {
+  const padding = '='.repeat((4 - (base64url.length % 4)) % 4);
+  const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/') + padding;
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes.buffer;
+}
+
+function publicKeyCredentialToJSON(pubKeyCred: unknown): unknown {
+  if (Array.isArray(pubKeyCred)) return (pubKeyCred as unknown[]).map(publicKeyCredentialToJSON);
+  if (pubKeyCred instanceof ArrayBuffer) return bufferToBase64Url(pubKeyCred);
+  if (pubKeyCred && typeof pubKeyCred === 'object') {
+    const obj: Record<string, unknown> = {};
+    for (const key in (pubKeyCred as Record<string, unknown>)) {
+      obj[key] = publicKeyCredentialToJSON((pubKeyCred as Record<string, unknown>)[key]);
+    }
+    return obj;
+  }
+  return pubKeyCred;
+}
+
 export default function LoginPage() {
   return (
     <Suspense fallback={
@@ -153,6 +183,138 @@ function LoginContent() {
       router.refresh();
     } catch (error: any) {
       setMessage(error.message || 'Wallet authentication failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const continueWithPasskey = async () => {
+    setMessage(null);
+    if (!('credentials' in navigator)) {
+      setMessage('WebAuthn is not supported in this browser');
+      return;
+    }
+    setLoading(true);
+    try {
+      const optRes = await fetch('/api/webauthn/auth/options', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: email }),
+      });
+
+      if (optRes.status === 429) {
+        const retryAfter = optRes.headers.get('Retry-After') || '';
+        setMessage(`Too many attempts. Retry after ${retryAfter || 'a moment'}.`);
+        return;
+      }
+      if (optRes.status === 403) {
+        const body = await optRes.json().catch(() => ({}));
+        setMessage(body?.error || 'Account already connected with wallet');
+        return;
+      }
+
+      let doRegister = false;
+      let authOptions: any = null;
+      if (optRes.ok) {
+        authOptions = await optRes.json();
+        if (!Array.isArray(authOptions.allowCredentials) || authOptions.allowCredentials.length === 0) {
+          doRegister = true;
+        }
+      } else {
+        doRegister = true;
+      }
+
+      if (!doRegister) {
+        const publicKey: any = { ...authOptions };
+        publicKey.challenge = base64UrlToBuffer(authOptions.challenge as string);
+        if (publicKey.allowCredentials) {
+          publicKey.allowCredentials = publicKey.allowCredentials.map((c: any) => ({
+            ...c,
+            id: base64UrlToBuffer(c.id),
+          }));
+        }
+
+        try {
+          const assertion = await navigator.credentials.get({ publicKey });
+          const json = publicKeyCredentialToJSON(assertion);
+          const verifyRes = await fetch('/api/webauthn/auth/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: email, assertion: json, challenge: authOptions.challenge, challengeToken: authOptions.challengeToken }),
+          });
+          const verifyJson = await verifyRes.json();
+          if (!verifyRes.ok) {
+            if (verifyRes.status === 400 && (verifyJson?.error?.includes('Unknown credential') || verifyJson?.error?.includes('WebAuthn'))) {
+              doRegister = true;
+            } else if (verifyRes.status === 403) {
+              setMessage(verifyJson?.error || 'Account already connected with wallet');
+              return;
+            } else {
+              setMessage(verifyJson?.error || 'Sign-in failed');
+              return;
+            }
+          } else {
+            if (verifyJson.token?.secret) {
+              await account.createSession({ userId: verifyJson.token.userId || email, secret: verifyJson.token.secret });
+              router.replace('/');
+              return;
+            }
+            setMessage('Sign-in verified. No token returned.');
+            return;
+          }
+        } catch (e) {
+          doRegister = true;
+        }
+      }
+
+      const regRes = await fetch('/api/webauthn/register/options', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: email, userName: email.split('@')[0] || email }),
+      });
+      if (regRes.status === 429) {
+        const retryAfter = regRes.headers.get('Retry-After') || '';
+        setMessage(`Too many attempts. Retry after ${retryAfter || 'a moment'}.`);
+        return;
+      }
+      if (regRes.status === 403) {
+        const body = await regRes.json().catch(() => ({}));
+        setMessage(body?.error || 'Account already connected with wallet');
+        return;
+      }
+      const regOpt = await regRes.json();
+      if (!regRes.ok || regOpt?.error) {
+        setMessage(regOpt?.error || 'Could not start registration');
+        return;
+      }
+
+      const regPK: any = { ...regOpt };
+      regPK.challenge = base64UrlToBuffer(regOpt.challenge as string);
+      if (regPK.user?.id) regPK.user.id = base64UrlToBuffer(regOpt.user.id as string);
+      if (regPK.excludeCredentials) {
+        regPK.excludeCredentials = regPK.excludeCredentials.map((c: any) => ({ ...c, id: base64UrlToBuffer(c.id) }));
+      }
+
+      const created = await navigator.credentials.create({ publicKey: regPK });
+      const createdJson = publicKeyCredentialToJSON(created);
+      const regVerify = await fetch('/api/webauthn/register/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: email, attestation: createdJson, challenge: regOpt.challenge, challengeToken: regOpt.challengeToken }),
+      });
+      const regVerifyJson = await regVerify.json();
+      if (!regVerify.ok) {
+        setMessage(regVerifyJson?.error || 'Registration failed');
+        return;
+      }
+      if (regVerifyJson.token?.secret) {
+        await account.createSession({ userId: regVerifyJson.token.userId || email, secret: regVerifyJson.token.secret });
+        router.replace('/');
+        return;
+      }
+      setMessage('Registration successful. You can now sign in.');
+    } catch (err) {
+      setMessage((err as Error)?.message || String(err));
     } finally {
       setLoading(false);
     }
@@ -322,7 +484,7 @@ function LoginContent() {
               {/* Passkey Option */}
               <Box sx={{ width: '100%' }}>
                 <Button
-                  onClick={() => {}}
+                  onClick={continueWithPasskey}
                   disabled={!emailValid || loading}
                   fullWidth
                   sx={{
