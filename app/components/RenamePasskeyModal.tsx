@@ -81,13 +81,15 @@ export default function RenamePasskeyModal({
         sx: {
           borderRadius: '1rem',
           boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+          backgroundColor: '#231f0f',
+          color: 'white',
         }
       }}
     >
-      <DialogTitle sx={{ fontWeight: 700, pb: 1 }}>Rename Passkey</DialogTitle>
-      <DialogContent sx={{ pt: 2 }}>
+      <DialogTitle sx={{ fontWeight: 700, pb: 1, color: 'white' }}>Rename Passkey</DialogTitle>
+      <DialogContent sx={{ pt: 2, backgroundColor: '#181711' }}>
         <Stack spacing={2}>
-          <Typography sx={{ color: '#64748b' }}>Give your passkey a memorable name</Typography>
+          <Typography sx={{ color: '#bbb49b' }}>Give your passkey a memorable name</Typography>
 
           {error && (
             <Alert 
@@ -95,6 +97,12 @@ export default function RenamePasskeyModal({
               sx={{
                 borderRadius: '0.75rem',
                 boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
+                backgroundColor: '#3a2420',
+                color: '#ff8a65',
+                '& .MuiAlertTitle-root': {
+                  color: '#ff8a65',
+                },
+                border: '1px solid #8b4f3f',
               }}
             >
               {error}
@@ -102,7 +110,7 @@ export default function RenamePasskeyModal({
           )}
 
           <Box>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: 'white' }}>
               Passkey Name
             </Typography>
             <TextField
@@ -118,16 +126,34 @@ export default function RenamePasskeyModal({
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '0.5rem',
-                }
+                  backgroundColor: '#1f1e18',
+                  color: 'white',
+                  '& fieldset': {
+                    borderColor: 'rgba(255, 255, 255, 0.2)',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#2563eb',
+                  },
+                },
+                '& .MuiOutlinedInput-input': {
+                  color: 'white',
+                  '&::placeholder': {
+                    color: '#7dd3fc',
+                    opacity: 0.7,
+                  },
+                },
               }}
             />
-            <Typography variant="caption" sx={{ color: '#64748b', mt: 0.5, display: 'block' }}>
+            <Typography variant="caption" sx={{ color: '#bbb49b', mt: 0.5, display: 'block' }}>
               {newName.length}/50 characters
             </Typography>
           </Box>
         </Stack>
       </DialogContent>
-      <DialogActions sx={{ p: 2, gap: 1 }}>
+      <DialogActions sx={{ p: 2, gap: 1, backgroundColor: '#231f0f' }}>
         <Button 
           onClick={handleClose} 
           disabled={loading}
@@ -135,6 +161,10 @@ export default function RenamePasskeyModal({
             borderRadius: '0.5rem',
             textTransform: 'none',
             fontWeight: 600,
+            color: '#bbb49b',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            }
           }}
         >
           Cancel
