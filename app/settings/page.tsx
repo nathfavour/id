@@ -32,7 +32,7 @@ import {
   IconButton,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { Person, Lock, Settings as SettingsIcon, AccountBalanceWallet, Fingerprint, History, LinkIcon } from '@mui/icons-material';
+import { Person, Lock, Settings as SettingsIcon, AccountBalanceWallet, Fingerprint, History, Link } from '@mui/icons-material';
 
 interface UserData {
   email: string;
@@ -238,7 +238,7 @@ export default function SettingsPage() {
                 { id: 'security', label: 'Security', icon: Lock },
                 { id: 'sessions', label: 'Sessions', icon: Fingerprint },
                 { id: 'activity', label: 'Activity', icon: History },
-                { id: 'identities', label: 'Identities', icon: LinkIcon },
+                { id: 'identities', label: 'Identities', icon: Link },
                 { id: 'preferences', label: 'Preferences', icon: SettingsIcon },
                 { id: 'account', label: 'Account', icon: AccountBalanceWallet },
               ].map(({ id, label, icon: Icon }) => (
