@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { colors } from '@/lib/colors';
+import { useSource } from '@/lib/source-context';
 import {
   Box,
   IconButton,
@@ -12,19 +14,19 @@ import {
   Typography,
   Divider,
 } from '@mui/material';
-import { Add, Logout, Settings } from '@mui/icons-material';
+import { Logout, Settings, ArrowBack } from '@mui/icons-material';
 
 interface TopbarProps {
   userName?: string;
   userEmail?: string;
-  onAddAccount?: () => void;
   onManageAccount?: () => void;
   onSignOut?: () => void;
 }
 
-export default function Topbar({ userName, userEmail, onAddAccount, onManageAccount, onSignOut }: TopbarProps) {
+export default function Topbar({ userName, userEmail, onManageAccount, onSignOut }: TopbarProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const router = useRouter();
+  const { getBackUrl } = useSource();
   const appName = process.env.NEXT_PUBLIC_APP_NAME || 'Auth System';
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -35,15 +37,6 @@ export default function Topbar({ userName, userEmail, onAddAccount, onManageAcco
     setAnchorEl(null);
   };
 
-  const handleAddAccount = () => {
-    handleMenuClose();
-    if (onAddAccount) {
-      onAddAccount();
-    } else {
-      router.push('/login');
-    }
-  };
-
   const handleManageAccount = () => {
     handleMenuClose();
     if (onManageAccount) {
@@ -51,6 +44,11 @@ export default function Topbar({ userName, userEmail, onAddAccount, onManageAcco
     } else {
       router.push('/settings');
     }
+  };
+
+  const handleBackToApp = () => {
+    handleMenuClose();
+    window.location.href = getBackUrl();
   };
 
   const handleSignOut = () => {
@@ -176,6 +174,18 @@ export default function Topbar({ userName, userEmail, onAddAccount, onManageAcco
 
           {/* Menu Items */}
           <MenuItem
+            onClick={handleBackToApp}
+            sx={{
+              color: colors.primary,
+              fontSize: '0.875rem',
+              '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
+            }}
+          >
+            <ArrowBack sx={{ mr: 1, fontSize: '1.25rem' }} />
+            Back to App
+          </MenuItem>
+
+          <MenuItem
             onClick={handleManageAccount}
             sx={{
               color: 'white',
@@ -185,18 +195,6 @@ export default function Topbar({ userName, userEmail, onAddAccount, onManageAcco
           >
             <Settings sx={{ mr: 1, fontSize: '1.25rem' }} />
             Manage Account
-          </MenuItem>
-
-          <MenuItem
-            onClick={handleAddAccount}
-            sx={{
-              color: 'white',
-              fontSize: '0.875rem',
-              '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
-            }}
-          >
-            <Add sx={{ mr: 1, fontSize: '1.25rem' }} />
-            Add Another Account
           </MenuItem>
 
           <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)', my: 1 }} />

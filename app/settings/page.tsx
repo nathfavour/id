@@ -1,9 +1,10 @@
 'use client';
 
 import { colors } from '@/lib/colors';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { account } from '@/lib/appwrite';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useSource } from '@/lib/source-context';
 import Topbar from '@/app/components/Topbar';
 import { LogoutDialog } from '@/app/components/LogoutDialog';
 import PasskeyList from '@/app/components/PasskeyList';
@@ -30,7 +31,7 @@ import {
   IconButton,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { Person, Lock, Settings as SettingsIcon, AccountBalanceWallet, Fingerprint, History, Link } from '@mui/icons-material';
+import { Person, Lock, Settings as SettingsIcon, AccountBalanceWallet, Fingerprint, History, Link, ArrowBack } from '@mui/icons-material';
 
 interface UserData {
   email: string;
@@ -47,6 +48,18 @@ interface Passkey {
 }
 
 export default function SettingsPage() {
+  return (
+    <Suspense fallback={
+      <Box sx={{ minHeight: '100vh', backgroundColor: colors.background, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <CircularProgress sx={{ color: colors.primary }} />
+      </Box>
+    }>
+      <SettingsContent />
+    </Suspense>
+  );
+}
+
+function SettingsContent() {
   const [loading, setLoading] = useState(true);
   const [loadingPasskeys, setLoadingPasskeys] = useState(false);
   const [user, setUser] = useState<UserData | null>(null);
@@ -60,6 +73,8 @@ export default function SettingsPage() {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { setSource, getBackUrl } = useSource();
   const appName = process.env.NEXT_PUBLIC_APP_NAME || 'Auth System';
 
   const loadPasskeys = async (email: string) => {
@@ -80,6 +95,11 @@ export default function SettingsPage() {
     let mounted = true;
     async function initializeSettings() {
       try {
+        const source = searchParams.get('source');
+        if (source) {
+          setSource(source);
+        }
+
         const userData = await account.get();
         if (mounted) {
           setUser({
@@ -88,7 +108,6 @@ export default function SettingsPage() {
             userId: userData.$id,
           });
           
-          // Load wallet address from prefs
           setWalletAddress(userData.prefs?.walletEth || null);
           
           await loadPasskeys(userData.email);
@@ -97,13 +116,13 @@ export default function SettingsPage() {
       } catch (err) {
         if (mounted) {
           setLoading(false);
-          router.replace('/login');
+          router.replace('/login' + (searchParams.get('source') ? `?source=${encodeURIComponent(searchParams.get('source')!)}` : ''));
         }
       }
     }
     initializeSettings();
     return () => { mounted = false; };
-  }, [router]);
+  }, [router, searchParams, setSource]);
 
   const handleAddPasskeySuccess = async () => {
     if (user) {
@@ -221,6 +240,37 @@ export default function SettingsPage() {
 
             {/* Navigation Items */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 3 }}>
+              {/* Back to App */}
+              <Box
+                onClick={() => window.location.href = getBackUrl()}
+                sx={{
+                  display: 'flex',
+                  gap: 2,
+                  alignItems: 'center',
+                  p: '0.5rem 0.75rem',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer',
+                  backgroundColor: 'transparent',
+                  '&:hover': { 
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                  },
+                  transition: 'background-color 0.2s',
+                }}
+              >
+                <ArrowBack sx={{ color: colors.primary, fontSize: 20 }} />
+                <Typography
+                  sx={{
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                    color: colors.primary,
+                  }}
+                >
+                  Back to App
+                </Typography>
+              </Box>
+
+              <Divider sx={{ my: 1, borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+
               {[
                 { id: 'profile', label: 'Profile', icon: Person },
                 { id: 'security', label: 'Security', icon: Lock },

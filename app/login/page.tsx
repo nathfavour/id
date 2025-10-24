@@ -7,6 +7,7 @@ import { Box, Typography, Stack, TextField, Button, Alert, CircularProgress, Ico
 import { Visibility, VisibilityOff, Close, Edit, VpnKey, Wallet } from '@mui/icons-material';
 import { safeCreateSession, safeDeleteCurrentSession } from '@/lib/safe-session';
 import { colors } from '@/lib/colors';
+import { useSource } from '@/lib/source-context';
 
 const client = new Client();
 if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT) client.setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT);
@@ -68,8 +69,9 @@ function LoginContent() {
   const searchParams = useSearchParams();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
+  const { setSource, getBackUrl } = useSource();
   
-  const [step, setStep] = useState(1); // Step 1: OAuth, Step 2: Choose method
+  const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [otp, setOtp] = useState('');
@@ -79,16 +81,22 @@ function LoginContent() {
   const [emailValid, setEmailValid] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
   const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
-  const [authMethod, setAuthMethod] = useState(0); // 0 = Password, 1 = OTP
+  const [authMethod, setAuthMethod] = useState(0);
   
   const appName = process.env.NEXT_PUBLIC_APP_NAME || 'auth';
 
-  // Email validation regex
+  // Initialize source from URL
+  useEffect(() => {
+    const source = searchParams.get('source');
+    if (source) {
+      setSource(source);
+    }
+  }, [searchParams, setSource]);
+
   const isValidEmail = useCallback((email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }, []);
 
-  // Handle email input with dynamic typing detection
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newEmail = e.target.value;
     setEmail(newEmail);
@@ -106,22 +114,20 @@ function LoginContent() {
     setTypingTimeout(timeout);
   };
 
-  // Check for OAuth error from URL
   useEffect(() => {
     if (searchParams.get('error') === 'oauth_failed' && !message) {
       setMessage('OAuth login failed. Please try again.');
     }
   }, [searchParams, message]);
 
-  // Handle OAuth login
   const handleOAuthLogin = async (provider: OAuthProvider) => {
     setLoading(true);
     setMessage(null);
     try {
-      // Clear any existing session before OAuth
       await safeDeleteCurrentSession();
       
-      const success = `${window.location.origin}/`;
+      const source = searchParams.get('source');
+      const success = source ? `${window.location.origin}/?source=${encodeURIComponent(source)}` : `${window.location.origin}/`;
       const failure = `${window.location.origin}/login?error=oauth_failed`;
       await account.createOAuth2Session({
         provider,
@@ -208,7 +214,7 @@ function LoginContent() {
       const { account } = await import('@/lib/appwrite');
       await safeCreateSession(response.userId, response.secret);
 
-      router.push('/settings');
+      router.push(getBackUrl());
       router.refresh();
     } catch (error: any) {
       setMessage(error.message || 'Wallet authentication failed');
@@ -285,7 +291,7 @@ function LoginContent() {
           } else {
             if (verifyJson.token?.secret) {
               await safeCreateSession(verifyJson.token.userId || email, verifyJson.token.secret);
-              router.replace('/');
+              router.replace(getBackUrl());
               return;
             }
             setMessage('Sign-in verified. No token returned.');
