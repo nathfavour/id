@@ -34,8 +34,16 @@ function publicKeyCredentialToJSON(pubKeyCred: unknown): unknown {
   if (pubKeyCred instanceof ArrayBuffer) return bufferToBase64Url(pubKeyCred);
   if (pubKeyCred && typeof pubKeyCred === 'object') {
     const obj: Record<string, unknown> = {};
-    for (const key in (pubKeyCred as Record<string, unknown>)) {
-      obj[key] = publicKeyCredentialToJSON((pubKeyCred as Record<string, unknown>)[key]);
+    const cred = pubKeyCred as Record<string, unknown>;
+    
+    for (const key in cred) {
+      try {
+        const val = cred[key];
+        obj[key] = publicKeyCredentialToJSON(val);
+      } catch (e) {
+        // Skip properties that can't be serialized (e.g., password manager proxy methods)
+        // This allows credentials from problematic password managers to still be processed
+      }
     }
     return obj;
   }
