@@ -1,5 +1,6 @@
 'use client';
 
+import { colors } from '@/lib/colors';
 import { useState } from 'react';
 import {
   Box,
@@ -129,7 +130,7 @@ export default function PasskeyList({
               borderRadius: '0.75rem',
               boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
               border: '1px solid rgba(0, 0, 0, 0.08)',
-              backgroundColor: '#1f1e18',
+              backgroundColor: colors.secondary,
               transition: 'box-shadow 0.2s, transform 0.2s',
               '&:hover': {
                 boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
@@ -163,11 +164,11 @@ export default function PasskeyList({
                     />
                   </Box>
                   <Stack spacing={0.5}>
-                    <Typography variant="caption" sx={{ color: '#bbb49b' }}>
+                    <Typography variant="caption" sx={{ color: colors.foreground }}>
                       Created: {new Date(passkey.createdAt).toLocaleDateString()}
                     </Typography>
                     {passkey.lastUsedAt && (
-                      <Typography variant="caption" sx={{ color: '#bbb49b' }}>
+                      <Typography variant="caption" sx={{ color: colors.foreground }}>
                         Last used: {new Date(passkey.lastUsedAt).toLocaleDateString()}
                       </Typography>
                     )}

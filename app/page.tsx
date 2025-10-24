@@ -5,6 +5,7 @@ import { account } from '@/lib/appwrite';
 import { safeDeleteCurrentSession } from '@/lib/safe-session';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Topbar from '@/app/components/Topbar';
+import { colors } from '@/lib/colors';
 import {
   Box,
   Typography,
@@ -25,8 +26,8 @@ const SOURCE_STORAGE_KEY = 'id_redirect_source';
 export default function Home() {
   return (
     <Suspense fallback={
-      <Box sx={{ minHeight: '100vh', backgroundColor: '#181711', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <CircularProgress sx={{ color: '#f9c806' }} />
+      <Box sx={{ minHeight: '100vh', backgroundColor: colors.background, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <CircularProgress sx={{ color: colors.primary }} />
       </Box>
     }>
       <HomeContent />
@@ -89,10 +90,10 @@ function HomeContent() {
 
   if (loading || !user) {
     return (
-      <Box sx={{ minHeight: '100vh', backgroundColor: '#181711', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Box sx={{ minHeight: '100vh', backgroundColor: colors.background, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Box sx={{ textAlign: 'center' }}>
-          <CircularProgress size={60} sx={{ color: '#f9c806' }} />
-          <Typography sx={{ mt: 2, color: '#bbb49b' }}>Loading...</Typography>
+          <CircularProgress size={60} sx={{ color: colors.primary }} />
+          <Typography sx={{ mt: 2, color: colors.foreground }}>Loading...</Typography>
         </Box>
       </Box>
     );
@@ -116,7 +117,7 @@ function HomeContent() {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: '#181711', color: 'white', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ minHeight: '100vh', backgroundColor: colors.background, color: 'white', display: 'flex', flexDirection: 'column' }}>
       <Topbar
         userName={user.name}
         userEmail={user.email}
@@ -145,7 +146,7 @@ function HomeContent() {
               <Typography sx={{ fontSize: '1.5rem', fontWeight: 600, color: 'white', mb: 0.5 }}>
                 {user.name}
               </Typography>
-              <Typography sx={{ fontSize: '0.875rem', color: '#bbb49b' }}>
+              <Typography sx={{ fontSize: '0.875rem', color: colors.foreground }}>
                 {user.email}
               </Typography>
             </Box>
@@ -154,13 +155,13 @@ function HomeContent() {
               component="a"
               variant="contained"
               sx={{
-                backgroundColor: '#f9c806',
-                color: '#231f0f',
+                backgroundColor: colors.primary,
+                color: colors.secondary,
                 fontWeight: 700,
                 textTransform: 'none',
                 borderRadius: '0.5rem',
                 px: 3,
-                '&:hover': { backgroundColor: '#ffd633' },
+                '&:hover': { backgroundColor: colors.primary, opacity: 0.9 },
               }}
             >
               Manage Settings

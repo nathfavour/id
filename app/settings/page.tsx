@@ -1,5 +1,6 @@
 'use client';
 
+import { colors } from '@/lib/colors';
 import { useEffect, useState } from 'react';
 import { account } from '@/lib/appwrite';
 import { useRouter } from 'next/navigation';
@@ -138,19 +139,19 @@ export default function SettingsPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#181711',
+          backgroundColor: colors.background,
         }}
       >
         <Box sx={{ textAlign: 'center' }}>
-          <CircularProgress size={60} sx={{ color: '#f9c806' }} />
-          <Typography sx={{ mt: 2, color: '#bbb49b' }}>Loading settings...</Typography>
+          <CircularProgress size={60} sx={{ color: colors.primary }} />
+          <Typography sx={{ mt: 2, color: colors.foreground }}>Loading settings...</Typography>
         </Box>
       </Box>
     );
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: '#181711', color: 'white', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ minHeight: '100vh', backgroundColor: colors.background, color: 'white', display: 'flex', flexDirection: 'column' }}>
       <Topbar
         userName={user.name}
         userEmail={user.email}
@@ -168,7 +169,7 @@ export default function SettingsPage() {
             flexDirection: 'column',
             borderRight: '1px solid rgba(255, 255, 255, 0.1)',
             p: 3,
-            backgroundColor: '#181711',
+            backgroundColor: colors.background,
             maxHeight: '100vh',
             overflowY: 'auto',
           }}
@@ -178,7 +179,7 @@ export default function SettingsPage() {
             sx={{
               p: 2,
               borderRadius: '0.75rem',
-              backgroundColor: '#231f0f',
+              backgroundColor: colors.secondary,
               border: '1px solid rgba(255, 255, 255, 0.1)',
               boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
               mb: 4,
@@ -194,7 +195,7 @@ export default function SettingsPage() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#f9c806',
+                  color: colors.primary,
                   fontSize: '20px',
                   flexShrink: 0,
                 }}
@@ -208,7 +209,7 @@ export default function SettingsPage() {
                 <Typography
                   sx={{
                     fontSize: '0.875rem',
-                    color: '#bbb49b',
+                    color: colors.foreground,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                   }}
@@ -247,12 +248,12 @@ export default function SettingsPage() {
                     transition: 'background-color 0.2s, box-shadow 0.2s',
                   }}
                 >
-                  <Icon sx={{ color: activeTab === id ? '#f9c806' : 'white', fontSize: 20 }} />
+                  <Icon sx={{ color: activeTab === id ? colors.primary : 'white', fontSize: 20 }} />
                   <Typography
                     sx={{
                       fontSize: '0.875rem',
                       fontWeight: 500,
-                      color: activeTab === id ? '#f9c806' : 'white',
+                      color: activeTab === id ? colors.primary : 'white',
                     }}
                   >
                     {label}
@@ -264,7 +265,7 @@ export default function SettingsPage() {
         </Box>
 
         {/* Main Content */}
-        <Box sx={{ flex: 1, p: { xs: 2, md: 4 }, backgroundColor: '#181711' }}>
+        <Box sx={{ flex: 1, p: { xs: 2, md: 4 }, backgroundColor: colors.background }}>
           {/* Header */}
           <Box sx={{ mb: 6 }}>
             <Typography
@@ -286,7 +287,7 @@ export default function SettingsPage() {
               <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>Username</Typography>
               <Box
                 sx={{
-                  backgroundColor: '#1f1e18',
+                  backgroundColor: colors.secondary,
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: '0.75rem',
                   boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
@@ -309,7 +310,7 @@ export default function SettingsPage() {
                   </Box>
                   <Button
                     sx={{
-                      color: '#f9c806',
+                      color: colors.primary,
                       fontSize: '1rem',
                       fontWeight: 500,
                       textTransform: 'none',
@@ -325,7 +326,7 @@ export default function SettingsPage() {
               <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3, mt: 6 }}>Email</Typography>
               <Box
                 sx={{
-                  backgroundColor: '#1f1e18',
+                  backgroundColor: colors.secondary,
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: '0.75rem',
                   boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
@@ -341,7 +342,7 @@ export default function SettingsPage() {
               <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3, mt: 6 }}>User ID</Typography>
               <Box
                 sx={{
-                  backgroundColor: '#1f1e18',
+                  backgroundColor: colors.secondary,
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: '0.75rem',
                   boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
@@ -353,7 +354,7 @@ export default function SettingsPage() {
                   <Typography
                     sx={{
                       fontSize: '0.875rem',
-                      color: '#bbb49b',
+                      color: colors.foreground,
                       fontFamily: 'monospace',
                       flex: 1,
                       wordBreak: 'break-all',
@@ -367,8 +368,8 @@ export default function SettingsPage() {
                     }}
                     variant="contained"
                     sx={{
-                      backgroundColor: '#f9c806',
-                      color: '#231f0f',
+                      backgroundColor: colors.primary,
+                      color: colors.secondary,
                       fontWeight: 700,
                       fontSize: '0.875rem',
                       textTransform: 'none',
@@ -407,8 +408,8 @@ export default function SettingsPage() {
                     variant="contained"
                     startIcon={<AddIcon />}
                     sx={{
-                      backgroundColor: '#f9c806',
-                      color: '#231f0f',
+                      backgroundColor: colors.primary,
+                      color: colors.secondary,
                       fontWeight: 700,
                       fontSize: '0.875rem',
                       textTransform: 'none',
@@ -426,15 +427,15 @@ export default function SettingsPage() {
 
                 {loadingPasskeys && (
                   <Box sx={{ textAlign: 'center', py: 3 }}>
-                    <CircularProgress size={40} sx={{ color: '#f9c806' }} />
-                    <Typography sx={{ mt: 2, color: '#bbb49b' }}>Loading passkeys...</Typography>
+                    <CircularProgress size={40} sx={{ color: colors.primary }} />
+                    <Typography sx={{ mt: 2, color: colors.foreground }}>Loading passkeys...</Typography>
                   </Box>
                 )}
 
                 {!loadingPasskeys && passkeys.length === 0 && !error && (
                   <Box
                     sx={{
-                      backgroundColor: '#1f1e18',
+                      backgroundColor: colors.secondary,
                       border: '1px solid rgba(255, 255, 255, 0.1)',
                       borderRadius: '0.75rem',
                       boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
@@ -442,7 +443,7 @@ export default function SettingsPage() {
                       textAlign: 'center',
                     }}
                   >
-                    <Typography sx={{ color: '#bbb49b' }}>No passkeys yet. Add one to get started.</Typography>
+                    <Typography sx={{ color: colors.foreground }}>No passkeys yet. Add one to get started.</Typography>
                   </Box>
                 )}
 
@@ -472,7 +473,7 @@ export default function SettingsPage() {
                 </Typography>
                 <Box
                   sx={{
-                    backgroundColor: '#1f1e18',
+                    backgroundColor: colors.secondary,
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '0.75rem',
                     p: 3,
@@ -498,7 +499,7 @@ export default function SettingsPage() {
                 <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>Multi-Factor Authentication (MFA)</Typography>
                 <Box
                   sx={{
-                    backgroundColor: '#1f1e18',
+                    backgroundColor: colors.secondary,
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '0.75rem',
                     boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
@@ -516,7 +517,7 @@ export default function SettingsPage() {
                       <Typography sx={{ fontSize: '1rem', fontWeight: 500, color: 'white' }}>
                         Multi-Factor Authentication (MFA)
                       </Typography>
-                      <Typography sx={{ fontSize: '0.875rem', color: '#bbb49b', mt: 0.5 }}>
+                      <Typography sx={{ fontSize: '0.875rem', color: colors.foreground, mt: 0.5 }}>
                         Add an extra layer of security to your account.
                       </Typography>
                     </Box>
@@ -525,10 +526,10 @@ export default function SettingsPage() {
                       onChange={(e) => setMfaEnabled(e.target.checked)}
                       sx={{
                         '& .MuiSwitch-switchBase.Mui-checked': {
-                          color: '#f9c806',
+                          color: colors.primary,
                         },
                         '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                          backgroundColor: '#f9c806',
+                          backgroundColor: colors.primary,
                         },
                       }}
                     />
@@ -547,7 +548,7 @@ export default function SettingsPage() {
                 </Typography>
                 <Box
                   sx={{
-                    backgroundColor: '#1f1e18',
+                    backgroundColor: colors.secondary,
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '0.75rem',
                     boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
@@ -569,7 +570,7 @@ export default function SettingsPage() {
                 </Typography>
                 <Box
                   sx={{
-                    backgroundColor: '#1f1e18',
+                    backgroundColor: colors.secondary,
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '0.75rem',
                     boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
@@ -591,7 +592,7 @@ export default function SettingsPage() {
                 </Typography>
                 <Box
                   sx={{
-                    backgroundColor: '#1f1e18',
+                    backgroundColor: colors.secondary,
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '0.75rem',
                     boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
@@ -613,7 +614,7 @@ export default function SettingsPage() {
                 </Typography>
                 <Box
                   sx={{
-                    backgroundColor: '#1f1e18',
+                    backgroundColor: colors.secondary,
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '0.75rem',
                     boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
@@ -633,7 +634,7 @@ export default function SettingsPage() {
               
               <Box
                 sx={{
-                  backgroundColor: '#1f1e18',
+                  backgroundColor: colors.secondary,
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: '0.75rem',
                   boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
@@ -647,7 +648,7 @@ export default function SettingsPage() {
                       <Typography sx={{ fontSize: '1rem', fontWeight: 500, color: 'white' }}>
                         Export Data
                       </Typography>
-                      <Typography sx={{ fontSize: '0.875rem', color: '#bbb49b', mt: 0.5 }}>
+                      <Typography sx={{ fontSize: '0.875rem', color: colors.foreground, mt: 0.5 }}>
                         Download a copy of your account data.
                       </Typography>
                     </Box>
@@ -678,7 +679,7 @@ export default function SettingsPage() {
                       <Typography sx={{ fontSize: '1rem', fontWeight: 500, color: 'white' }}>
                         Delete Account
                       </Typography>
-                      <Typography sx={{ fontSize: '0.875rem', color: '#bbb49b', mt: 0.5 }}>
+                      <Typography sx={{ fontSize: '0.875rem', color: colors.foreground, mt: 0.5 }}>
                         Permanently delete your account and all associated data.
                       </Typography>
                     </Box>

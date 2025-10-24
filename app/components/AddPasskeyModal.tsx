@@ -1,5 +1,6 @@
 'use client';
 
+import { colors } from '@/lib/colors';
 import { useState } from 'react';
 import {
   Dialog,
@@ -60,20 +61,20 @@ export default function AddPasskeyModal({
         sx: {
           borderRadius: '1rem',
           boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
-          backgroundColor: '#231f0f',
+          backgroundColor: colors.secondary,
           color: 'white',
         }
       }}
     >
       <DialogTitle sx={{ fontWeight: 700, pb: 1, color: 'white' }}>Add Passkey</DialogTitle>
-      <DialogContent sx={{ pt: 2, backgroundColor: '#181711' }}>
+      <DialogContent sx={{ pt: 2, backgroundColor: colors.background }}>
         {success ? (
           <Stack sx={{ textAlign: 'center', py: 3 }} spacing={2}>
             <Box sx={{ fontSize: 32 }}>✓</Box>
             <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>
               Success!
             </Typography>
-            <Typography sx={{ color: '#bbb49b' }}>Passkey added successfully</Typography>
+            <Typography sx={{ color: colors.foreground }}>Passkey added successfully</Typography>
           </Stack>
         ) : (
           <Stack spacing={2}>
@@ -95,7 +96,7 @@ export default function AddPasskeyModal({
               </Alert>
             )}
 
-            <Typography sx={{ color: '#bbb49b' }}>
+            <Typography sx={{ color: colors.foreground }}>
               Register a new passkey to your account for easier authentication.
             </Typography>
 
@@ -123,7 +124,7 @@ export default function AddPasskeyModal({
           </Stack>
         )}
       </DialogContent>
-      <DialogActions sx={{ p: 2, gap: 1, backgroundColor: '#231f0f' }}>
+      <DialogActions sx={{ p: 2, gap: 1, backgroundColor: colors.secondary }}>
         {!success && (
           <>
             <Button 
@@ -133,7 +134,7 @@ export default function AddPasskeyModal({
                 borderRadius: '0.5rem',
                 textTransform: 'none',
                 fontWeight: 600,
-                color: '#bbb49b',
+                color: colors.foreground,
                 '&:hover': {
                   backgroundColor: 'rgba(255, 255, 255, 0.05)',
                 }

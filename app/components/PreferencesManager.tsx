@@ -1,5 +1,6 @@
 'use client';
 
+import { colors } from '@/lib/colors';
 import { useState, useEffect } from 'react';
 import { account } from '@/lib/appwrite';
 import {
@@ -116,7 +117,7 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
-        <CircularProgress size={40} sx={{ color: '#f9c806' }} />
+        <CircularProgress size={40} sx={{ color: colors.primary }} />
       </Box>
     );
   }
@@ -145,14 +146,14 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
           </Typography>
           <Stack spacing={2}>
             <Box>
-              <Typography sx={{ fontSize: '0.875rem', color: '#bbb49b', mb: 1 }}>
+              <Typography sx={{ fontSize: '0.875rem', color: colors.foreground, mb: 1 }}>
                 Language
               </Typography>
               <Select
                 value={prefs.language || 'en'}
                 onChange={(e) => setPrefs({ ...prefs, language: e.target.value })}
                 sx={{
-                  backgroundColor: '#1f1e18',
+                  backgroundColor: colors.secondary,
                   color: 'white',
                   borderRadius: '0.5rem',
                   '& .MuiOutlinedInput-notchedOutline': {
@@ -162,10 +163,10 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
                     borderColor: 'rgba(255, 255, 255, 0.3)',
                   },
                   '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#f9c806',
+                    borderColor: colors.primary,
                   },
                   '& .MuiSvgIcon-root': {
-                    color: '#f9c806',
+                    color: colors.primary,
                   },
                 }}
               >
@@ -178,14 +179,14 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
             </Box>
 
             <Box>
-              <Typography sx={{ fontSize: '0.875rem', color: '#bbb49b', mb: 1 }}>
+              <Typography sx={{ fontSize: '0.875rem', color: colors.foreground, mb: 1 }}>
                 Timezone
               </Typography>
               <Select
                 value={prefs.timezone || 'UTC'}
                 onChange={(e) => setPrefs({ ...prefs, timezone: e.target.value })}
                 sx={{
-                  backgroundColor: '#1f1e18',
+                  backgroundColor: colors.secondary,
                   color: 'white',
                   borderRadius: '0.5rem',
                   '& .MuiOutlinedInput-notchedOutline': {
@@ -195,10 +196,10 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
                     borderColor: 'rgba(255, 255, 255, 0.3)',
                   },
                   '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#f9c806',
+                    borderColor: colors.primary,
                   },
                   '& .MuiSvgIcon-root': {
-                    color: '#f9c806',
+                    color: colors.primary,
                   },
                 }}
               >
@@ -225,14 +226,14 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
               justifyContent: 'space-between',
               alignItems: 'center',
               p: 2,
-              backgroundColor: '#1f1e18',
+              backgroundColor: colors.secondary,
               borderRadius: '0.5rem',
               border: '1px solid rgba(255, 255, 255, 0.1)',
             }}
           >
             <Box>
               <Typography sx={{ fontSize: '0.875rem', color: 'white' }}>Dark Theme</Typography>
-              <Typography sx={{ fontSize: '0.75rem', color: '#bbb49b' }}>
+              <Typography sx={{ fontSize: '0.75rem', color: colors.foreground }}>
                 Use dark theme for the interface
               </Typography>
             </Box>
@@ -240,9 +241,9 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
               checked={prefs.darkTheme !== false}
               onChange={(e) => setPrefs({ ...prefs, darkTheme: e.target.checked })}
               sx={{
-                '& .MuiSwitch-switchBase.Mui-checked': { color: '#f9c806' },
+                '& .MuiSwitch-switchBase.Mui-checked': { color: colors.primary },
                 '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                  backgroundColor: '#f9c806',
+                  backgroundColor: colors.primary,
                 },
               }}
             />
@@ -263,7 +264,7 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 p: 2,
-                backgroundColor: '#1f1e18',
+                backgroundColor: colors.secondary,
                 borderRadius: '0.5rem',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
               }}
@@ -272,7 +273,7 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
                 <Typography sx={{ fontSize: '0.875rem', color: 'white' }}>
                   Email Notifications
                 </Typography>
-                <Typography sx={{ fontSize: '0.75rem', color: '#bbb49b' }}>
+                <Typography sx={{ fontSize: '0.75rem', color: colors.foreground }}>
                   Receive emails about account activity
                 </Typography>
               </Box>
@@ -280,9 +281,9 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
                 checked={prefs.emailNotifications !== false}
                 onChange={(e) => setPrefs({ ...prefs, emailNotifications: e.target.checked })}
                 sx={{
-                  '& .MuiSwitch-switchBase.Mui-checked': { color: '#f9c806' },
+                  '& .MuiSwitch-switchBase.Mui-checked': { color: colors.primary },
                   '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                    backgroundColor: '#f9c806',
+                    backgroundColor: colors.primary,
                   },
                 }}
               />
@@ -294,7 +295,7 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 p: 2,
-                backgroundColor: '#1f1e18',
+                backgroundColor: colors.secondary,
                 borderRadius: '0.5rem',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
               }}
@@ -303,7 +304,7 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
                 <Typography sx={{ fontSize: '0.875rem', color: 'white' }}>
                   Session Reminders
                 </Typography>
-                <Typography sx={{ fontSize: '0.75rem', color: '#bbb49b' }}>
+                <Typography sx={{ fontSize: '0.75rem', color: colors.foreground }}>
                   Get reminded about active sessions
                 </Typography>
               </Box>
@@ -311,9 +312,9 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
                 checked={prefs.sessionReminders !== false}
                 onChange={(e) => setPrefs({ ...prefs, sessionReminders: e.target.checked })}
                 sx={{
-                  '& .MuiSwitch-switchBase.Mui-checked': { color: '#f9c806' },
+                  '& .MuiSwitch-switchBase.Mui-checked': { color: colors.primary },
                   '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                    backgroundColor: '#f9c806',
+                    backgroundColor: colors.primary,
                   },
                 }}
               />
@@ -335,7 +336,7 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 p: 2,
-                backgroundColor: '#1f1e18',
+                backgroundColor: colors.secondary,
                 borderRadius: '0.5rem',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
               }}
@@ -344,7 +345,7 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
                 <Typography sx={{ fontSize: '0.875rem', color: 'white' }}>
                   Data Collection
                 </Typography>
-                <Typography sx={{ fontSize: '0.75rem', color: '#bbb49b' }}>
+                <Typography sx={{ fontSize: '0.75rem', color: colors.foreground }}>
                   Allow collection of usage analytics
                 </Typography>
               </Box>
@@ -352,9 +353,9 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
                 checked={prefs.dataCollection === true}
                 onChange={(e) => setPrefs({ ...prefs, dataCollection: e.target.checked })}
                 sx={{
-                  '& .MuiSwitch-switchBase.Mui-checked': { color: '#f9c806' },
+                  '& .MuiSwitch-switchBase.Mui-checked': { color: colors.primary },
                   '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                    backgroundColor: '#f9c806',
+                    backgroundColor: colors.primary,
                   },
                 }}
               />
@@ -366,7 +367,7 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 p: 2,
-                backgroundColor: '#1f1e18',
+                backgroundColor: colors.secondary,
                 borderRadius: '0.5rem',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
               }}
@@ -375,7 +376,7 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
                 <Typography sx={{ fontSize: '0.875rem', color: 'white' }}>
                   Marketing Emails
                 </Typography>
-                <Typography sx={{ fontSize: '0.75rem', color: '#bbb49b' }}>
+                <Typography sx={{ fontSize: '0.75rem', color: colors.foreground }}>
                   Receive promotional and marketing emails
                 </Typography>
               </Box>
@@ -383,9 +384,9 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
                 checked={prefs.marketingEmails === true}
                 onChange={(e) => setPrefs({ ...prefs, marketingEmails: e.target.checked })}
                 sx={{
-                  '& .MuiSwitch-switchBase.Mui-checked': { color: '#f9c806' },
+                  '& .MuiSwitch-switchBase.Mui-checked': { color: colors.primary },
                   '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                    backgroundColor: '#f9c806',
+                    backgroundColor: colors.primary,
                   },
                 }}
               />
@@ -401,16 +402,16 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
             onClick={handleSavePreferences}
             disabled={saving}
             variant="contained"
-            startIcon={saving ? <CircularProgress size={20} sx={{ color: '#231f0f' }} /> : <SaveIcon />}
+            startIcon={saving ? <CircularProgress size={20} sx={{ color: colors.secondary }} /> : <SaveIcon />}
             sx={{
-              backgroundColor: '#f9c806',
-              color: '#231f0f',
+              backgroundColor: colors.primary,
+              color: colors.secondary,
               fontWeight: 700,
               fontSize: '0.875rem',
               textTransform: 'none',
               borderRadius: '0.5rem',
               '&:hover': { backgroundColor: '#ffd633' },
-              '&:disabled': { backgroundColor: '#cca500', color: '#231f0f' },
+              '&:disabled': { backgroundColor: '#cca500', color: colors.secondary },
             }}
           >
             {saving ? 'Saving...' : 'Save Preferences'}

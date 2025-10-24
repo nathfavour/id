@@ -6,6 +6,7 @@ import { Client, Account, OAuthProvider } from 'appwrite';
 import { Box, Typography, Stack, TextField, Button, Alert, CircularProgress, IconButton, Tabs, Tab, useMediaQuery, useTheme } from '@mui/material';
 import { Visibility, VisibilityOff, Close, Edit, VpnKey, Wallet } from '@mui/icons-material';
 import { safeCreateSession, safeDeleteCurrentSession } from '@/lib/safe-session';
+import { colors } from '@/lib/colors';
 
 const client = new Client();
 if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT) client.setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT);
@@ -53,8 +54,8 @@ function publicKeyCredentialToJSON(pubKeyCred: unknown): unknown {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#181711' }}>
-        <CircularProgress sx={{ color: '#f9c806' }} />
+      <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}>
+        <CircularProgress sx={{ color: colors.primary }} />
       </Box>
     }>
       <LoginContent />
@@ -373,7 +374,7 @@ function LoginContent() {
           width: '100%',
           maxWidth: isDesktop ? 560 : 448,
           borderRadius: '0.75rem',
-          backgroundColor: '#231f0f',
+          backgroundColor: colors.secondary,
           p: 4,
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8)',
           position: 'relative',
@@ -384,7 +385,7 @@ function LoginContent() {
           <IconButton
             onClick={() => router.push('/')}
             sx={{
-              color: '#bbb49b',
+              color: colors.foreground,
               '&:hover': { color: 'white' },
             }}
           >
@@ -483,9 +484,9 @@ function LoginContent() {
 
             {/* Divider */}
             <Box sx={{ display: 'flex', alignItems: 'center', my: 4, gap: 2 }}>
-              <Box sx={{ flex: 1, height: '1px', backgroundColor: '#3a3627' }} />
-              <Typography sx={{ fontSize: '0.875rem', color: '#bbb49b', whiteSpace: 'nowrap' }}>or enter email</Typography>
-              <Box sx={{ flex: 1, height: '1px', backgroundColor: '#3a3627' }} />
+              <Box sx={{ flex: 1, height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.1)' }} />
+              <Typography sx={{ fontSize: '0.875rem', color: colors.foreground, whiteSpace: 'nowrap' }}>or enter email</Typography>
+              <Box sx={{ flex: 1, height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.1)' }} />
             </Box>
 
             {/* Email & Options - Center aligned */}
@@ -502,14 +503,14 @@ function LoginContent() {
                       color: 'white',
                       height: '3rem',
                       borderRadius: '0.5rem',
-                      backgroundColor: '#27251b',
-                      border: '1px solid #55503a',
-                      '&:hover': { borderColor: '#6b6551' },
-                      '&.Mui-focused': { borderColor: '#f9c806' },
+                      backgroundColor: colors.secondary,
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      '&:hover': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                      '&.Mui-focused': { borderColor: colors.primary },
                       '& fieldset': { border: 'none' },
                     },
                     '& .MuiOutlinedInput-input::placeholder': {
-                      color: '#8b8671',
+                      color: colors.foreground,
                       opacity: 1,
                     },
                   }}
@@ -523,7 +524,7 @@ function LoginContent() {
                   disabled={!emailValid || loading}
                   fullWidth
                   sx={{
-                    backgroundColor: emailValid ? '#f9c806' : '#6b6551',
+                    backgroundColor: emailValid ? colors.primary : 'rgba(255, 255, 255, 0.1)',
                     color: '#ffffff !important',
                     height: 48,
                     borderRadius: '0.5rem',
@@ -536,7 +537,7 @@ function LoginContent() {
                     justifyContent: 'center',
                     gap: 1,
                     '& svg': { color: '#ffffff !important' },
-                    '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
+                    '&:hover:not(:disabled)': { backgroundColor: colors.primary, opacity: 0.9 },
                   }}
                 >
                   <VpnKey sx={{ fontSize: '1.2rem' }} />
@@ -551,7 +552,7 @@ function LoginContent() {
                   disabled={!emailValid || loading}
                   fullWidth
                   sx={{
-                    backgroundColor: emailValid ? '#f9c806' : '#6b6551',
+                    backgroundColor: emailValid ? colors.primary : 'rgba(255, 255, 255, 0.1)',
                     color: '#ffffff !important',
                     height: 48,
                     borderRadius: '0.5rem',
@@ -564,7 +565,7 @@ function LoginContent() {
                     justifyContent: 'center',
                     gap: 1,
                     '& svg': { color: '#ffffff !important' },
-                    '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
+                    '&:hover:not(:disabled)': { backgroundColor: colors.primary, opacity: 0.9 },
                   }}
                 >
                   <Wallet sx={{ fontSize: '1.2rem' }} />
@@ -579,8 +580,8 @@ function LoginContent() {
                   disabled={false}
                   sx={{
                     textTransform: 'none',
-                    color: '#f9c806',
-                    '&:hover': { color: '#ffd633', textDecoration: 'underline' },
+                    color: colors.primary,
+                    '&:hover': { color: colors.primary, textDecoration: 'underline', opacity: 0.9 },
                     fontSize: '0.9rem',
                     fontWeight: 500,
                     textDecoration: 'underline',
@@ -605,7 +606,7 @@ function LoginContent() {
           >
             {/* Step 2: Choose Auth Method */}
             {/* Email Display with Edit Button - Can click pencil or directly edit email */}
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 4, pb: 3, borderBottom: '1px solid #3a3627' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 4, pb: 3, borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
               <Box sx={{ flex: 1, textAlign: 'center' }}>
                 <TextField
                   type="email"
@@ -618,10 +619,10 @@ function LoginContent() {
                       color: 'white',
                       height: '2.5rem',
                       borderRadius: '0.5rem',
-                      backgroundColor: '#27251b',
-                      border: '1px solid #55503a',
-                      '&:hover': { borderColor: '#6b6551' },
-                      '&.Mui-focused': { borderColor: '#f9c806' },
+                      backgroundColor: colors.secondary,
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      '&:hover': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                      '&.Mui-focused': { borderColor: colors.primary },
                       '& fieldset': { border: 'none' },
                       textAlign: 'center',
                     },
@@ -629,7 +630,7 @@ function LoginContent() {
                       textAlign: 'center',
                     },
                     '& .MuiOutlinedInput-input::placeholder': {
-                      color: '#8b8671',
+                      color: colors.foreground,
                       opacity: 1,
                     },
                   }}
@@ -638,19 +639,19 @@ function LoginContent() {
             </Box>
 
             {/* Auth Method Tabs */}
-            <Box sx={{ mb: 4, borderBottom: '1px solid #3a3627' }}>
+            <Box sx={{ mb: 4, borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
               <Tabs
                 value={authMethod}
                 onChange={(e, newValue) => setAuthMethod(newValue)}
                 sx={{
                   '& .MuiTab-root': {
-                    color: '#bbb49b',
+                    color: colors.foreground,
                     textTransform: 'none',
                     fontWeight: 500,
                     fontSize: '0.9rem',
-                    '&.Mui-selected': { color: '#f9c806' },
+                    '&.Mui-selected': { color: colors.primary },
                   },
-                  '& .MuiTabs-indicator': { backgroundColor: '#f9c806' },
+                  '& .MuiTabs-indicator': { backgroundColor: colors.primary },
                 }}
               >
                 <Tab label="Password" />
@@ -675,14 +676,14 @@ function LoginContent() {
                           color: 'white',
                           height: '3rem',
                           borderRadius: '0.5rem',
-                          backgroundColor: '#27251b',
-                          border: '1px solid #55503a',
-                          '&:hover': { borderColor: '#6b6551' },
-                          '&.Mui-focused': { borderColor: '#f9c806' },
+                          backgroundColor: colors.secondary,
+                          border: '1px solid rgba(255, 255, 255, 0.2)',
+                          '&:hover': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                          '&.Mui-focused': { borderColor: colors.primary },
                           '& fieldset': { border: 'none' },
                         },
                         '& .MuiOutlinedInput-input::placeholder': {
-                          color: '#8b8671',
+                          color: colors.foreground,
                           opacity: 1,
                         },
                       }}
@@ -692,7 +693,7 @@ function LoginContent() {
                       sx={{
                         position: 'absolute',
                         right: 12,
-                        color: '#bbb49b',
+                        color: colors.foreground,
                         '&:hover': { color: 'white' },
                       }}
                     >
@@ -706,8 +707,8 @@ function LoginContent() {
                       href="#"
                       sx={{
                         textTransform: 'none',
-                        color: '#f9c806',
-                        '&:hover': { color: '#ffd633', textDecoration: 'underline' },
+                        color: colors.primary,
+                        '&:hover': { color: colors.primary, textDecoration: 'underline', opacity: 0.9 },
                         fontSize: '0.85rem',
                         p: 0,
                       }}
@@ -723,14 +724,14 @@ function LoginContent() {
                       disabled={!password.trim() || loading}
                       fullWidth
                       sx={{
-                        backgroundColor: '#f9c806',
-                        color: '#231f0f',
+                        backgroundColor: colors.primary,
+                        color: colors.secondary,
                         height: 48,
                         borderRadius: '0.5rem',
                         fontWeight: 700,
                         textTransform: 'none',
-                        '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
-                        '&:disabled': { cursor: 'not-allowed', backgroundColor: '#d4a813' },
+                        '&:hover:not(:disabled)': { backgroundColor: colors.primary, opacity: 0.9 },
+                        '&:disabled': { cursor: 'not-allowed', backgroundColor: 'rgba(255, 255, 255, 0.1)' },
                       }}
                     >
                       Sign in
@@ -752,14 +753,14 @@ function LoginContent() {
                           color: 'white',
                           height: '3rem',
                           borderRadius: '0.5rem',
-                          backgroundColor: '#27251b',
-                          border: '1px solid #55503a',
-                          '&:hover': { borderColor: '#6b6551' },
-                          '&.Mui-focused': { borderColor: '#f9c806' },
+                          backgroundColor: colors.secondary,
+                          border: '1px solid rgba(255, 255, 255, 0.2)',
+                          '&:hover': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                          '&.Mui-focused': { borderColor: colors.primary },
                           '& fieldset': { border: 'none' },
                         },
                         '& .MuiOutlinedInput-input::placeholder': {
-                          color: '#8b8671',
+                          color: colors.foreground,
                           opacity: 1,
                         },
                       }}
@@ -773,14 +774,14 @@ function LoginContent() {
                       disabled={otp.length !== 6 || loading}
                       fullWidth
                       sx={{
-                        backgroundColor: '#f9c806',
-                        color: '#231f0f',
+                        backgroundColor: colors.primary,
+                        color: colors.secondary,
                         height: 48,
                         borderRadius: '0.5rem',
                         fontWeight: 700,
                         textTransform: 'none',
-                        '&:hover:not(:disabled)': { backgroundColor: '#ffd633' },
-                        '&:disabled': { cursor: 'not-allowed', backgroundColor: '#d4a813' },
+                        '&:hover:not(:disabled)': { backgroundColor: colors.primary, opacity: 0.9 },
+                        '&:disabled': { cursor: 'not-allowed', backgroundColor: 'rgba(255, 255, 255, 0.1)' },
                       }}
                     >
                       Verify OTP

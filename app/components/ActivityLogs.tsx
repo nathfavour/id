@@ -1,5 +1,6 @@
 'use client';
 
+import { colors } from '@/lib/colors';
 import { useState, useEffect } from 'react';
 import { account } from '@/lib/appwrite';
 import {
@@ -109,7 +110,7 @@ export default function ActivityLogs({ onLogsLoaded }: ActivityLogsProps) {
   };
 
   const getEventColor = (event: string): string => {
-    return EVENT_COLORS[event] || '#f9c806';
+    return EVENT_COLORS[event] || colors.primary;
   };
 
   const filteredLogs = logs.filter((log) =>
@@ -122,7 +123,7 @@ export default function ActivityLogs({ onLogsLoaded }: ActivityLogsProps) {
   if (loading && logs.length === 0) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
-        <CircularProgress size={40} sx={{ color: '#f9c806' }} />
+        <CircularProgress size={40} sx={{ color: colors.primary }} />
       </Box>
     );
   }
@@ -139,14 +140,14 @@ export default function ActivityLogs({ onLogsLoaded }: ActivityLogsProps) {
       {logs.length === 0 ? (
         <Box
           sx={{
-            backgroundColor: '#1f1e18',
+            backgroundColor: colors.secondary,
             border: '1px solid rgba(255, 255, 255, 0.1)',
             borderRadius: '0.75rem',
             p: 3,
             textAlign: 'center',
           }}
         >
-          <Typography sx={{ color: '#bbb49b' }}>No activity logs found.</Typography>
+          <Typography sx={{ color: colors.foreground }}>No activity logs found.</Typography>
         </Box>
       ) : (
         <Box>
@@ -162,7 +163,7 @@ export default function ActivityLogs({ onLogsLoaded }: ActivityLogsProps) {
               sx={{
                 flex: 1,
                 '& .MuiOutlinedInput-root': {
-                  backgroundColor: '#1f1e18',
+                  backgroundColor: colors.secondary,
                   color: 'white',
                   '& fieldset': {
                     borderColor: 'rgba(255, 255, 255, 0.2)',
@@ -171,11 +172,11 @@ export default function ActivityLogs({ onLogsLoaded }: ActivityLogsProps) {
                     borderColor: 'rgba(255, 255, 255, 0.3)',
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: '#f9c806',
+                    borderColor: colors.primary,
                   },
                 },
                 '& .MuiOutlinedInput-input::placeholder': {
-                  color: '#bbb49b',
+                  color: colors.foreground,
                   opacity: 0.7,
                 },
               }}
@@ -201,7 +202,7 @@ export default function ActivityLogs({ onLogsLoaded }: ActivityLogsProps) {
 
           <TableContainer
             sx={{
-              backgroundColor: '#1f1e18',
+              backgroundColor: colors.secondary,
               border: '1px solid rgba(255, 255, 255, 0.1)',
               borderRadius: '0.75rem',
               overflow: 'hidden',
@@ -209,11 +210,11 @@ export default function ActivityLogs({ onLogsLoaded }: ActivityLogsProps) {
           >
             <Table size="small">
               <TableHead>
-                <TableRow sx={{ backgroundColor: '#231f0f' }}>
-                  <TableCell sx={{ color: '#bbb49b', fontSize: '0.75rem', fontWeight: 600 }}>Event</TableCell>
-                  <TableCell sx={{ color: '#bbb49b', fontSize: '0.75rem', fontWeight: 600 }}>IP Address</TableCell>
-                  <TableCell sx={{ color: '#bbb49b', fontSize: '0.75rem', fontWeight: 600 }}>Location</TableCell>
-                  <TableCell sx={{ color: '#bbb49b', fontSize: '0.75rem', fontWeight: 600 }}>Timestamp</TableCell>
+                <TableRow sx={{ backgroundColor: colors.secondary }}>
+                  <TableCell sx={{ color: colors.foreground, fontSize: '0.75rem', fontWeight: 600 }}>Event</TableCell>
+                  <TableCell sx={{ color: colors.foreground, fontSize: '0.75rem', fontWeight: 600 }}>IP Address</TableCell>
+                  <TableCell sx={{ color: colors.foreground, fontSize: '0.75rem', fontWeight: 600 }}>Location</TableCell>
+                  <TableCell sx={{ color: colors.foreground, fontSize: '0.75rem', fontWeight: 600 }}>Timestamp</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -248,13 +249,13 @@ export default function ActivityLogs({ onLogsLoaded }: ActivityLogsProps) {
                         </Box>
                       </Box>
                     </TableCell>
-                    <TableCell sx={{ color: '#bbb49b', fontSize: '0.875rem', fontFamily: 'monospace' }}>
+                    <TableCell sx={{ color: colors.foreground, fontSize: '0.875rem', fontFamily: 'monospace' }}>
                       {log.ip}
                     </TableCell>
-                    <TableCell sx={{ color: '#bbb49b', fontSize: '0.875rem' }}>
+                    <TableCell sx={{ color: colors.foreground, fontSize: '0.875rem' }}>
                       {log.countryCode || '—'}
                     </TableCell>
-                    <TableCell sx={{ color: '#bbb49b', fontSize: '0.875rem', whiteSpace: 'nowrap' }}>
+                    <TableCell sx={{ color: colors.foreground, fontSize: '0.875rem', whiteSpace: 'nowrap' }}>
                       {formatDate(log.createdAt)}
                     </TableCell>
                   </TableRow>
@@ -272,13 +273,13 @@ export default function ActivityLogs({ onLogsLoaded }: ActivityLogsProps) {
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
             sx={{
-              backgroundColor: '#1f1e18',
+              backgroundColor: colors.secondary,
               borderTop: '1px solid rgba(255, 255, 255, 0.1)',
               '& .MuiTablePagination-toolbar': {
-                color: '#bbb49b',
+                color: colors.foreground,
               },
               '& .MuiIconButton-root': {
-                color: '#bbb49b',
+                color: colors.foreground,
               },
               '& .MuiIconButton-root:hover': {
                 backgroundColor: 'rgba(255, 255, 255, 0.1)',

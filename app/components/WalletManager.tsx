@@ -1,5 +1,6 @@
 'use client';
 
+import { colors } from '@/lib/colors';
 import { useState } from 'react';
 import { account, functions } from '@/lib/appwrite';
 import {
@@ -135,7 +136,7 @@ export default function WalletManager({
       {connectedWallet && (
         <Box
           sx={{
-            backgroundColor: '#1f1e18',
+            backgroundColor: colors.secondary,
             border: '1px solid rgba(249, 200, 6, 0.3)',
             borderRadius: '0.75rem',
             p: 2,
@@ -143,7 +144,7 @@ export default function WalletManager({
           }}
         >
           <Stack spacing={1}>
-            <Typography sx={{ fontSize: '0.875rem', color: '#bbb49b', mb: 0.5 }}>
+            <Typography sx={{ fontSize: '0.875rem', color: colors.foreground, mb: 0.5 }}>
               Connected Wallet Address
             </Typography>
             <Typography sx={{ fontSize: '1rem', color: 'white', fontFamily: 'monospace', wordBreak: 'break-all' }}>
@@ -162,8 +163,8 @@ export default function WalletManager({
             variant="contained"
             startIcon={loading ? <CircularProgress size={20} /> : <LinkIcon />}
             sx={{
-              backgroundColor: '#f9c806',
-              color: '#231f0f',
+              backgroundColor: colors.primary,
+              color: colors.secondary,
               fontWeight: 700,
               textTransform: 'none',
               borderRadius: '0.5rem',
@@ -209,19 +210,19 @@ export default function WalletManager({
 
       {/* Disconnect Confirmation Dialog */}
       <Dialog open={disconnectConfirm} onClose={() => setDisconnectConfirm(false)}>
-        <DialogTitle sx={{ backgroundColor: '#1f1e18', color: 'white' }}>
+        <DialogTitle sx={{ backgroundColor: colors.secondary, color: 'white' }}>
           Disconnect Wallet
         </DialogTitle>
-        <DialogContent sx={{ backgroundColor: '#1f1e18', color: 'white', minWidth: 400 }}>
+        <DialogContent sx={{ backgroundColor: colors.secondary, color: 'white', minWidth: 400 }}>
           <Alert severity="warning" sx={{ mt: 2 }}>
             <AlertTitle>Confirm Disconnection</AlertTitle>
             Are you sure you want to disconnect your wallet? You can reconnect it anytime.
           </Alert>
         </DialogContent>
-        <DialogActions sx={{ backgroundColor: '#1f1e18' }}>
+        <DialogActions sx={{ backgroundColor: colors.secondary }}>
           <Button
             onClick={() => setDisconnectConfirm(false)}
-            sx={{ color: '#bbb49b' }}
+            sx={{ color: colors.foreground }}
           >
             Cancel
           </Button>
