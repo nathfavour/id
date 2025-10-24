@@ -66,12 +66,9 @@ const THEMES = [
 ];
 
 export default function PreferencesManager({ onSave }: PreferencesManagerProps) {
-  const { theme, setTheme } = useTheme();
+  const { setTheme } = useTheme();
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-  const [themeError, setThemeError] = useState<string | null>(null);
   const [prefs, setPrefs] = useState<PrefsData>({
     language: 'en',
     timezone: 'UTC',
@@ -107,29 +104,26 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
     }
   };
 
-  const handleSavePreferences = async () => {
+  const updatePreference = async (key: keyof PrefsData, value: any) => {
     try {
-      setSaving(true);
       setError(null);
-      setSuccess(false);
-      await account.updatePrefs(prefs);
-      setSuccess(true);
+      const updatedPrefs = { ...prefs, [key]: value };
+      setPrefs(updatedPrefs);
+      await account.updatePrefs(updatedPrefs);
       onSave?.();
-      setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
       setError((err as Error).message);
-    } finally {
-      setSaving(false);
+      setPrefs(prefs);
     }
   };
 
   const handleThemeChange = async (newTheme: 'light' | 'dark' | 'system') => {
     try {
-      setThemeError(null);
+      setError(null);
       setPrefs({ ...prefs, theme: newTheme });
       await setTheme(newTheme);
     } catch (err) {
-      setThemeError((err as Error).message);
+      setError((err as Error).message);
     }
   };
 
@@ -150,13 +144,6 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
         </Alert>
       )}
 
-      {success && (
-        <Alert severity="success" sx={{ mb: 3 }}>
-          <AlertTitle>Success</AlertTitle>
-          Your preferences have been saved.
-        </Alert>
-      )}
-
       <Stack spacing={3}>
         {/* Localization Settings */}
         <Box>
@@ -170,7 +157,7 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
               </Typography>
               <Select
                 value={prefs.language || 'en'}
-                onChange={(e) => setPrefs({ ...prefs, language: e.target.value })}
+                onChange={(e) => updatePreference('language', e.target.value)}
                 sx={{
                   backgroundColor: colors.secondary,
                   color: 'white',
@@ -203,7 +190,7 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
               </Typography>
               <Select
                 value={prefs.timezone || 'UTC'}
-                onChange={(e) => setPrefs({ ...prefs, timezone: e.target.value })}
+                onChange={(e) => updatePreference('timezone', e.target.value)}
                 sx={{
                   backgroundColor: colors.secondary,
                   color: 'white',
@@ -271,11 +258,6 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
                   </MenuItem>
                 ))}
               </Select>
-              {themeError && (
-                <Typography sx={{ fontSize: '0.75rem', color: '#ef4444', mt: 1 }}>
-                  {themeError}
-                </Typography>
-              )}
             </Box>
           </Stack>
         </Box>
@@ -309,7 +291,7 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
               </Box>
               <Switch
                 checked={prefs.emailNotifications !== false}
-                onChange={(e) => setPrefs({ ...prefs, emailNotifications: e.target.checked })}
+                onChange={(e) => updatePreference('emailNotifications', e.target.checked)}
                 sx={{
                   '& .MuiSwitch-switchBase.Mui-checked': { color: colors.primary },
                   '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
@@ -340,7 +322,7 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
               </Box>
               <Switch
                 checked={prefs.sessionReminders !== false}
-                onChange={(e) => setPrefs({ ...prefs, sessionReminders: e.target.checked })}
+                onChange={(e) => updatePreference('sessionReminders', e.target.checked)}
                 sx={{
                   '& .MuiSwitch-switchBase.Mui-checked': { color: colors.primary },
                   '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
@@ -381,7 +363,7 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
               </Box>
               <Switch
                 checked={prefs.dataCollection === true}
-                onChange={(e) => setPrefs({ ...prefs, dataCollection: e.target.checked })}
+                onChange={(e) => updatePreference('dataCollection', e.target.checked)}
                 sx={{
                   '& .MuiSwitch-switchBase.Mui-checked': { color: colors.primary },
                   '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
@@ -412,7 +394,7 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
               </Box>
               <Switch
                 checked={prefs.marketingEmails === true}
-                onChange={(e) => setPrefs({ ...prefs, marketingEmails: e.target.checked })}
+                onChange={(e) => updatePreference('marketingEmails', e.target.checked)}
                 sx={{
                   '& .MuiSwitch-switchBase.Mui-checked': { color: colors.primary },
                   '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
@@ -422,7 +404,6 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
               />
             </Box>
           </Stack>
-        </Box>
 
         <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
 
