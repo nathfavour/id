@@ -42,15 +42,23 @@ export async function addPasskeyToAccount(email: string) {
   const cred = await navigator.credentials.create({ publicKey });
   if (!cred) throw new Error('Credential creation returned null');
 
-  const json = publicKeyCredentialToJSON(cred);
+  let json: any;
+  try {
+    const anyCred: any = cred;
+    const toJSON = anyCred?.toJSON;
+    json = typeof toJSON === 'function' ? Reflect.apply(toJSON, anyCred, []) : publicKeyCredentialToJSON(cred);
+  } catch {
+    json = publicKeyCredentialToJSON(cred);
+  }
 
   // Step 3: Verify attestation server-side
+  const safeAttestation = json;
   const verifyRes = await fetch('/api/connect/passkey/verify', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ 
       email: email, 
-      attestation: json, 
+      attestation: safeAttestation, 
       challenge: options.challenge, 
       challengeToken: options.challengeToken 
     }),

@@ -324,7 +324,14 @@ function LoginContent() {
       }
 
       const created = await navigator.credentials.create({ publicKey: regPK });
-      const createdJson = publicKeyCredentialToJSON(created);
+      let createdJson: any;
+      try {
+        const anyCred: any = created as any;
+        const toJSON = anyCred?.toJSON;
+        createdJson = typeof toJSON === 'function' ? Reflect.apply(toJSON, anyCred, []) : publicKeyCredentialToJSON(created);
+      } catch {
+        createdJson = publicKeyCredentialToJSON(created);
+      }
       const regVerify = await fetch('/api/webauthn/register/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
