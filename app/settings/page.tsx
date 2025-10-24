@@ -3,11 +3,8 @@
 import { useEffect, useState } from 'react';
 import { account } from '@/lib/appwrite';
 import { useRouter } from 'next/navigation';
-import { useAccountSync } from '@/lib/use-account-sync';
-import { getAccountsList } from '@/lib/multi-account';
 import Topbar from '@/app/components/Topbar';
 import { LogoutDialog } from '@/app/components/LogoutDialog';
-import { AccountsManager } from '@/app/components/AccountsManager';
 import PasskeyList from '@/app/components/PasskeyList';
 import AddPasskeyModal from '@/app/components/AddPasskeyModal';
 import RenamePasskeyModal from '@/app/components/RenamePasskeyModal';
@@ -61,12 +58,8 @@ export default function SettingsPage() {
   const [mfaEnabled, setMfaEnabled] = useState(true);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
-  const [otherAccounts, setOtherAccounts] = useState<number>(0);
   const router = useRouter();
   const appName = process.env.NEXT_PUBLIC_APP_NAME || 'Auth System';
-
-  // Listen for account switches from other tabs
-  useAccountSync();
 
   const loadPasskeys = async (email: string) => {
     setLoadingPasskeys(true);
@@ -96,11 +89,6 @@ export default function SettingsPage() {
           
           // Load wallet address from prefs
           setWalletAddress(userData.prefs?.walletEth || null);
-          
-          // Count other accounts
-          const allAccounts = getAccountsList();
-          const otherCount = allAccounts.filter(acc => acc.userId !== userData.$id).length;
-          setOtherAccounts(otherCount);
           
           await loadPasskeys(userData.email);
           setLoading(false);
@@ -623,11 +611,6 @@ export default function SettingsPage() {
             <Box>
               <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>Account</Typography>
               
-              {/* Multi-Account Management */}
-              <Box sx={{ mb: 4 }}>
-                <AccountsManager currentUserId={user?.userId || ''} onAccountSwitch={() => window.location.reload()} />
-              </Box>
-
               <Box
                 sx={{
                   backgroundColor: '#1f1e18',

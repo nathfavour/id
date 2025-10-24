@@ -9,12 +9,8 @@ import {
   Button,
   Typography,
   Box,
-  Radio,
-  FormControlLabel,
-  FormControl,
   CircularProgress,
 } from '@mui/material';
-import { softLogout, hardLogout } from '@/lib/multi-account';
 import { account } from '@/lib/appwrite';
 
 interface LogoutDialogProps {
@@ -24,7 +20,6 @@ interface LogoutDialogProps {
 }
 
 export function LogoutDialog({ open, onClose, onLogoutComplete }: LogoutDialogProps) {
-  const [logoutType, setLogoutType] = useState<'soft' | 'hard'>('soft');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,12 +27,7 @@ export function LogoutDialog({ open, onClose, onLogoutComplete }: LogoutDialogPr
     setLoading(true);
     setError(null);
     try {
-      if (logoutType === 'soft') {
-        await softLogout();
-      } else {
-        await hardLogout();
-      }
-      // If there are other accounts, go to login. Otherwise also clear everything.
+      await account.deleteSession('current');
       onLogoutComplete();
     } catch (err) {
       setError((err as Error).message);
@@ -55,47 +45,9 @@ export function LogoutDialog({ open, onClose, onLogoutComplete }: LogoutDialogPr
           </Box>
         )}
 
-        <FormControl component="fieldset" fullWidth>
-          <FormControlLabel
-            control={
-              <Radio
-                checked={logoutType === 'soft'}
-                onChange={() => setLogoutType('soft')}
-                disabled={loading}
-                sx={{ color: '#f9c806' }}
-              />
-            }
-            label={
-              <Box>
-                <Typography sx={{ fontWeight: 600, mb: 0.5 }}>Soft Logout</Typography>
-                <Typography sx={{ fontSize: '0.85rem', color: '#bbb49b' }}>
-                  Sign out from this session, but keep this account saved for quick login later
-                </Typography>
-              </Box>
-            }
-            sx={{ mb: 2, alignItems: 'flex-start', mt: 1 }}
-          />
-
-          <FormControlLabel
-            control={
-              <Radio
-                checked={logoutType === 'hard'}
-                onChange={() => setLogoutType('hard')}
-                disabled={loading}
-                sx={{ color: '#f9c806' }}
-              />
-            }
-            label={
-              <Box>
-                <Typography sx={{ fontWeight: 600, mb: 0.5 }}>Hard Logout</Typography>
-                <Typography sx={{ fontSize: '0.85rem', color: '#bbb49b' }}>
-                  Completely remove this account from this device. You'll need to log in again.
-                </Typography>
-              </Box>
-            }
-            sx={{ alignItems: 'flex-start', mt: 1 }}
-          />
-        </FormControl>
+        <Typography sx={{ fontSize: '0.95rem', color: '#bbb49b' }}>
+          Are you sure you want to logout? You will need to log in again to access your account.
+        </Typography>
       </DialogContent>
       <DialogActions sx={{ backgroundColor: '#231f0f', p: 2 }}>
         <Button onClick={onClose} disabled={loading} sx={{ color: '#bbb49b' }}>
