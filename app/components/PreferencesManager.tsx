@@ -3,6 +3,7 @@
 import { colors } from '@/lib/colors';
 import { useState, useEffect } from 'react';
 import { account } from '@/lib/appwrite';
+import { useTheme } from '@/lib/theme-context';
 import {
   Box,
   Typography,
@@ -21,7 +22,7 @@ import SaveIcon from '@mui/icons-material/Save';
 interface PrefsData {
   language?: string;
   timezone?: string;
-  darkTheme?: boolean;
+  theme?: 'light' | 'dark' | 'system';
   emailNotifications?: boolean;
   sessionReminders?: boolean;
   dataCollection?: boolean;
@@ -58,15 +59,23 @@ const TIMEZONES = [
   { value: 'Australia/Sydney', label: 'Sydney' },
 ];
 
+const THEMES = [
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+  { value: 'system', label: 'System' },
+];
+
 export default function PreferencesManager({ onSave }: PreferencesManagerProps) {
+  const { theme, setTheme } = useTheme();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [themeError, setThemeError] = useState<string | null>(null);
   const [prefs, setPrefs] = useState<PrefsData>({
     language: 'en',
     timezone: 'UTC',
-    darkTheme: true,
+    theme: 'system',
     emailNotifications: true,
     sessionReminders: true,
     dataCollection: false,
@@ -85,7 +94,7 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
       setPrefs({
         language: appPrefs?.language || 'en',
         timezone: appPrefs?.timezone || 'UTC',
-        darkTheme: appPrefs?.darkTheme !== false,
+        theme: appPrefs?.theme || 'system',
         emailNotifications: appPrefs?.emailNotifications !== false,
         sessionReminders: appPrefs?.sessionReminders !== false,
         dataCollection: appPrefs?.dataCollection === true,
@@ -111,6 +120,16 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
       setError((err as Error).message);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleThemeChange = async (newTheme: 'light' | 'dark' | 'system') => {
+    try {
+      setThemeError(null);
+      setPrefs({ ...prefs, theme: newTheme });
+      await setTheme(newTheme);
+    } catch (err) {
+      setThemeError((err as Error).message);
     }
   };
 
@@ -220,34 +239,45 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
           <Typography sx={{ fontSize: '1.125rem', fontWeight: 600, mb: 2, color: 'white' }}>
             Display Preferences
           </Typography>
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              p: 2,
-              backgroundColor: colors.secondary,
-              borderRadius: '0.5rem',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-            }}
-          >
+          <Stack spacing={2}>
             <Box>
-              <Typography sx={{ fontSize: '0.875rem', color: 'white' }}>Dark Theme</Typography>
-              <Typography sx={{ fontSize: '0.75rem', color: colors.foreground }}>
-                Use dark theme for the interface
+              <Typography sx={{ fontSize: '0.875rem', color: colors.foreground, mb: 1 }}>
+                Theme
               </Typography>
+              <Select
+                value={prefs.theme || 'system'}
+                onChange={(e) => handleThemeChange(e.target.value as 'light' | 'dark' | 'system')}
+                sx={{
+                  backgroundColor: colors.secondary,
+                  color: 'white',
+                  borderRadius: '0.5rem',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'rgba(255, 255, 255, 0.2)',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: colors.primary,
+                  },
+                  '& .MuiSvgIcon-root': {
+                    color: colors.primary,
+                  },
+                }}
+              >
+                {THEMES.map((t) => (
+                  <MenuItem key={t.value} value={t.value}>
+                    {t.label}
+                  </MenuItem>
+                ))}
+              </Select>
+              {themeError && (
+                <Typography sx={{ fontSize: '0.75rem', color: '#ef4444', mt: 1 }}>
+                  {themeError}
+                </Typography>
+              )}
             </Box>
-            <Switch
-              checked={prefs.darkTheme !== false}
-              onChange={(e) => setPrefs({ ...prefs, darkTheme: e.target.checked })}
-              sx={{
-                '& .MuiSwitch-switchBase.Mui-checked': { color: colors.primary },
-                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                  backgroundColor: colors.primary,
-                },
-              }}
-            />
-          </Box>
+          </Stack>
         </Box>
 
         <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
