@@ -103,7 +103,19 @@ export default function PasskeyList({
   return (
     <Stack spacing={2}>
       {error && (
-        <Alert severity="error">
+        <Alert 
+          severity="error"
+          sx={{
+            borderRadius: '0.75rem',
+            boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+            backgroundColor: '#3a2420',
+            color: '#ff8a65',
+            '& .MuiAlertTitle-root': {
+              color: '#ff8a65',
+            },
+            border: '1px solid #8b4f3f',
+          }}
+        >
           <AlertTitle>Error</AlertTitle>
           {error}
         </Alert>
@@ -111,13 +123,26 @@ export default function PasskeyList({
 
       <Stack spacing={2}>
         {passkeys.map((passkey) => (
-          <Card key={passkey.id} sx={{ boxShadow: 1 }}>
+          <Card 
+            key={passkey.id} 
+            sx={{ 
+              borderRadius: '0.75rem',
+              boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+              border: '1px solid rgba(0, 0, 0, 0.08)',
+              backgroundColor: '#1f1e18',
+              transition: 'box-shadow 0.2s, transform 0.2s',
+              '&:hover': {
+                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                transform: 'translateY(-1px)',
+              }
+            }}
+          >
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <Box sx={{ flex: 1 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
                     <Typography sx={{ fontSize: 18 }}>🔑</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>
                       {passkey.name}
                     </Typography>
                     <Chip
@@ -131,14 +156,18 @@ export default function PasskeyList({
                             : 'error'
                       }
                       variant="outlined"
+                      sx={{
+                        borderRadius: '0.5rem',
+                        fontWeight: 500,
+                      }}
                     />
                   </Box>
                   <Stack spacing={0.5}>
-                    <Typography variant="caption" sx={{ color: '#64748b' }}>
+                    <Typography variant="caption" sx={{ color: '#bbb49b' }}>
                       Created: {new Date(passkey.createdAt).toLocaleDateString()}
                     </Typography>
                     {passkey.lastUsedAt && (
-                      <Typography variant="caption" sx={{ color: '#64748b' }}>
+                      <Typography variant="caption" sx={{ color: '#bbb49b' }}>
                         Last used: {new Date(passkey.lastUsedAt).toLocaleDateString()}
                       </Typography>
                     )}
@@ -150,7 +179,13 @@ export default function PasskeyList({
                     size="small"
                     onClick={() => onRenameClick(passkey)}
                     title="Rename"
-                    sx={{ color: '#2563eb' }}
+                    sx={{ 
+                      color: '#2563eb',
+                      borderRadius: '0.5rem',
+                      '&:hover': {
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                      }
+                    }}
                   >
                     <EditIcon fontSize="small" />
                   </IconButton>
@@ -160,7 +195,13 @@ export default function PasskeyList({
                       onClick={() => handleDisable(passkey.id)}
                       disabled={disabling === passkey.id}
                       title="Disable"
-                      sx={{ color: '#f59e0b' }}
+                      sx={{ 
+                        color: '#f59e0b',
+                        borderRadius: '0.5rem',
+                        '&:hover': {
+                          backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        }
+                      }}
                     >
                       <DisabledByDefaultIcon fontSize="small" />
                     </IconButton>
@@ -171,7 +212,13 @@ export default function PasskeyList({
                       onClick={() => handleEnable(passkey.id)}
                       disabled={enabling === passkey.id}
                       title="Enable"
-                      sx={{ color: '#10b981' }}
+                      sx={{ 
+                        color: '#10b981',
+                        borderRadius: '0.5rem',
+                        '&:hover': {
+                          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        }
+                      }}
                     >
                       <CheckCircleIcon fontSize="small" />
                     </IconButton>
@@ -181,7 +228,13 @@ export default function PasskeyList({
                     onClick={() => handleDelete(passkey.id)}
                     disabled={deleting === passkey.id}
                     title="Delete"
-                    sx={{ color: '#ef4444' }}
+                    sx={{ 
+                      color: '#ef4444',
+                      borderRadius: '0.5rem',
+                      '&:hover': {
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                      }
+                    }}
                   >
                     <DeleteIcon fontSize="small" />
                   </IconButton>

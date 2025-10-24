@@ -51,26 +51,67 @@ export default function AddPasskeyModal({
   };
 
   return (
-    <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ fontWeight: 700 }}>Add Passkey</DialogTitle>
-      <DialogContent sx={{ pt: 2 }}>
+    <Dialog 
+      open={isOpen} 
+      onClose={onClose} 
+      maxWidth="sm" 
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: '1rem',
+          boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+          backgroundColor: '#231f0f',
+          color: 'white',
+        }
+      }}
+    >
+      <DialogTitle sx={{ fontWeight: 700, pb: 1, color: 'white' }}>Add Passkey</DialogTitle>
+      <DialogContent sx={{ pt: 2, backgroundColor: '#181711' }}>
         {success ? (
           <Stack sx={{ textAlign: 'center', py: 3 }} spacing={2}>
             <Box sx={{ fontSize: 32 }}>✓</Box>
-            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>
               Success!
             </Typography>
-            <Typography sx={{ color: '#64748b' }}>Passkey added successfully</Typography>
+            <Typography sx={{ color: '#bbb49b' }}>Passkey added successfully</Typography>
           </Stack>
         ) : (
           <Stack spacing={2}>
-            {error && <Alert severity="error">{error}</Alert>}
+            {error && (
+              <Alert 
+                severity="error"
+                sx={{
+                  borderRadius: '0.75rem',
+                  boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
+                  backgroundColor: '#3a2420',
+                  color: '#ff8a65',
+                  '& .MuiAlertTitle-root': {
+                    color: '#ff8a65',
+                  },
+                  border: '1px solid #8b4f3f',
+                }}
+              >
+                {error}
+              </Alert>
+            )}
 
-            <Typography sx={{ color: '#64748b' }}>
+            <Typography sx={{ color: '#bbb49b' }}>
               Register a new passkey to your account for easier authentication.
             </Typography>
 
-            <Alert severity="info">
+            <Alert 
+              severity="info"
+              sx={{
+                borderRadius: '0.75rem',
+                boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
+                backgroundColor: '#1e293b',
+                color: '#7dd3fc',
+                '& .MuiAlertTitle-root': {
+                  color: '#7dd3fc',
+                },
+                border: '1px solid #0369a1',
+              }}
+            >
               <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
                 What happens next?
               </Typography>
@@ -82,10 +123,22 @@ export default function AddPasskeyModal({
           </Stack>
         )}
       </DialogContent>
-      <DialogActions sx={{ p: 2 }}>
+      <DialogActions sx={{ p: 2, gap: 1, backgroundColor: '#231f0f' }}>
         {!success && (
           <>
-            <Button onClick={onClose} disabled={loading}>
+            <Button 
+              onClick={onClose} 
+              disabled={loading}
+              sx={{
+                borderRadius: '0.5rem',
+                textTransform: 'none',
+                fontWeight: 600,
+                color: '#bbb49b',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                }
+              }}
+            >
               Cancel
             </Button>
             <Button
@@ -93,15 +146,20 @@ export default function AddPasskeyModal({
               disabled={loading}
               variant="contained"
               sx={{
+                borderRadius: '0.5rem',
+                textTransform: 'none',
+                fontWeight: 600,
+                boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
                 background: 'linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)',
                 '&:hover': {
                   background: 'linear-gradient(135deg, #1d4ed8 0%, #4338ca 100%)',
+                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
                 },
               }}
             >
               {loading ? (
                 <>
-                  <CircularProgress size={20} sx={{ mr: 1 }} />
+                  <CircularProgress size={20} sx={{ mr: 1, color: 'white' }} />
                   Adding...
                 </>
               ) : (

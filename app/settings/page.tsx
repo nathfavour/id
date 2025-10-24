@@ -180,6 +180,7 @@ export default function SettingsPage() {
               borderRadius: '0.75rem',
               backgroundColor: '#231f0f',
               border: '1px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
               mb: 4,
             }}
           >
@@ -239,8 +240,11 @@ export default function SettingsPage() {
                     borderRadius: '0.5rem',
                     cursor: 'pointer',
                     backgroundColor: activeTab === id ? 'rgba(249, 200, 6, 0.2)' : 'transparent',
-                    '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
-                    transition: 'background-color 0.2s',
+                    boxShadow: activeTab === id ? '0 1px 2px 0 rgb(0 0 0 / 0.2)' : 'none',
+                    '&:hover': { 
+                      backgroundColor: activeTab === id ? 'rgba(249, 200, 6, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                    },
+                    transition: 'background-color 0.2s, box-shadow 0.2s',
                   }}
                 >
                   <Icon sx={{ color: activeTab === id ? '#f9c806' : 'white', fontSize: 20 }} />
@@ -285,6 +289,7 @@ export default function SettingsPage() {
                   backgroundColor: '#1f1e18',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: '0.75rem',
+                  boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
                   overflow: 'hidden',
                 }}
               >
@@ -308,7 +313,8 @@ export default function SettingsPage() {
                       fontSize: '1rem',
                       fontWeight: 500,
                       textTransform: 'none',
-                      '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' },
+                      borderRadius: '0.5rem',
+                      '&:hover': { backgroundColor: 'rgba(249, 200, 6, 0.1)', textDecoration: 'underline' },
                     }}
                   >
                     Edit
@@ -322,6 +328,7 @@ export default function SettingsPage() {
                   backgroundColor: '#1f1e18',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: '0.75rem',
+                  boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
                   overflow: 'hidden',
                   p: 2,
                 }}
@@ -337,6 +344,7 @@ export default function SettingsPage() {
                   backgroundColor: '#1f1e18',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: '0.75rem',
+                  boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
                   overflow: 'hidden',
                   p: 2,
                 }}
@@ -365,8 +373,12 @@ export default function SettingsPage() {
                       fontSize: '0.875rem',
                       textTransform: 'none',
                       borderRadius: '0.5rem',
+                      boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
                       whiteSpace: 'nowrap',
-                      '&:hover': { backgroundColor: '#ffd633' },
+                      '&:hover': { 
+                        backgroundColor: '#ffd633',
+                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3)',
+                      },
                     }}
                   >
                     Copy
@@ -401,7 +413,11 @@ export default function SettingsPage() {
                       fontSize: '0.875rem',
                       textTransform: 'none',
                       borderRadius: '0.5rem',
-                      '&:hover': { backgroundColor: '#ffd633' },
+                      boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
+                      '&:hover': { 
+                        backgroundColor: '#ffd633',
+                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3)',
+                      },
                     }}
                   >
                     Add Passkey
@@ -421,6 +437,7 @@ export default function SettingsPage() {
                       backgroundColor: '#1f1e18',
                       border: '1px solid rgba(255, 255, 255, 0.1)',
                       borderRadius: '0.75rem',
+                      boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
                       p: 3,
                       textAlign: 'center',
                     }}
@@ -484,6 +501,7 @@ export default function SettingsPage() {
                     backgroundColor: '#1f1e18',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '0.75rem',
+                    boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
                     p: 2,
                   }}
                 >
@@ -532,6 +550,7 @@ export default function SettingsPage() {
                     backgroundColor: '#1f1e18',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '0.75rem',
+                    boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
                     p: 3,
                   }}
                 >
@@ -553,6 +572,7 @@ export default function SettingsPage() {
                     backgroundColor: '#1f1e18',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '0.75rem',
+                    boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
                     p: 3,
                   }}
                 >
@@ -574,6 +594,7 @@ export default function SettingsPage() {
                     backgroundColor: '#1f1e18',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '0.75rem',
+                    boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
                     p: 3,
                   }}
                 >
@@ -595,6 +616,7 @@ export default function SettingsPage() {
                     backgroundColor: '#1f1e18',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '0.75rem',
+                    boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
                     p: 3,
                   }}
                 >
@@ -614,6 +636,7 @@ export default function SettingsPage() {
                   backgroundColor: '#1f1e18',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: '0.75rem',
+                  boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
                   overflow: 'hidden',
                   divide: '1px solid rgba(255, 255, 255, 0.1)',
                 }}
@@ -637,7 +660,11 @@ export default function SettingsPage() {
                         fontWeight: 500,
                         textTransform: 'none',
                         borderRadius: '0.5rem',
-                        '&:hover': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                        boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.2)',
+                        '&:hover': { 
+                          borderColor: 'rgba(255, 255, 255, 0.3)',
+                          boxShadow: '0 2px 4px 0 rgb(0 0 0 / 0.3)',
+                        },
                       }}
                     >
                       Export
@@ -665,9 +692,11 @@ export default function SettingsPage() {
                         fontWeight: 500,
                         textTransform: 'none',
                         borderRadius: '0.5rem',
+                        boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.2)',
                         '&:hover': {
                           backgroundColor: 'rgba(239, 68, 68, 0.2)',
                           borderColor: 'rgba(239, 68, 68, 0.5)',
+                          boxShadow: '0 2px 4px 0 rgb(0 0 0 / 0.3)',
                         },
                       }}
                     >

@@ -36,11 +36,30 @@ export function LogoutDialog({ open, onClose, onLogoutComplete }: LogoutDialogPr
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ backgroundColor: '#231f0f', color: 'white' }}>Logout</DialogTitle>
+    <Dialog 
+      open={open} 
+      onClose={onClose} 
+      maxWidth="sm" 
+      fullWidth
+      PaperProps={{
+        sx: {
+          backgroundColor: '#231f0f',
+          borderRadius: '1rem',
+          boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3)',
+        }
+      }}
+    >
+      <DialogTitle sx={{ backgroundColor: '#231f0f', color: 'white', pb: 1 }}>Logout</DialogTitle>
       <DialogContent sx={{ backgroundColor: '#181711', color: 'white', pt: 3 }}>
         {error && (
-          <Box sx={{ mb: 2, p: 1.5, backgroundColor: '#3a2420', border: '1px solid #8b4f3f', borderRadius: '0.5rem' }}>
+          <Box sx={{ 
+            mb: 2, 
+            p: 1.5, 
+            backgroundColor: '#3a2420', 
+            border: '1px solid #8b4f3f', 
+            borderRadius: '0.5rem',
+            boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3)',
+          }}>
             <Typography sx={{ fontSize: '0.875rem', color: '#ff8a65' }}>{error}</Typography>
           </Box>
         )}
@@ -49,8 +68,17 @@ export function LogoutDialog({ open, onClose, onLogoutComplete }: LogoutDialogPr
           Are you sure you want to logout? You will need to log in again to access your account.
         </Typography>
       </DialogContent>
-      <DialogActions sx={{ backgroundColor: '#231f0f', p: 2 }}>
-        <Button onClick={onClose} disabled={loading} sx={{ color: '#bbb49b' }}>
+      <DialogActions sx={{ backgroundColor: '#231f0f', p: 2, gap: 1 }}>
+        <Button 
+          onClick={onClose} 
+          disabled={loading} 
+          sx={{ 
+            color: '#bbb49b',
+            borderRadius: '0.5rem',
+            textTransform: 'none',
+            fontWeight: 600,
+          }}
+        >
           Cancel
         </Button>
         <Button
@@ -60,7 +88,14 @@ export function LogoutDialog({ open, onClose, onLogoutComplete }: LogoutDialogPr
           sx={{
             backgroundColor: '#c91d1d',
             color: 'white',
-            '&:hover:not(:disabled)': { backgroundColor: '#a01515' },
+            borderRadius: '0.5rem',
+            textTransform: 'none',
+            fontWeight: 600,
+            boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
+            '&:hover:not(:disabled)': { 
+              backgroundColor: '#a01515',
+              boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3)',
+            },
             '&:disabled': { opacity: 0.6 },
           }}
         >

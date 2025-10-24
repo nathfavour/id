@@ -133,7 +133,14 @@ export default function SessionsManager({ onSessionsLoaded }: SessionsManagerPro
   return (
     <Box>
       {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
+        <Alert 
+          severity="error" 
+          sx={{ 
+            mb: 3,
+            borderRadius: '0.75rem',
+            boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3)',
+          }}
+        >
           <AlertTitle>Error</AlertTitle>
           {error}
         </Alert>
@@ -145,6 +152,7 @@ export default function SessionsManager({ onSessionsLoaded }: SessionsManagerPro
             backgroundColor: '#1f1e18',
             border: '1px solid rgba(255, 255, 255, 0.1)',
             borderRadius: '0.75rem',
+            boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
             p: 3,
             textAlign: 'center',
           }}
@@ -170,7 +178,11 @@ export default function SessionsManager({ onSessionsLoaded }: SessionsManagerPro
                   textTransform: 'none',
                   borderRadius: '0.5rem',
                   border: '1px solid rgba(255, 255, 255, 0.2)',
-                  '&:hover': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                  boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.2)',
+                  '&:hover': { 
+                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                    boxShadow: '0 2px 4px 0 rgb(0 0 0 / 0.3)',
+                  },
                 }}
               >
                 Refresh
@@ -187,9 +199,11 @@ export default function SessionsManager({ onSessionsLoaded }: SessionsManagerPro
                     textTransform: 'none',
                     borderRadius: '0.5rem',
                     border: '1px solid rgba(239, 68, 68, 0.3)',
+                    boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.2)',
                     '&:hover': {
                       backgroundColor: 'rgba(239, 68, 68, 0.2)',
                       borderColor: 'rgba(239, 68, 68, 0.5)',
+                      boxShadow: '0 2px 4px 0 rgb(0 0 0 / 0.3)',
                     },
                   }}
                 >
@@ -207,11 +221,17 @@ export default function SessionsManager({ onSessionsLoaded }: SessionsManagerPro
                   backgroundColor: '#1f1e18',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: '0.75rem',
+                  boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
                   p: 3,
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'flex-start',
                   gap: 2,
+                  transition: 'box-shadow 0.2s, transform 0.2s',
+                  '&:hover': {
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3)',
+                    transform: 'translateY(-1px)',
+                  }
                 }}
               >
                 <Box sx={{ flex: 1 }}>
@@ -268,6 +288,7 @@ export default function SessionsManager({ onSessionsLoaded }: SessionsManagerPro
                           fontWeight: 500,
                           height: 20,
                           mt: 1,
+                          borderRadius: '0.375rem',
                         }}
                       />
                     )}
@@ -288,9 +309,11 @@ export default function SessionsManager({ onSessionsLoaded }: SessionsManagerPro
                     borderRadius: '0.5rem',
                     border: '1px solid rgba(239, 68, 68, 0.3)',
                     whiteSpace: 'nowrap',
+                    boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.2)',
                     '&:hover': {
                       backgroundColor: 'rgba(239, 68, 68, 0.2)',
                       borderColor: 'rgba(239, 68, 68, 0.5)',
+                      boxShadow: '0 2px 4px 0 rgb(0 0 0 / 0.3)',
                     },
                     '&:disabled': { opacity: 0.5 },
                   }}
@@ -311,18 +334,27 @@ export default function SessionsManager({ onSessionsLoaded }: SessionsManagerPro
           sx: {
             backgroundColor: '#231f0f',
             border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '0.75rem',
+            borderRadius: '1rem',
+            boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3)',
           },
         }}
       >
-        <DialogTitle sx={{ color: 'white' }}>Logout Session</DialogTitle>
+        <DialogTitle sx={{ color: 'white', pb: 1 }}>Logout Session</DialogTitle>
         <DialogContent>
           <Typography sx={{ color: '#bbb49b', mt: 2 }}>
             Are you sure you want to logout this session? This action cannot be undone.
           </Typography>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setDeleteDialogOpen(false)} sx={{ color: '#bbb49b' }}>
+        <DialogActions sx={{ p: 2, gap: 1 }}>
+          <Button 
+            onClick={() => setDeleteDialogOpen(false)} 
+            sx={{ 
+              color: '#bbb49b',
+              borderRadius: '0.5rem',
+              textTransform: 'none',
+              fontWeight: 600,
+            }}
+          >
             Cancel
           </Button>
           <Button
@@ -332,7 +364,14 @@ export default function SessionsManager({ onSessionsLoaded }: SessionsManagerPro
             sx={{
               backgroundColor: '#ef4444',
               color: 'white',
-              '&:hover': { backgroundColor: '#dc2626' },
+              borderRadius: '0.5rem',
+              textTransform: 'none',
+              fontWeight: 600,
+              boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
+              '&:hover': { 
+                backgroundColor: '#dc2626',
+                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3)',
+              },
             }}
           >
             {deleting ? 'Logging out...' : 'Logout'}
