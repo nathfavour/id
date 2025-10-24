@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useSource } from '@/lib/source-context';
 import { Box, CircularProgress } from '@mui/material';
 import { colors } from '@/lib/colors';
+import { getAppOrigin } from '@/lib/app-origin';
 
 function HomeContent() {
   const router = useRouter();
@@ -24,7 +25,7 @@ function HomeContent() {
         if (userData && source) {
           router.replace(source);
         } else if (userData) {
-          router.replace('https://app.whisperrnote.space');
+          router.replace(getAppOrigin());
         } else {
           router.replace('/login');
         }

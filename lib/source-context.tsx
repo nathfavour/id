@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback } from 'react';
+import { getAppOrigin } from './app-origin';
 
 interface SourceContextType {
   source: string | null;
@@ -12,7 +13,7 @@ export function SourceProvider({ children }: { children: React.ReactNode }) {
   const [source, setSource] = useState<string | null>(null);
 
   const getBackUrl = useCallback(() => {
-    return source || 'https://app.whisperrnote.space';
+    return source || getAppOrigin();
   }, [source]);
 
   return (
