@@ -127,8 +127,6 @@ export default function SettingsPage() {
 
   const handleLogoutComplete = () => {
     localStorage.removeItem('id_redirect_source');
-    // If there are other accounts, go to login to select one
-    // Otherwise, go to login as well (no multi-account)
     router.replace('/login');
   };
 

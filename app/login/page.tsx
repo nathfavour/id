@@ -276,12 +276,6 @@ function LoginContent() {
           } else {
             if (verifyJson.token?.secret) {
               await safeCreateSession(verifyJson.token.userId || email, verifyJson.token.secret);
-              // Store this account for multi-account switching
-              try {
-                const userData = await account.get();
-              } catch (e) {
-                // Ignore account errors
-              }
               router.replace('/');
               return;
             }
@@ -335,12 +329,6 @@ function LoginContent() {
       }
       if (regVerifyJson.token?.secret) {
         await safeCreateSession(regVerifyJson.token.userId || email, regVerifyJson.token.secret);
-        // Store this account for multi-account switching
-        try {
-          const userData = await account.get();
-        } catch (e) {
-          // Ignore account errors
-        }
         router.replace('/');
         return;
       }
