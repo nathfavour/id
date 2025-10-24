@@ -12,6 +12,10 @@ import PasskeyList from '@/app/components/PasskeyList';
 import AddPasskeyModal from '@/app/components/AddPasskeyModal';
 import RenamePasskeyModal from '@/app/components/RenamePasskeyModal';
 import WalletManager from '@/app/components/WalletManager';
+import PreferencesManager from '@/app/components/PreferencesManager';
+import SessionsManager from '@/app/components/SessionsManager';
+import ActivityLogs from '@/app/components/ActivityLogs';
+import ConnectedIdentities from '@/app/components/ConnectedIdentities';
 import { listPasskeys } from '@/lib/passkey-client-utils';
 import {
   Container,
@@ -28,7 +32,7 @@ import {
   IconButton,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { Person, Lock, Settings as SettingsIcon, AccountBalanceWallet, Fingerprint } from '@mui/icons-material';
+import { Person, Lock, Settings as SettingsIcon, AccountBalanceWallet, Fingerprint, History, LinkIcon } from '@mui/icons-material';
 
 interface UserData {
   email: string;
@@ -53,7 +57,7 @@ export default function SettingsPage() {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [renameModalOpen, setRenameModalOpen] = useState(false);
   const [selectedPasskey, setSelectedPasskey] = useState<Passkey | null>(null);
-  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'account'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'sessions' | 'activity' | 'identities' | 'preferences' | 'account'>('profile');
   const [mfaEnabled, setMfaEnabled] = useState(true);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
@@ -229,83 +233,42 @@ export default function SettingsPage() {
 
             {/* Navigation Items */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 3 }}>
-              <Box
-                onClick={() => setActiveTab('profile')}
-                sx={{
-                  display: 'flex',
-                  gap: 2,
-                  alignItems: 'center',
-                  p: '0.5rem 0.75rem',
-                  borderRadius: '0.5rem',
-                  cursor: 'pointer',
-                  backgroundColor: activeTab === 'profile' ? 'rgba(249, 200, 6, 0.2)' : 'transparent',
-                  '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
-                  transition: 'background-color 0.2s',
-                }}
-              >
-                <Person sx={{ color: activeTab === 'profile' ? '#f9c806' : 'white', fontSize: 24 }} />
-                <Typography
+              {[
+                { id: 'profile', label: 'Profile', icon: Person },
+                { id: 'security', label: 'Security', icon: Lock },
+                { id: 'sessions', label: 'Sessions', icon: Fingerprint },
+                { id: 'activity', label: 'Activity', icon: History },
+                { id: 'identities', label: 'Identities', icon: LinkIcon },
+                { id: 'preferences', label: 'Preferences', icon: SettingsIcon },
+                { id: 'account', label: 'Account', icon: AccountBalanceWallet },
+              ].map(({ id, label, icon: Icon }) => (
+                <Box
+                  key={id}
+                  onClick={() => setActiveTab(id as any)}
                   sx={{
-                    fontSize: '0.875rem',
-                    fontWeight: 500,
-                    color: activeTab === 'profile' ? '#f9c806' : 'white',
+                    display: 'flex',
+                    gap: 2,
+                    alignItems: 'center',
+                    p: '0.5rem 0.75rem',
+                    borderRadius: '0.5rem',
+                    cursor: 'pointer',
+                    backgroundColor: activeTab === id ? 'rgba(249, 200, 6, 0.2)' : 'transparent',
+                    '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
+                    transition: 'background-color 0.2s',
                   }}
                 >
-                  Profile
-                </Typography>
-              </Box>
-
-              <Box
-                onClick={() => setActiveTab('security')}
-                sx={{
-                  display: 'flex',
-                  gap: 2,
-                  alignItems: 'center',
-                  p: '0.5rem 0.75rem',
-                  borderRadius: '0.5rem',
-                  cursor: 'pointer',
-                  backgroundColor: activeTab === 'security' ? 'rgba(249, 200, 6, 0.2)' : 'transparent',
-                  '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
-                  transition: 'background-color 0.2s',
-                }}
-              >
-                <Lock sx={{ color: activeTab === 'security' ? '#f9c806' : 'white', fontSize: 24 }} />
-                <Typography
-                  sx={{
-                    fontSize: '0.875rem',
-                    fontWeight: 500,
-                    color: activeTab === 'security' ? '#f9c806' : 'white',
-                  }}
-                >
-                  Security
-                </Typography>
-              </Box>
-
-              <Box
-                onClick={() => setActiveTab('account')}
-                sx={{
-                  display: 'flex',
-                  gap: 2,
-                  alignItems: 'center',
-                  p: '0.5rem 0.75rem',
-                  borderRadius: '0.5rem',
-                  cursor: 'pointer',
-                  backgroundColor: activeTab === 'account' ? 'rgba(249, 200, 6, 0.2)' : 'transparent',
-                  '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
-                  transition: 'background-color 0.2s',
-                }}
-              >
-                <SettingsIcon sx={{ color: activeTab === 'account' ? '#f9c806' : 'white', fontSize: 24 }} />
-                <Typography
-                  sx={{
-                    fontSize: '0.875rem',
-                    fontWeight: 500,
-                    color: activeTab === 'account' ? '#f9c806' : 'white',
-                  }}
-                >
-                  Account
-                </Typography>
-              </Box>
+                  <Icon sx={{ color: activeTab === id ? '#f9c806' : 'white', fontSize: 20 }} />
+                  <Typography
+                    sx={{
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      color: activeTab === id ? '#f9c806' : 'white',
+                    }}
+                  >
+                    {label}
+                  </Typography>
+                </Box>
+              ))}
             </Box>
           </Box>
         </Box>
@@ -566,6 +529,90 @@ export default function SettingsPage() {
                       }}
                     />
                   </Box>
+                </Box>
+              </Box>
+            </Box>
+          )}
+
+          {/* Sessions Section */}
+          {activeTab === 'sessions' && (
+            <Box sx={{ space: 4 }}>
+              <Box sx={{ mb: 6 }}>
+                <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>
+                  Active Sessions
+                </Typography>
+                <Box
+                  sx={{
+                    backgroundColor: '#1f1e18',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '0.75rem',
+                    p: 3,
+                  }}
+                >
+                  <SessionsManager />
+                </Box>
+              </Box>
+            </Box>
+          )}
+
+          {/* Activity Section */}
+          {activeTab === 'activity' && (
+            <Box sx={{ space: 4 }}>
+              <Box sx={{ mb: 6 }}>
+                <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>
+                  Activity Logs
+                </Typography>
+                <Box
+                  sx={{
+                    backgroundColor: '#1f1e18',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '0.75rem',
+                    p: 3,
+                  }}
+                >
+                  <ActivityLogs />
+                </Box>
+              </Box>
+            </Box>
+          )}
+
+          {/* Connected Identities Section */}
+          {activeTab === 'identities' && (
+            <Box sx={{ space: 4 }}>
+              <Box sx={{ mb: 6 }}>
+                <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>
+                  Connected Identities
+                </Typography>
+                <Box
+                  sx={{
+                    backgroundColor: '#1f1e18',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '0.75rem',
+                    p: 3,
+                  }}
+                >
+                  <ConnectedIdentities />
+                </Box>
+              </Box>
+            </Box>
+          )}
+
+          {/* Preferences Section */}
+          {activeTab === 'preferences' && (
+            <Box sx={{ space: 4 }}>
+              <Box sx={{ mb: 6 }}>
+                <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>
+                  Preferences
+                </Typography>
+                <Box
+                  sx={{
+                    backgroundColor: '#1f1e18',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '0.75rem',
+                    p: 3,
+                  }}
+                >
+                  <PreferencesManager />
                 </Box>
               </Box>
             </Box>
