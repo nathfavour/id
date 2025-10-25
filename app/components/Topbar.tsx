@@ -15,16 +15,18 @@ import {
   Typography,
   Divider,
 } from '@mui/material';
-import { Logout, Settings, ArrowBack } from '@mui/icons-material';
+import { Logout, Settings, ArrowBack, Fingerprint, History } from '@mui/icons-material';
 
 interface TopbarProps {
   userName?: string;
   userEmail?: string;
   onManageAccount?: () => void;
   onSignOut?: () => void;
+  onSessionsClick?: () => void;
+  onActivityClick?: () => void;
 }
 
-export default function Topbar({ userName, userEmail, onManageAccount, onSignOut }: TopbarProps) {
+export default function Topbar({ userName, userEmail, onManageAccount, onSignOut, onSessionsClick, onActivityClick }: TopbarProps) {
   const dynamicColors = useColors();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const router = useRouter();
@@ -57,6 +59,20 @@ export default function Topbar({ userName, userEmail, onManageAccount, onSignOut
     handleMenuClose();
     if (onSignOut) {
       onSignOut();
+    }
+  };
+
+  const handleSessions = () => {
+    handleMenuClose();
+    if (onSessionsClick) {
+      onSessionsClick();
+    }
+  };
+
+  const handleActivity = () => {
+    handleMenuClose();
+    if (onActivityClick) {
+      onActivityClick();
     }
   };
 
@@ -197,6 +213,30 @@ export default function Topbar({ userName, userEmail, onManageAccount, onSignOut
           >
             <Settings sx={{ mr: 1, fontSize: '1.25rem' }} />
             Manage Account
+          </MenuItem>
+
+          <MenuItem
+            onClick={handleSessions}
+            sx={{
+              color: 'white',
+              fontSize: '0.875rem',
+              '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
+            }}
+          >
+            <Fingerprint sx={{ mr: 1, fontSize: '1.25rem' }} />
+            Sessions
+          </MenuItem>
+
+          <MenuItem
+            onClick={handleActivity}
+            sx={{
+              color: 'white',
+              fontSize: '0.875rem',
+              '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
+            }}
+          >
+            <History sx={{ mr: 1, fontSize: '1.25rem' }} />
+            Activity
           </MenuItem>
 
           <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)', my: 1 }} />

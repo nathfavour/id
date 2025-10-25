@@ -30,9 +30,10 @@ import {
   Switch,
   Divider,
   IconButton,
+  Drawer,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { Person, Lock, Settings as SettingsIcon, AccountBalanceWallet, Fingerprint, History, Link, ArrowBack } from '@mui/icons-material';
+import { Person, Lock, Settings as SettingsIcon, AccountBalanceWallet, Fingerprint, History, Link, ArrowBack, Menu as MenuIcon } from '@mui/icons-material';
 
 interface UserData {
   email: string;
@@ -74,6 +75,7 @@ function SettingsContent() {
   const [mfaEnabled, setMfaEnabled] = useState(true);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setSource, getBackUrl } = useSource();
@@ -171,30 +173,16 @@ function SettingsContent() {
     );
   }
 
-  return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: dynamicColors.background, color: 'white', display: 'flex', flexDirection: 'column' }}>
-      <Topbar
-        userName={user.name}
-        userEmail={user.email}
-        onAddAccount={() => router.push('/login')}
-        onManageAccount={() => {}}
-        onSignOut={handleSignOut}
-      />
-      {/* Main Container */}
-      <Box sx={{ display: 'flex', flex: 1 }}>
-        {/* Sidebar */}
-        <Box
-          sx={{
-            width: { xs: '0', md: '25%' },
-            display: { xs: 'none', md: 'flex' },
-            flexDirection: 'column',
-            borderRight: '1px solid rgba(255, 255, 255, 0.1)',
-            p: 3,
-            backgroundColor: dynamicColors.background,
-            maxHeight: '100vh',
-            overflowY: 'auto',
-          }}
-        >
+  const sidebarContent = (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        p: 3,
+        backgroundColor: dynamicColors.background,
+        height: '100%',
+      }}
+    >
           {/* User Profile Card */}
           <Box
             sx={{
@@ -284,7 +272,10 @@ function SettingsContent() {
               ].map(({ id, label, icon: Icon }) => (
                 <Box
                   key={id}
-                  onClick={() => setActiveTab(id as any)}
+                  onClick={() => {
+                    setActiveTab(id as any);
+                    setMobileSidebarOpen(false);
+                  }}
                   sx={{
                     display: 'flex',
                     gap: 2,
@@ -314,12 +305,88 @@ function SettingsContent() {
               ))}
             </Box>
           </Box>
+    </Box>
+  );
+
+  return (
+    <Box sx={{ minHeight: '100vh', backgroundColor: dynamicColors.background, color: 'white', display: 'flex', flexDirection: 'column' }}>
+      <Topbar
+        userName={user.name}
+        userEmail={user.email}
+        onManageAccount={() => {}}
+        onSignOut={handleSignOut}
+        onSessionsClick={() => setActiveTab('sessions')}
+        onActivityClick={() => setActiveTab('activity')}
+      />
+      
+      {/* Mobile Menu Button */}
+      <Box
+        sx={{
+          display: { xs: 'flex', md: 'none' },
+          p: 2,
+          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          backgroundColor: dynamicColors.background,
+        }}
+      >
+        <IconButton
+          onClick={() => setMobileSidebarOpen(true)}
+          sx={{
+            color: 'white',
+            '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' },
+          }}
+        >
+          <MenuIcon />
+        </IconButton>
+        <Typography sx={{ ml: 2, lineHeight: '40px', fontSize: '1.125rem', fontWeight: 600 }}>
+          {activeTab === 'profile' && 'Profile'}
+          {activeTab === 'security' && 'Security'}
+          {activeTab === 'sessions' && 'Sessions'}
+          {activeTab === 'activity' && 'Activity'}
+          {activeTab === 'identities' && 'Identities'}
+          {activeTab === 'preferences' && 'Preferences'}
+          {activeTab === 'account' && 'Account'}
+        </Typography>
+      </Box>
+
+      {/* Main Container */}
+      <Box sx={{ display: 'flex', flex: 1 }}>
+        {/* Desktop Sidebar */}
+        <Box
+          sx={{
+            width: { xs: '0', md: '25%' },
+            display: { xs: 'none', md: 'flex' },
+            flexDirection: 'column',
+            borderRight: '1px solid rgba(255, 255, 255, 0.1)',
+            backgroundColor: dynamicColors.background,
+            maxHeight: '100vh',
+            overflowY: 'auto',
+          }}
+        >
+          {sidebarContent}
         </Box>
+
+        {/* Mobile Sidebar Drawer */}
+        <Drawer
+          anchor="left"
+          open={mobileSidebarOpen}
+          onClose={() => setMobileSidebarOpen(false)}
+          sx={{
+            display: { xs: 'block', md: 'none' },
+            '& .MuiDrawer-paper': {
+              width: '80%',
+              maxWidth: '320px',
+              backgroundColor: dynamicColors.background,
+              overflowY: 'auto',
+            },
+          }}
+        >
+          {sidebarContent}
+        </Drawer>
 
         {/* Main Content */}
         <Box sx={{ flex: 1, p: { xs: 2, md: 4 }, backgroundColor: dynamicColors.background }}>
           {/* Header */}
-          <Box sx={{ mb: 6 }}>
+          <Box sx={{ mb: 6, display: { xs: 'none', md: 'block' } }}>
             <Typography
               sx={{
                 fontSize: '2.25rem',
@@ -336,7 +403,7 @@ function SettingsContent() {
           {/* Profile Section */}
           {activeTab === 'profile' && (
             <Box>
-              <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>Username</Typography>
+              <Typography sx={{ fontSize: { xs: '1.125rem', md: '1.375rem' }, fontWeight: 700, mb: 3 }}>Username</Typography>
               <Box
                 sx={{
                   backgroundColor: dynamicColors.secondary,
@@ -375,7 +442,7 @@ function SettingsContent() {
                 </Box>
               </Box>
 
-              <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3, mt: 6 }}>Email</Typography>
+              <Typography sx={{ fontSize: { xs: '1.125rem', md: '1.375rem' }, fontWeight: 700, mb: 3, mt: 6 }}>Email</Typography>
               <Box
                 sx={{
                   backgroundColor: dynamicColors.secondary,
@@ -391,7 +458,7 @@ function SettingsContent() {
                 </Typography>
               </Box>
 
-              <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3, mt: 6 }}>User ID</Typography>
+              <Typography sx={{ fontSize: { xs: '1.125rem', md: '1.375rem' }, fontWeight: 700, mb: 3, mt: 6 }}>User ID</Typography>
               <Box
                 sx={{
                   backgroundColor: dynamicColors.secondary,
@@ -449,12 +516,14 @@ function SettingsContent() {
                 <Box
                   sx={{
                     display: 'flex',
+                    flexDirection: { xs: 'column', sm: 'row' },
                     justifyContent: 'space-between',
-                    alignItems: 'center',
+                    alignItems: { xs: 'stretch', sm: 'center' },
+                    gap: 2,
                     mb: 3,
                   }}
                 >
-                  <Typography sx={{ fontSize: '1.375rem', fontWeight: 700 }}>Passkeys</Typography>
+                  <Typography sx={{ fontSize: { xs: '1.125rem', md: '1.375rem' }, fontWeight: 700 }}>Passkeys</Typography>
                   <Button
                     onClick={() => setAddModalOpen(true)}
                     variant="contained"
@@ -520,7 +589,7 @@ function SettingsContent() {
 
               {/* Wallets */}
               <Box sx={{ mb: 6 }}>
-                <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>
+                <Typography sx={{ fontSize: { xs: '1.125rem', md: '1.375rem' }, fontWeight: 700, mb: 3 }}>
                   Connected Wallet
                 </Typography>
                 <Box
@@ -548,7 +617,7 @@ function SettingsContent() {
 
               {/* MFA */}
               <Box>
-                <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>Multi-Factor Authentication (MFA)</Typography>
+                <Typography sx={{ fontSize: { xs: '1.125rem', md: '1.375rem' }, fontWeight: 700, mb: 3 }}>Multi-Factor Authentication (MFA)</Typography>
                 <Box
                   sx={{
                     backgroundColor: dynamicColors.secondary,
@@ -595,7 +664,7 @@ function SettingsContent() {
           {activeTab === 'sessions' && (
             <Box sx={{ space: 4 }}>
               <Box sx={{ mb: 6 }}>
-                <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>
+                <Typography sx={{ fontSize: { xs: '1.125rem', md: '1.375rem' }, fontWeight: 700, mb: 3 }}>
                   Active Sessions
                 </Typography>
                 <Box
@@ -617,7 +686,7 @@ function SettingsContent() {
           {activeTab === 'activity' && (
             <Box sx={{ space: 4 }}>
               <Box sx={{ mb: 6 }}>
-                <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>
+                <Typography sx={{ fontSize: { xs: '1.125rem', md: '1.375rem' }, fontWeight: 700, mb: 3 }}>
                   Activity Logs
                 </Typography>
                 <Box
@@ -639,7 +708,7 @@ function SettingsContent() {
           {activeTab === 'identities' && (
             <Box sx={{ space: 4 }}>
               <Box sx={{ mb: 6 }}>
-                <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>
+                <Typography sx={{ fontSize: { xs: '1.125rem', md: '1.375rem' }, fontWeight: 700, mb: 3 }}>
                   Connected Identities
                 </Typography>
                 <Box
@@ -661,7 +730,7 @@ function SettingsContent() {
           {activeTab === 'preferences' && (
             <Box sx={{ space: 4 }}>
               <Box sx={{ mb: 6 }}>
-                <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>
+                <Typography sx={{ fontSize: { xs: '1.125rem', md: '1.375rem' }, fontWeight: 700, mb: 3 }}>
                   Preferences
                 </Typography>
                 <Box
@@ -682,7 +751,7 @@ function SettingsContent() {
           {/* Account Section */}
           {activeTab === 'account' && (
             <Box>
-              <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>Account</Typography>
+              <Typography sx={{ fontSize: { xs: '1.125rem', md: '1.375rem' }, fontWeight: 700, mb: 3 }}>Account</Typography>
               
               <Box
                 sx={{

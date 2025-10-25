@@ -1,6 +1,5 @@
 'use client';
 import { useColors } from '@/lib/theme-context';
-  const dynamicColors = useColors();
 
 import { colors } from '@/lib/colors';
 import { useState } from 'react';
