@@ -103,7 +103,7 @@ export default function Topbar({ userName, userEmail, onManageAccount, onSignOut
   return (
     <Box
       sx={{
-        backgroundColor: '#181711',
+        backgroundColor: dynamicColors.background,
         borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
         p: '0.75rem 1.5rem',
         display: 'flex',
@@ -116,7 +116,7 @@ export default function Topbar({ userName, userEmail, onManageAccount, onSignOut
         sx={{
           fontSize: '1.25rem',
           fontWeight: 700,
-          color: '#f9c806',
+          color: dynamicColors.primary,
           cursor: 'pointer',
         }}
         onClick={() => router.push('/')}
@@ -154,7 +154,7 @@ export default function Topbar({ userName, userEmail, onManageAccount, onSignOut
           transformOrigin={{ vertical: 'top', horizontal: 'right' }}
           sx={{
             '& .MuiPaper-root': {
-              backgroundColor: '#1f1e18',
+              backgroundColor: dynamicColors.secondary,
               border: '1px solid rgba(255, 255, 255, 0.1)',
               mt: 1,
             },
@@ -180,7 +180,7 @@ export default function Topbar({ userName, userEmail, onManageAccount, onSignOut
                     <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: 'white' }}>
                       {userName}
                     </Typography>
-                    <Typography sx={{ fontSize: '0.75rem', color: '#bbb49b' }}>
+                    <Typography sx={{ fontSize: '0.75rem', color: dynamicColors.foreground }}>
                       {userEmail}
                     </Typography>
                   </Stack>

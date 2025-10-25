@@ -119,10 +119,14 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
   const handleThemeChange = async (newTheme: 'light' | 'dark' | 'system') => {
     try {
       setError(null);
-      setPrefs({ ...prefs, theme: newTheme });
+      const updatedPrefs = { ...prefs, theme: newTheme };
+      setPrefs(updatedPrefs);
+      await account.updatePrefs(updatedPrefs);
       await setTheme(newTheme);
+      onSave?.();
     } catch (err) {
       setError((err as Error).message);
+      setPrefs(prefs);
     }
   };
 
