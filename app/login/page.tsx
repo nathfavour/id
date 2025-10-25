@@ -7,6 +7,7 @@ import { Box, Typography, Stack, TextField, Button, Alert, CircularProgress, Ico
 import { Visibility, VisibilityOff, Close, Edit, VpnKey, Wallet } from '@mui/icons-material';
 import { safeCreateSession, safeDeleteCurrentSession } from '@/lib/safe-session';
 import { colors } from '@/lib/colors';
+import { useColors } from '@/lib/theme-context';
 import { useSource } from '@/lib/source-context';
 
 const client = new Client();
@@ -55,8 +56,8 @@ function publicKeyCredentialToJSON(pubKeyCred: unknown): unknown {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}>
-        <CircularProgress sx={{ color: colors.primary }} />
+      <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#181711' }}>
+        <CircularProgress sx={{ color: '#f9c806' }} />
       </Box>
     }>
       <LoginContent />
@@ -65,6 +66,7 @@ export default function LoginPage() {
 }
 
 function LoginContent() {
+  const dynamicColors = useColors();
   const router = useRouter();
   const searchParams = useSearchParams();
   const theme = useTheme();
@@ -380,7 +382,7 @@ function LoginContent() {
           width: '100%',
           maxWidth: isDesktop ? 560 : 448,
           borderRadius: '0.75rem',
-          backgroundColor: colors.secondary,
+          backgroundColor: dynamicColors.secondary,
           p: 4,
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8)',
           position: 'relative',
@@ -391,7 +393,7 @@ function LoginContent() {
           <IconButton
             onClick={() => router.push('/')}
             sx={{
-              color: colors.foreground,
+              color: dynamicColors.foreground,
               '&:hover': { color: 'white' },
             }}
           >
@@ -491,7 +493,7 @@ function LoginContent() {
             {/* Divider */}
             <Box sx={{ display: 'flex', alignItems: 'center', my: 4, gap: 2 }}>
               <Box sx={{ flex: 1, height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.1)' }} />
-              <Typography sx={{ fontSize: '0.875rem', color: colors.foreground, whiteSpace: 'nowrap' }}>or enter email</Typography>
+              <Typography sx={{ fontSize: '0.875rem', color: dynamicColors.foreground, whiteSpace: 'nowrap' }}>or enter email</Typography>
               <Box sx={{ flex: 1, height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.1)' }} />
             </Box>
 
@@ -509,14 +511,14 @@ function LoginContent() {
                       color: 'white',
                       height: '3rem',
                       borderRadius: '0.5rem',
-                      backgroundColor: colors.secondary,
+                      backgroundColor: dynamicColors.secondary,
                       border: '1px solid rgba(255, 255, 255, 0.2)',
                       '&:hover': { borderColor: 'rgba(255, 255, 255, 0.3)' },
-                      '&.Mui-focused': { borderColor: colors.primary },
+                      '&.Mui-focused': { borderColor: dynamicColors.primary },
                       '& fieldset': { border: 'none' },
                     },
                     '& .MuiOutlinedInput-input::placeholder': {
-                      color: colors.foreground,
+                      color: dynamicColors.foreground,
                       opacity: 1,
                     },
                   }}
@@ -530,7 +532,7 @@ function LoginContent() {
                   disabled={!emailValid || loading}
                   fullWidth
                   sx={{
-                    backgroundColor: emailValid ? colors.primary : 'rgba(255, 255, 255, 0.1)',
+                    backgroundColor: emailValid ? dynamicColors.primary : 'rgba(255, 255, 255, 0.1)',
                     color: '#ffffff !important',
                     height: 48,
                     borderRadius: '0.5rem',
@@ -543,7 +545,7 @@ function LoginContent() {
                     justifyContent: 'center',
                     gap: 1,
                     '& svg': { color: '#ffffff !important' },
-                    '&:hover:not(:disabled)': { backgroundColor: colors.primary, opacity: 0.9 },
+                    '&:hover:not(:disabled)': { backgroundColor: dynamicColors.primary, opacity: 0.9 },
                   }}
                 >
                   <VpnKey sx={{ fontSize: '1.2rem' }} />
@@ -558,7 +560,7 @@ function LoginContent() {
                   disabled={!emailValid || loading}
                   fullWidth
                   sx={{
-                    backgroundColor: emailValid ? colors.primary : 'rgba(255, 255, 255, 0.1)',
+                    backgroundColor: emailValid ? dynamicColors.primary : 'rgba(255, 255, 255, 0.1)',
                     color: '#ffffff !important',
                     height: 48,
                     borderRadius: '0.5rem',
@@ -571,7 +573,7 @@ function LoginContent() {
                     justifyContent: 'center',
                     gap: 1,
                     '& svg': { color: '#ffffff !important' },
-                    '&:hover:not(:disabled)': { backgroundColor: colors.primary, opacity: 0.9 },
+                    '&:hover:not(:disabled)': { backgroundColor: dynamicColors.primary, opacity: 0.9 },
                   }}
                 >
                   <Wallet sx={{ fontSize: '1.2rem' }} />
@@ -586,8 +588,8 @@ function LoginContent() {
                   disabled={false}
                   sx={{
                     textTransform: 'none',
-                    color: colors.primary,
-                    '&:hover': { color: colors.primary, textDecoration: 'underline', opacity: 0.9 },
+                    color: dynamicColors.primary,
+                    '&:hover': { color: dynamicColors.primary, textDecoration: 'underline', opacity: 0.9 },
                     fontSize: '0.9rem',
                     fontWeight: 500,
                     textDecoration: 'underline',
@@ -625,10 +627,10 @@ function LoginContent() {
                       color: 'white',
                       height: '2.5rem',
                       borderRadius: '0.5rem',
-                      backgroundColor: colors.secondary,
+                      backgroundColor: dynamicColors.secondary,
                       border: '1px solid rgba(255, 255, 255, 0.2)',
                       '&:hover': { borderColor: 'rgba(255, 255, 255, 0.3)' },
-                      '&.Mui-focused': { borderColor: colors.primary },
+                      '&.Mui-focused': { borderColor: dynamicColors.primary },
                       '& fieldset': { border: 'none' },
                       textAlign: 'center',
                     },
@@ -636,7 +638,7 @@ function LoginContent() {
                       textAlign: 'center',
                     },
                     '& .MuiOutlinedInput-input::placeholder': {
-                      color: colors.foreground,
+                      color: dynamicColors.foreground,
                       opacity: 1,
                     },
                   }}
@@ -651,13 +653,13 @@ function LoginContent() {
                 onChange={(e, newValue) => setAuthMethod(newValue)}
                 sx={{
                   '& .MuiTab-root': {
-                    color: colors.foreground,
+                    color: dynamicColors.foreground,
                     textTransform: 'none',
                     fontWeight: 500,
                     fontSize: '0.9rem',
-                    '&.Mui-selected': { color: colors.primary },
+                    '&.Mui-selected': { color: dynamicColors.primary },
                   },
-                  '& .MuiTabs-indicator': { backgroundColor: colors.primary },
+                  '& .MuiTabs-indicator': { backgroundColor: dynamicColors.primary },
                 }}
               >
                 <Tab label="Password" />
@@ -682,14 +684,14 @@ function LoginContent() {
                           color: 'white',
                           height: '3rem',
                           borderRadius: '0.5rem',
-                          backgroundColor: colors.secondary,
+                          backgroundColor: dynamicColors.secondary,
                           border: '1px solid rgba(255, 255, 255, 0.2)',
                           '&:hover': { borderColor: 'rgba(255, 255, 255, 0.3)' },
-                          '&.Mui-focused': { borderColor: colors.primary },
+                          '&.Mui-focused': { borderColor: dynamicColors.primary },
                           '& fieldset': { border: 'none' },
                         },
                         '& .MuiOutlinedInput-input::placeholder': {
-                          color: colors.foreground,
+                          color: dynamicColors.foreground,
                           opacity: 1,
                         },
                       }}
@@ -699,7 +701,7 @@ function LoginContent() {
                       sx={{
                         position: 'absolute',
                         right: 12,
-                        color: colors.foreground,
+                        color: dynamicColors.foreground,
                         '&:hover': { color: 'white' },
                       }}
                     >
@@ -713,8 +715,8 @@ function LoginContent() {
                       href="#"
                       sx={{
                         textTransform: 'none',
-                        color: colors.primary,
-                        '&:hover': { color: colors.primary, textDecoration: 'underline', opacity: 0.9 },
+                        color: dynamicColors.primary,
+                        '&:hover': { color: dynamicColors.primary, textDecoration: 'underline', opacity: 0.9 },
                         fontSize: '0.85rem',
                         p: 0,
                       }}
@@ -730,13 +732,13 @@ function LoginContent() {
                       disabled={!password.trim() || loading}
                       fullWidth
                       sx={{
-                        backgroundColor: colors.primary,
-                        color: colors.secondary,
+                        backgroundColor: dynamicColors.primary,
+                        color: dynamicColors.secondary,
                         height: 48,
                         borderRadius: '0.5rem',
                         fontWeight: 700,
                         textTransform: 'none',
-                        '&:hover:not(:disabled)': { backgroundColor: colors.primary, opacity: 0.9 },
+                        '&:hover:not(:disabled)': { backgroundColor: dynamicColors.primary, opacity: 0.9 },
                         '&:disabled': { cursor: 'not-allowed', backgroundColor: 'rgba(255, 255, 255, 0.1)' },
                       }}
                     >
@@ -759,14 +761,14 @@ function LoginContent() {
                           color: 'white',
                           height: '3rem',
                           borderRadius: '0.5rem',
-                          backgroundColor: colors.secondary,
+                          backgroundColor: dynamicColors.secondary,
                           border: '1px solid rgba(255, 255, 255, 0.2)',
                           '&:hover': { borderColor: 'rgba(255, 255, 255, 0.3)' },
-                          '&.Mui-focused': { borderColor: colors.primary },
+                          '&.Mui-focused': { borderColor: dynamicColors.primary },
                           '& fieldset': { border: 'none' },
                         },
                         '& .MuiOutlinedInput-input::placeholder': {
-                          color: colors.foreground,
+                          color: dynamicColors.foreground,
                           opacity: 1,
                         },
                       }}
@@ -780,13 +782,13 @@ function LoginContent() {
                       disabled={otp.length !== 6 || loading}
                       fullWidth
                       sx={{
-                        backgroundColor: colors.primary,
-                        color: colors.secondary,
+                        backgroundColor: dynamicColors.primary,
+                        color: dynamicColors.secondary,
                         height: 48,
                         borderRadius: '0.5rem',
                         fontWeight: 700,
                         textTransform: 'none',
-                        '&:hover:not(:disabled)': { backgroundColor: colors.primary, opacity: 0.9 },
+                        '&:hover:not(:disabled)': { backgroundColor: dynamicColors.primary, opacity: 0.9 },
                         '&:disabled': { cursor: 'not-allowed', backgroundColor: 'rgba(255, 255, 255, 0.1)' },
                       }}
                     >

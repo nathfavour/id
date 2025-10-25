@@ -1,4 +1,5 @@
 'use client';
+import { useColors } from '@/lib/theme-context';
 
 import { colors } from '@/lib/colors';
 import { useState, useEffect } from 'react';
@@ -33,6 +34,7 @@ interface SessionsManagerProps {
 }
 
 export default function SessionsManager({ onSessionsLoaded }: SessionsManagerProps) {
+  const dynamicColors = useColors();
   const [loading, setLoading] = useState(true);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -126,7 +128,7 @@ export default function SessionsManager({ onSessionsLoaded }: SessionsManagerPro
   if (loading && sessions.length === 0) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
-        <CircularProgress size={40} sx={{ color: colors.primary }} />
+        <CircularProgress size={40} sx={{ color: dynamicColors.primary }} />
       </Box>
     );
   }
@@ -150,7 +152,7 @@ export default function SessionsManager({ onSessionsLoaded }: SessionsManagerPro
       {sessions.length === 0 ? (
         <Box
           sx={{
-            backgroundColor: colors.secondary,
+            backgroundColor: dynamicColors.secondary,
             border: '1px solid rgba(255, 255, 255, 0.1)',
             borderRadius: '0.75rem',
             boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
@@ -158,12 +160,12 @@ export default function SessionsManager({ onSessionsLoaded }: SessionsManagerPro
             textAlign: 'center',
           }}
         >
-          <Typography sx={{ color: colors.foreground }}>No active sessions found.</Typography>
+          <Typography sx={{ color: dynamicColors.foreground }}>No active sessions found.</Typography>
         </Box>
       ) : (
         <Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Typography sx={{ color: colors.foreground, fontSize: '0.875rem' }}>
+            <Typography sx={{ color: dynamicColors.foreground, fontSize: '0.875rem' }}>
               {sessions.length} active {sessions.length === 1 ? 'session' : 'sessions'}
             </Typography>
             <Box sx={{ display: 'flex', gap: 2 }}>
@@ -219,7 +221,7 @@ export default function SessionsManager({ onSessionsLoaded }: SessionsManagerPro
               <Box
                 key={session.$id}
                 sx={{
-                  backgroundColor: colors.secondary,
+                  backgroundColor: dynamicColors.secondary,
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: '0.75rem',
                   boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
@@ -246,7 +248,7 @@ export default function SessionsManager({ onSessionsLoaded }: SessionsManagerPro
                         height: 40,
                         borderRadius: '0.5rem',
                         backgroundColor: 'rgba(249, 200, 6, 0.1)',
-                        color: colors.primary,
+                        color: dynamicColors.primary,
                       }}
                     >
                       {getDeviceIcon(session.deviceType || 'desktop')}
@@ -255,7 +257,7 @@ export default function SessionsManager({ onSessionsLoaded }: SessionsManagerPro
                       <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'white' }}>
                         {session.clientName || 'Unknown Client'} ({session.deviceType?.toUpperCase() || 'DESKTOP'})
                       </Typography>
-                      <Typography sx={{ fontSize: '0.75rem', color: colors.foreground }}>
+                      <Typography sx={{ fontSize: '0.75rem', color: dynamicColors.foreground }}>
                         {getCountryFromIP(session.ip)} • {session.ip}
                       </Typography>
                     </Box>
@@ -263,7 +265,7 @@ export default function SessionsManager({ onSessionsLoaded }: SessionsManagerPro
 
                   <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 2 }}>
                     <Box>
-                      <Typography sx={{ fontSize: '0.65rem', color: colors.foreground, textTransform: 'uppercase' }}>
+                      <Typography sx={{ fontSize: '0.65rem', color: dynamicColors.foreground, textTransform: 'uppercase' }}>
                         Last Active
                       </Typography>
                       <Typography sx={{ fontSize: '0.75rem', color: 'white' }}>
@@ -271,7 +273,7 @@ export default function SessionsManager({ onSessionsLoaded }: SessionsManagerPro
                       </Typography>
                     </Box>
                     <Box>
-                      <Typography sx={{ fontSize: '0.65rem', color: colors.foreground, textTransform: 'uppercase' }}>
+                      <Typography sx={{ fontSize: '0.65rem', color: dynamicColors.foreground, textTransform: 'uppercase' }}>
                         Created
                       </Typography>
                       <Typography sx={{ fontSize: '0.75rem', color: 'white' }}>
@@ -333,7 +335,7 @@ export default function SessionsManager({ onSessionsLoaded }: SessionsManagerPro
         onClose={() => setDeleteDialogOpen(false)}
         PaperProps={{
           sx: {
-            backgroundColor: colors.secondary,
+            backgroundColor: dynamicColors.secondary,
             border: '1px solid rgba(255, 255, 255, 0.1)',
             borderRadius: '1rem',
             boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3)',
@@ -342,7 +344,7 @@ export default function SessionsManager({ onSessionsLoaded }: SessionsManagerPro
       >
         <DialogTitle sx={{ color: 'white', pb: 1 }}>Logout Session</DialogTitle>
         <DialogContent>
-          <Typography sx={{ color: colors.foreground, mt: 2 }}>
+          <Typography sx={{ color: dynamicColors.foreground, mt: 2 }}>
             Are you sure you want to logout this session? This action cannot be undone.
           </Typography>
         </DialogContent>
@@ -350,7 +352,7 @@ export default function SessionsManager({ onSessionsLoaded }: SessionsManagerPro
           <Button 
             onClick={() => setDeleteDialogOpen(false)} 
             sx={{ 
-              color: colors.foreground,
+              color: dynamicColors.foreground,
               borderRadius: '0.5rem',
               textTransform: 'none',
               fontWeight: 600,

@@ -1,4 +1,5 @@
 'use client';
+import { useColors } from '@/lib/theme-context';
 
 import { colors } from '@/lib/colors';
 import { useState, useEffect } from 'react';
@@ -63,6 +64,7 @@ const EVENT_COLORS: Record<string, string> = {
 };
 
 export default function ActivityLogs({ onLogsLoaded }: ActivityLogsProps) {
+  const dynamicColors = useColors();
   const [loading, setLoading] = useState(true);
   const [logs, setLogs] = useState<Log[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -110,7 +112,7 @@ export default function ActivityLogs({ onLogsLoaded }: ActivityLogsProps) {
   };
 
   const getEventColor = (event: string): string => {
-    return EVENT_COLORS[event] || colors.primary;
+    return EVENT_COLORS[event] || dynamicColors.primary;
   };
 
   const filteredLogs = logs.filter((log) =>
@@ -123,7 +125,7 @@ export default function ActivityLogs({ onLogsLoaded }: ActivityLogsProps) {
   if (loading && logs.length === 0) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
-        <CircularProgress size={40} sx={{ color: colors.primary }} />
+        <CircularProgress size={40} sx={{ color: dynamicColors.primary }} />
       </Box>
     );
   }
@@ -140,14 +142,14 @@ export default function ActivityLogs({ onLogsLoaded }: ActivityLogsProps) {
       {logs.length === 0 ? (
         <Box
           sx={{
-            backgroundColor: colors.secondary,
+            backgroundColor: dynamicColors.secondary,
             border: '1px solid rgba(255, 255, 255, 0.1)',
             borderRadius: '0.75rem',
             p: 3,
             textAlign: 'center',
           }}
         >
-          <Typography sx={{ color: colors.foreground }}>No activity logs found.</Typography>
+          <Typography sx={{ color: dynamicColors.foreground }}>No activity logs found.</Typography>
         </Box>
       ) : (
         <Box>
@@ -163,7 +165,7 @@ export default function ActivityLogs({ onLogsLoaded }: ActivityLogsProps) {
               sx={{
                 flex: 1,
                 '& .MuiOutlinedInput-root': {
-                  backgroundColor: colors.secondary,
+                  backgroundColor: dynamicColors.secondary,
                   color: 'white',
                   '& fieldset': {
                     borderColor: 'rgba(255, 255, 255, 0.2)',
@@ -172,11 +174,11 @@ export default function ActivityLogs({ onLogsLoaded }: ActivityLogsProps) {
                     borderColor: 'rgba(255, 255, 255, 0.3)',
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: colors.primary,
+                    borderColor: dynamicColors.primary,
                   },
                 },
                 '& .MuiOutlinedInput-input::placeholder': {
-                  color: colors.foreground,
+                  color: dynamicColors.foreground,
                   opacity: 0.7,
                 },
               }}
@@ -202,7 +204,7 @@ export default function ActivityLogs({ onLogsLoaded }: ActivityLogsProps) {
 
           <TableContainer
             sx={{
-              backgroundColor: colors.secondary,
+              backgroundColor: dynamicColors.secondary,
               border: '1px solid rgba(255, 255, 255, 0.1)',
               borderRadius: '0.75rem',
               overflow: 'hidden',
@@ -210,11 +212,11 @@ export default function ActivityLogs({ onLogsLoaded }: ActivityLogsProps) {
           >
             <Table size="small">
               <TableHead>
-                <TableRow sx={{ backgroundColor: colors.secondary }}>
-                  <TableCell sx={{ color: colors.foreground, fontSize: '0.75rem', fontWeight: 600 }}>Event</TableCell>
-                  <TableCell sx={{ color: colors.foreground, fontSize: '0.75rem', fontWeight: 600 }}>IP Address</TableCell>
-                  <TableCell sx={{ color: colors.foreground, fontSize: '0.75rem', fontWeight: 600 }}>Location</TableCell>
-                  <TableCell sx={{ color: colors.foreground, fontSize: '0.75rem', fontWeight: 600 }}>Timestamp</TableCell>
+                <TableRow sx={{ backgroundColor: dynamicColors.secondary }}>
+                  <TableCell sx={{ color: dynamicColors.foreground, fontSize: '0.75rem', fontWeight: 600 }}>Event</TableCell>
+                  <TableCell sx={{ color: dynamicColors.foreground, fontSize: '0.75rem', fontWeight: 600 }}>IP Address</TableCell>
+                  <TableCell sx={{ color: dynamicColors.foreground, fontSize: '0.75rem', fontWeight: 600 }}>Location</TableCell>
+                  <TableCell sx={{ color: dynamicColors.foreground, fontSize: '0.75rem', fontWeight: 600 }}>Timestamp</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -249,13 +251,13 @@ export default function ActivityLogs({ onLogsLoaded }: ActivityLogsProps) {
                         </Box>
                       </Box>
                     </TableCell>
-                    <TableCell sx={{ color: colors.foreground, fontSize: '0.875rem', fontFamily: 'monospace' }}>
+                    <TableCell sx={{ color: dynamicColors.foreground, fontSize: '0.875rem', fontFamily: 'monospace' }}>
                       {log.ip}
                     </TableCell>
-                    <TableCell sx={{ color: colors.foreground, fontSize: '0.875rem' }}>
+                    <TableCell sx={{ color: dynamicColors.foreground, fontSize: '0.875rem' }}>
                       {log.countryCode || '—'}
                     </TableCell>
-                    <TableCell sx={{ color: colors.foreground, fontSize: '0.875rem', whiteSpace: 'nowrap' }}>
+                    <TableCell sx={{ color: dynamicColors.foreground, fontSize: '0.875rem', whiteSpace: 'nowrap' }}>
                       {formatDate(log.createdAt)}
                     </TableCell>
                   </TableRow>
@@ -273,13 +275,13 @@ export default function ActivityLogs({ onLogsLoaded }: ActivityLogsProps) {
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
             sx={{
-              backgroundColor: colors.secondary,
+              backgroundColor: dynamicColors.secondary,
               borderTop: '1px solid rgba(255, 255, 255, 0.1)',
               '& .MuiTablePagination-toolbar': {
-                color: colors.foreground,
+                color: dynamicColors.foreground,
               },
               '& .MuiIconButton-root': {
-                color: colors.foreground,
+                color: dynamicColors.foreground,
               },
               '& .MuiIconButton-root:hover': {
                 backgroundColor: 'rgba(255, 255, 255, 0.1)',

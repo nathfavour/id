@@ -1,4 +1,5 @@
 'use client';
+import { useColors } from '@/lib/theme-context';
 
 import { colors } from '@/lib/colors';
 import { useState } from 'react';
@@ -31,6 +32,7 @@ export default function WalletManager({
   onWalletConnected,
   onWalletDisconnected,
 }: WalletManagerProps) {
+  const dynamicColors = useColors();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -136,7 +138,7 @@ export default function WalletManager({
       {connectedWallet && (
         <Box
           sx={{
-            backgroundColor: colors.secondary,
+            backgroundColor: dynamicColors.secondary,
             border: '1px solid rgba(249, 200, 6, 0.3)',
             borderRadius: '0.75rem',
             p: 2,
@@ -144,7 +146,7 @@ export default function WalletManager({
           }}
         >
           <Stack spacing={1}>
-            <Typography sx={{ fontSize: '0.875rem', color: colors.foreground, mb: 0.5 }}>
+            <Typography sx={{ fontSize: '0.875rem', color: dynamicColors.foreground, mb: 0.5 }}>
               Connected Wallet Address
             </Typography>
             <Typography sx={{ fontSize: '1rem', color: 'white', fontFamily: 'monospace', wordBreak: 'break-all' }}>
@@ -163,8 +165,8 @@ export default function WalletManager({
             variant="contained"
             startIcon={loading ? <CircularProgress size={20} /> : <LinkIcon />}
             sx={{
-              backgroundColor: colors.primary,
-              color: colors.secondary,
+              backgroundColor: dynamicColors.primary,
+              color: dynamicColors.secondary,
               fontWeight: 700,
               textTransform: 'none',
               borderRadius: '0.5rem',
@@ -210,19 +212,19 @@ export default function WalletManager({
 
       {/* Disconnect Confirmation Dialog */}
       <Dialog open={disconnectConfirm} onClose={() => setDisconnectConfirm(false)}>
-        <DialogTitle sx={{ backgroundColor: colors.secondary, color: 'white' }}>
+        <DialogTitle sx={{ backgroundColor: dynamicColors.secondary, color: 'white' }}>
           Disconnect Wallet
         </DialogTitle>
-        <DialogContent sx={{ backgroundColor: colors.secondary, color: 'white', minWidth: 400 }}>
+        <DialogContent sx={{ backgroundColor: dynamicColors.secondary, color: 'white', minWidth: 400 }}>
           <Alert severity="warning" sx={{ mt: 2 }}>
             <AlertTitle>Confirm Disconnection</AlertTitle>
             Are you sure you want to disconnect your wallet? You can reconnect it anytime.
           </Alert>
         </DialogContent>
-        <DialogActions sx={{ backgroundColor: colors.secondary }}>
+        <DialogActions sx={{ backgroundColor: dynamicColors.secondary }}>
           <Button
             onClick={() => setDisconnectConfirm(false)}
-            sx={{ color: colors.foreground }}
+            sx={{ color: dynamicColors.foreground }}
           >
             Cancel
           </Button>

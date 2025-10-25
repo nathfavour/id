@@ -1,4 +1,5 @@
 'use client';
+import { useColors } from '@/lib/theme-context';
 
 import { colors } from '@/lib/colors';
 import { useState } from 'react';
@@ -40,6 +41,7 @@ export default function RenamePasskeyModal({
   onClose,
   onSuccess,
 }: RenamePasskeyModalProps) {
+  const dynamicColors = useColors();
   const [newName, setNewName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -82,15 +84,15 @@ export default function RenamePasskeyModal({
         sx: {
           borderRadius: '1rem',
           boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
-          backgroundColor: colors.secondary,
+          backgroundColor: dynamicColors.secondary,
           color: 'white',
         }
       }}
     >
       <DialogTitle sx={{ fontWeight: 700, pb: 1, color: 'white' }}>Rename Passkey</DialogTitle>
-      <DialogContent sx={{ pt: 2, backgroundColor: colors.background }}>
+      <DialogContent sx={{ pt: 2, backgroundColor: dynamicColors.background }}>
         <Stack spacing={2}>
-          <Typography sx={{ color: colors.foreground }}>Give your passkey a memorable name</Typography>
+          <Typography sx={{ color: dynamicColors.foreground }}>Give your passkey a memorable name</Typography>
 
           {error && (
             <Alert 
@@ -127,7 +129,7 @@ export default function RenamePasskeyModal({
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '0.5rem',
-                  backgroundColor: colors.secondary,
+                  backgroundColor: dynamicColors.secondary,
                   color: 'white',
                   '& fieldset': {
                     borderColor: 'rgba(255, 255, 255, 0.2)',
@@ -148,13 +150,13 @@ export default function RenamePasskeyModal({
                 },
               }}
             />
-            <Typography variant="caption" sx={{ color: colors.foreground, mt: 0.5, display: 'block' }}>
+            <Typography variant="caption" sx={{ color: dynamicColors.foreground, mt: 0.5, display: 'block' }}>
               {newName.length}/50 characters
             </Typography>
           </Box>
         </Stack>
       </DialogContent>
-      <DialogActions sx={{ p: 2, gap: 1, backgroundColor: colors.secondary }}>
+      <DialogActions sx={{ p: 2, gap: 1, backgroundColor: dynamicColors.secondary }}>
         <Button 
           onClick={handleClose} 
           disabled={loading}
@@ -162,7 +164,7 @@ export default function RenamePasskeyModal({
             borderRadius: '0.5rem',
             textTransform: 'none',
             fontWeight: 600,
-            color: colors.foreground,
+            color: dynamicColors.foreground,
             '&:hover': {
               backgroundColor: 'rgba(255, 255, 255, 0.05)',
             }

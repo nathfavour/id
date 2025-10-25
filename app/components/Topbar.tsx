@@ -1,4 +1,5 @@
 'use client';
+import { useColors } from '@/lib/theme-context';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -24,6 +25,7 @@ interface TopbarProps {
 }
 
 export default function Topbar({ userName, userEmail, onManageAccount, onSignOut }: TopbarProps) {
+  const dynamicColors = useColors();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const router = useRouter();
   const { getBackUrl } = useSource();
@@ -79,7 +81,7 @@ export default function Topbar({ userName, userEmail, onManageAccount, onSignOut
     for (let i = 0; i < email.length; i++) {
       hash = email.charCodeAt(i) + ((hash << 5) - hash);
     }
-    return colors[Math.abs(hash) % colors.length];
+    return colors[Math.abs(hash) % dynamicColors.length];
   };
 
   return (
@@ -176,7 +178,7 @@ export default function Topbar({ userName, userEmail, onManageAccount, onSignOut
           <MenuItem
             onClick={handleBackToApp}
             sx={{
-              color: colors.primary,
+              color: dynamicColors.primary,
               fontSize: '0.875rem',
               '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
             }}

@@ -1,6 +1,7 @@
 'use client';
 
 import { colors } from '@/lib/colors';
+import { useColors } from '@/lib/theme-context';
 import { useEffect, useState, Suspense } from 'react';
 import { account } from '@/lib/appwrite';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -50,8 +51,8 @@ interface Passkey {
 export default function SettingsPage() {
   return (
     <Suspense fallback={
-      <Box sx={{ minHeight: '100vh', backgroundColor: colors.background, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <CircularProgress sx={{ color: colors.primary }} />
+      <Box sx={{ minHeight: '100vh', backgroundColor: '#181711', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <CircularProgress sx={{ color: '#f9c806' }} />
       </Box>
     }>
       <SettingsContent />
@@ -60,6 +61,7 @@ export default function SettingsPage() {
 }
 
 function SettingsContent() {
+  const dynamicColors = useColors();
   const [loading, setLoading] = useState(true);
   const [loadingPasskeys, setLoadingPasskeys] = useState(false);
   const [user, setUser] = useState<UserData | null>(null);
@@ -158,19 +160,19 @@ function SettingsContent() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: colors.background,
+          backgroundColor: dynamicColors.background,
         }}
       >
         <Box sx={{ textAlign: 'center' }}>
-          <CircularProgress size={60} sx={{ color: colors.primary }} />
-          <Typography sx={{ mt: 2, color: colors.foreground }}>Loading settings...</Typography>
+          <CircularProgress size={60} sx={{ color: dynamicColors.primary }} />
+          <Typography sx={{ mt: 2, color: dynamicColors.foreground }}>Loading settings...</Typography>
         </Box>
       </Box>
     );
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: colors.background, color: 'white', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ minHeight: '100vh', backgroundColor: dynamicColors.background, color: 'white', display: 'flex', flexDirection: 'column' }}>
       <Topbar
         userName={user.name}
         userEmail={user.email}
@@ -188,7 +190,7 @@ function SettingsContent() {
             flexDirection: 'column',
             borderRight: '1px solid rgba(255, 255, 255, 0.1)',
             p: 3,
-            backgroundColor: colors.background,
+            backgroundColor: dynamicColors.background,
             maxHeight: '100vh',
             overflowY: 'auto',
           }}
@@ -198,7 +200,7 @@ function SettingsContent() {
             sx={{
               p: 2,
               borderRadius: '0.75rem',
-              backgroundColor: colors.secondary,
+              backgroundColor: dynamicColors.secondary,
               border: '1px solid rgba(255, 255, 255, 0.1)',
               boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
               mb: 4,
@@ -214,7 +216,7 @@ function SettingsContent() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: colors.primary,
+                  color: dynamicColors.primary,
                   fontSize: '20px',
                   flexShrink: 0,
                 }}
@@ -228,7 +230,7 @@ function SettingsContent() {
                 <Typography
                   sx={{
                     fontSize: '0.875rem',
-                    color: colors.foreground,
+                    color: dynamicColors.foreground,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                   }}
@@ -257,12 +259,12 @@ function SettingsContent() {
                   transition: 'background-color 0.2s',
                 }}
               >
-                <ArrowBack sx={{ color: colors.primary, fontSize: 20 }} />
+                <ArrowBack sx={{ color: dynamicColors.primary, fontSize: 20 }} />
                 <Typography
                   sx={{
                     fontSize: '0.875rem',
                     fontWeight: 500,
-                    color: colors.primary,
+                    color: dynamicColors.primary,
                   }}
                 >
                   Back to App
@@ -298,12 +300,12 @@ function SettingsContent() {
                     transition: 'background-color 0.2s, box-shadow 0.2s',
                   }}
                 >
-                  <Icon sx={{ color: activeTab === id ? colors.primary : 'white', fontSize: 20 }} />
+                  <Icon sx={{ color: activeTab === id ? dynamicColors.primary : 'white', fontSize: 20 }} />
                   <Typography
                     sx={{
                       fontSize: '0.875rem',
                       fontWeight: 500,
-                      color: activeTab === id ? colors.primary : 'white',
+                      color: activeTab === id ? dynamicColors.primary : 'white',
                     }}
                   >
                     {label}
@@ -315,7 +317,7 @@ function SettingsContent() {
         </Box>
 
         {/* Main Content */}
-        <Box sx={{ flex: 1, p: { xs: 2, md: 4 }, backgroundColor: colors.background }}>
+        <Box sx={{ flex: 1, p: { xs: 2, md: 4 }, backgroundColor: dynamicColors.background }}>
           {/* Header */}
           <Box sx={{ mb: 6 }}>
             <Typography
@@ -337,7 +339,7 @@ function SettingsContent() {
               <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>Username</Typography>
               <Box
                 sx={{
-                  backgroundColor: colors.secondary,
+                  backgroundColor: dynamicColors.secondary,
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: '0.75rem',
                   boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
@@ -360,7 +362,7 @@ function SettingsContent() {
                   </Box>
                   <Button
                     sx={{
-                      color: colors.primary,
+                      color: dynamicColors.primary,
                       fontSize: '1rem',
                       fontWeight: 500,
                       textTransform: 'none',
@@ -376,7 +378,7 @@ function SettingsContent() {
               <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3, mt: 6 }}>Email</Typography>
               <Box
                 sx={{
-                  backgroundColor: colors.secondary,
+                  backgroundColor: dynamicColors.secondary,
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: '0.75rem',
                   boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
@@ -392,7 +394,7 @@ function SettingsContent() {
               <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3, mt: 6 }}>User ID</Typography>
               <Box
                 sx={{
-                  backgroundColor: colors.secondary,
+                  backgroundColor: dynamicColors.secondary,
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: '0.75rem',
                   boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
@@ -404,7 +406,7 @@ function SettingsContent() {
                   <Typography
                     sx={{
                       fontSize: '0.875rem',
-                      color: colors.foreground,
+                      color: dynamicColors.foreground,
                       fontFamily: 'monospace',
                       flex: 1,
                       wordBreak: 'break-all',
@@ -418,8 +420,8 @@ function SettingsContent() {
                     }}
                     variant="contained"
                     sx={{
-                      backgroundColor: colors.primary,
-                      color: colors.secondary,
+                      backgroundColor: dynamicColors.primary,
+                      color: dynamicColors.secondary,
                       fontWeight: 700,
                       fontSize: '0.875rem',
                       textTransform: 'none',
@@ -458,8 +460,8 @@ function SettingsContent() {
                     variant="contained"
                     startIcon={<AddIcon />}
                     sx={{
-                      backgroundColor: colors.primary,
-                      color: colors.secondary,
+                      backgroundColor: dynamicColors.primary,
+                      color: dynamicColors.secondary,
                       fontWeight: 700,
                       fontSize: '0.875rem',
                       textTransform: 'none',
@@ -477,15 +479,15 @@ function SettingsContent() {
 
                 {loadingPasskeys && (
                   <Box sx={{ textAlign: 'center', py: 3 }}>
-                    <CircularProgress size={40} sx={{ color: colors.primary }} />
-                    <Typography sx={{ mt: 2, color: colors.foreground }}>Loading passkeys...</Typography>
+                    <CircularProgress size={40} sx={{ color: dynamicColors.primary }} />
+                    <Typography sx={{ mt: 2, color: dynamicColors.foreground }}>Loading passkeys...</Typography>
                   </Box>
                 )}
 
                 {!loadingPasskeys && passkeys.length === 0 && !error && (
                   <Box
                     sx={{
-                      backgroundColor: colors.secondary,
+                      backgroundColor: dynamicColors.secondary,
                       border: '1px solid rgba(255, 255, 255, 0.1)',
                       borderRadius: '0.75rem',
                       boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
@@ -493,7 +495,7 @@ function SettingsContent() {
                       textAlign: 'center',
                     }}
                   >
-                    <Typography sx={{ color: colors.foreground }}>No passkeys yet. Add one to get started.</Typography>
+                    <Typography sx={{ color: dynamicColors.foreground }}>No passkeys yet. Add one to get started.</Typography>
                   </Box>
                 )}
 
@@ -523,7 +525,7 @@ function SettingsContent() {
                 </Typography>
                 <Box
                   sx={{
-                    backgroundColor: colors.secondary,
+                    backgroundColor: dynamicColors.secondary,
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '0.75rem',
                     p: 3,
@@ -549,7 +551,7 @@ function SettingsContent() {
                 <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, mb: 3 }}>Multi-Factor Authentication (MFA)</Typography>
                 <Box
                   sx={{
-                    backgroundColor: colors.secondary,
+                    backgroundColor: dynamicColors.secondary,
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '0.75rem',
                     boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
@@ -567,7 +569,7 @@ function SettingsContent() {
                       <Typography sx={{ fontSize: '1rem', fontWeight: 500, color: 'white' }}>
                         Multi-Factor Authentication (MFA)
                       </Typography>
-                      <Typography sx={{ fontSize: '0.875rem', color: colors.foreground, mt: 0.5 }}>
+                      <Typography sx={{ fontSize: '0.875rem', color: dynamicColors.foreground, mt: 0.5 }}>
                         Add an extra layer of security to your account.
                       </Typography>
                     </Box>
@@ -576,10 +578,10 @@ function SettingsContent() {
                       onChange={(e) => setMfaEnabled(e.target.checked)}
                       sx={{
                         '& .MuiSwitch-switchBase.Mui-checked': {
-                          color: colors.primary,
+                          color: dynamicColors.primary,
                         },
                         '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                          backgroundColor: colors.primary,
+                          backgroundColor: dynamicColors.primary,
                         },
                       }}
                     />
@@ -598,7 +600,7 @@ function SettingsContent() {
                 </Typography>
                 <Box
                   sx={{
-                    backgroundColor: colors.secondary,
+                    backgroundColor: dynamicColors.secondary,
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '0.75rem',
                     boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
@@ -620,7 +622,7 @@ function SettingsContent() {
                 </Typography>
                 <Box
                   sx={{
-                    backgroundColor: colors.secondary,
+                    backgroundColor: dynamicColors.secondary,
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '0.75rem',
                     boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
@@ -642,7 +644,7 @@ function SettingsContent() {
                 </Typography>
                 <Box
                   sx={{
-                    backgroundColor: colors.secondary,
+                    backgroundColor: dynamicColors.secondary,
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '0.75rem',
                     boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
@@ -664,7 +666,7 @@ function SettingsContent() {
                 </Typography>
                 <Box
                   sx={{
-                    backgroundColor: colors.secondary,
+                    backgroundColor: dynamicColors.secondary,
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '0.75rem',
                     boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
@@ -684,7 +686,7 @@ function SettingsContent() {
               
               <Box
                 sx={{
-                  backgroundColor: colors.secondary,
+                  backgroundColor: dynamicColors.secondary,
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: '0.75rem',
                   boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
@@ -698,7 +700,7 @@ function SettingsContent() {
                       <Typography sx={{ fontSize: '1rem', fontWeight: 500, color: 'white' }}>
                         Export Data
                       </Typography>
-                      <Typography sx={{ fontSize: '0.875rem', color: colors.foreground, mt: 0.5 }}>
+                      <Typography sx={{ fontSize: '0.875rem', color: dynamicColors.foreground, mt: 0.5 }}>
                         Download a copy of your account data.
                       </Typography>
                     </Box>
@@ -729,7 +731,7 @@ function SettingsContent() {
                       <Typography sx={{ fontSize: '1rem', fontWeight: 500, color: 'white' }}>
                         Delete Account
                       </Typography>
-                      <Typography sx={{ fontSize: '0.875rem', color: colors.foreground, mt: 0.5 }}>
+                      <Typography sx={{ fontSize: '0.875rem', color: dynamicColors.foreground, mt: 0.5 }}>
                         Permanently delete your account and all associated data.
                       </Typography>
                     </Box>

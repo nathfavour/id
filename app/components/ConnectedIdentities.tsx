@@ -1,4 +1,5 @@
 'use client';
+import { useColors } from '@/lib/theme-context';
 
 import { colors } from '@/lib/colors';
 import { useState, useEffect } from 'react';
@@ -57,6 +58,7 @@ const PROVIDER_NAMES: Record<string, string> = {
 };
 
 export default function ConnectedIdentities({ onIdentitiesLoaded }: ConnectedIdentitiesProps) {
+  const dynamicColors = useColors();
   const [loading, setLoading] = useState(true);
   const [identities, setIdentities] = useState<Identity[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -118,7 +120,7 @@ export default function ConnectedIdentities({ onIdentitiesLoaded }: ConnectedIde
   if (loading && identities.length === 0) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
-        <CircularProgress size={40} sx={{ color: colors.primary }} />
+        <CircularProgress size={40} sx={{ color: dynamicColors.primary }} />
       </Box>
     );
   }
@@ -135,21 +137,21 @@ export default function ConnectedIdentities({ onIdentitiesLoaded }: ConnectedIde
       {identities.length === 0 ? (
         <Box
           sx={{
-            backgroundColor: colors.secondary,
+            backgroundColor: dynamicColors.secondary,
             border: '1px solid rgba(255, 255, 255, 0.1)',
             borderRadius: '0.75rem',
             p: 3,
             textAlign: 'center',
           }}
         >
-          <Typography sx={{ color: colors.foreground }}>
+          <Typography sx={{ color: dynamicColors.foreground }}>
             No connected identities. Connect a social account to link your profile.
           </Typography>
         </Box>
       ) : (
         <Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Typography sx={{ color: colors.foreground, fontSize: '0.875rem' }}>
+            <Typography sx={{ color: dynamicColors.foreground, fontSize: '0.875rem' }}>
               {identities.length} connected {identities.length === 1 ? 'identity' : 'identities'}
             </Typography>
             <Button
@@ -176,7 +178,7 @@ export default function ConnectedIdentities({ onIdentitiesLoaded }: ConnectedIde
               <Box
                 key={identity.$id}
                 sx={{
-                  backgroundColor: colors.secondary,
+                  backgroundColor: dynamicColors.secondary,
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: '0.75rem',
                   p: 3,
@@ -206,7 +208,7 @@ export default function ConnectedIdentities({ onIdentitiesLoaded }: ConnectedIde
                       <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'white' }}>
                         {getProviderName(identity.provider)}
                       </Typography>
-                      <Typography sx={{ fontSize: '0.75rem', color: colors.foreground }}>
+                      <Typography sx={{ fontSize: '0.75rem', color: dynamicColors.foreground }}>
                         {identity.providerEmail || identity.providerUid}
                       </Typography>
                     </Box>
@@ -214,7 +216,7 @@ export default function ConnectedIdentities({ onIdentitiesLoaded }: ConnectedIde
 
                   <Box sx={{ display: 'flex', gap: 3, mt: 2 }}>
                     <Box>
-                      <Typography sx={{ fontSize: '0.65rem', color: colors.foreground, textTransform: 'uppercase' }}>
+                      <Typography sx={{ fontSize: '0.65rem', color: dynamicColors.foreground, textTransform: 'uppercase' }}>
                         Connected
                       </Typography>
                       <Typography sx={{ fontSize: '0.75rem', color: 'white' }}>
@@ -223,7 +225,7 @@ export default function ConnectedIdentities({ onIdentitiesLoaded }: ConnectedIde
                     </Box>
                     {identity.providerAccessTokenExpiry && (
                       <Box>
-                        <Typography sx={{ fontSize: '0.65rem', color: colors.foreground, textTransform: 'uppercase' }}>
+                        <Typography sx={{ fontSize: '0.65rem', color: dynamicColors.foreground, textTransform: 'uppercase' }}>
                           Token Expires
                         </Typography>
                         <Typography sx={{ fontSize: '0.75rem', color: 'white' }}>
@@ -267,7 +269,7 @@ export default function ConnectedIdentities({ onIdentitiesLoaded }: ConnectedIde
         onClose={() => setDeleteDialogOpen(false)}
         PaperProps={{
           sx: {
-            backgroundColor: colors.secondary,
+            backgroundColor: dynamicColors.secondary,
             border: '1px solid rgba(255, 255, 255, 0.1)',
             borderRadius: '0.75rem',
           },
@@ -275,7 +277,7 @@ export default function ConnectedIdentities({ onIdentitiesLoaded }: ConnectedIde
       >
         <DialogTitle sx={{ color: 'white' }}>Disconnect Identity</DialogTitle>
         <DialogContent>
-          <Typography sx={{ color: colors.foreground, mt: 2 }}>
+          <Typography sx={{ color: dynamicColors.foreground, mt: 2 }}>
             Are you sure you want to disconnect{' '}
             <Typography component="span" sx={{ color: 'white', fontWeight: 500 }}>
               {selectedIdentity && getProviderName(selectedIdentity.provider)}
@@ -284,7 +286,7 @@ export default function ConnectedIdentities({ onIdentitiesLoaded }: ConnectedIde
           </Typography>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setDeleteDialogOpen(false)} sx={{ color: colors.foreground }}>
+          <Button onClick={() => setDeleteDialogOpen(false)} sx={{ color: dynamicColors.foreground }}>
             Cancel
           </Button>
           <Button

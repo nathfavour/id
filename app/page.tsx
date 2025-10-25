@@ -6,9 +6,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useSource } from '@/lib/source-context';
 import { Box, CircularProgress } from '@mui/material';
 import { colors } from '@/lib/colors';
+import { useColors } from '@/lib/theme-context';
 import { getAppOrigin } from '@/lib/app-origin';
 
 function HomeContent() {
+  const dynamicColors = useColors();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setSource } = useSource();
@@ -38,8 +40,8 @@ function HomeContent() {
   }, [router, searchParams, setSource]);
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: colors.background, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <CircularProgress sx={{ color: colors.primary }} />
+    <Box sx={{ minHeight: '100vh', backgroundColor: dynamicColors.background, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <CircularProgress sx={{ color: dynamicColors.primary }} />
     </Box>
   );
 }
@@ -47,8 +49,8 @@ function HomeContent() {
 export default function Home() {
   return (
     <Suspense fallback={
-      <Box sx={{ minHeight: '100vh', backgroundColor: colors.background, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <CircularProgress sx={{ color: colors.primary }} />
+      <Box sx={{ minHeight: '100vh', backgroundColor: '#181711', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <CircularProgress sx={{ color: '#f9c806' }} />
       </Box>
     }>
       <HomeContent />

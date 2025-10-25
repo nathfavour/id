@@ -1,4 +1,5 @@
 'use client';
+import { useColors } from '@/lib/theme-context';
 
 import { useState } from 'react';
 import { colors } from '@/lib/colors';
@@ -21,6 +22,7 @@ interface LogoutDialogProps {
 }
 
 export function LogoutDialog({ open, onClose, onLogoutComplete }: LogoutDialogProps) {
+  const dynamicColors = useColors();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,14 +46,14 @@ export function LogoutDialog({ open, onClose, onLogoutComplete }: LogoutDialogPr
       fullWidth
       PaperProps={{
         sx: {
-          backgroundColor: colors.secondary,
+          backgroundColor: dynamicColors.secondary,
           borderRadius: '1rem',
           boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3)',
         }
       }}
     >
-      <DialogTitle sx={{ backgroundColor: colors.secondary, color: 'white', pb: 1 }}>Logout</DialogTitle>
-      <DialogContent sx={{ backgroundColor: colors.background, color: 'white', pt: 3 }}>
+      <DialogTitle sx={{ backgroundColor: dynamicColors.secondary, color: 'white', pb: 1 }}>Logout</DialogTitle>
+      <DialogContent sx={{ backgroundColor: dynamicColors.background, color: 'white', pt: 3 }}>
         {error && (
           <Box sx={{ 
             mb: 2, 
@@ -65,16 +67,16 @@ export function LogoutDialog({ open, onClose, onLogoutComplete }: LogoutDialogPr
           </Box>
         )}
 
-        <Typography sx={{ fontSize: '0.95rem', color: colors.foreground }}>
+        <Typography sx={{ fontSize: '0.95rem', color: dynamicColors.foreground }}>
           Are you sure you want to logout? You will need to log in again to access your account.
         </Typography>
       </DialogContent>
-      <DialogActions sx={{ backgroundColor: colors.secondary, p: 2, gap: 1 }}>
+      <DialogActions sx={{ backgroundColor: dynamicColors.secondary, p: 2, gap: 1 }}>
         <Button 
           onClick={onClose} 
           disabled={loading} 
           sx={{ 
-            color: colors.foreground,
+            color: dynamicColors.foreground,
             borderRadius: '0.5rem',
             textTransform: 'none',
             fontWeight: 600,

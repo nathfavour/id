@@ -1,4 +1,6 @@
 'use client';
+import { useColors } from '@/lib/theme-context';
+  const dynamicColors = useColors();
 
 import { colors } from '@/lib/colors';
 import { useState } from 'react';
@@ -29,6 +31,7 @@ export default function AddPasskeyModal({
   onClose,
   onSuccess,
 }: AddPasskeyModalProps) {
+  const dynamicColors = useColors();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -61,20 +64,20 @@ export default function AddPasskeyModal({
         sx: {
           borderRadius: '1rem',
           boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
-          backgroundColor: colors.secondary,
+          backgroundColor: dynamicColors.secondary,
           color: 'white',
         }
       }}
     >
       <DialogTitle sx={{ fontWeight: 700, pb: 1, color: 'white' }}>Add Passkey</DialogTitle>
-      <DialogContent sx={{ pt: 2, backgroundColor: colors.background }}>
+      <DialogContent sx={{ pt: 2, backgroundColor: dynamicColors.background }}>
         {success ? (
           <Stack sx={{ textAlign: 'center', py: 3 }} spacing={2}>
             <Box sx={{ fontSize: 32 }}>✓</Box>
             <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>
               Success!
             </Typography>
-            <Typography sx={{ color: colors.foreground }}>Passkey added successfully</Typography>
+            <Typography sx={{ color: dynamicColors.foreground }}>Passkey added successfully</Typography>
           </Stack>
         ) : (
           <Stack spacing={2}>
@@ -96,7 +99,7 @@ export default function AddPasskeyModal({
               </Alert>
             )}
 
-            <Typography sx={{ color: colors.foreground }}>
+            <Typography sx={{ color: dynamicColors.foreground }}>
               Register a new passkey to your account for easier authentication.
             </Typography>
 
@@ -124,7 +127,7 @@ export default function AddPasskeyModal({
           </Stack>
         )}
       </DialogContent>
-      <DialogActions sx={{ p: 2, gap: 1, backgroundColor: colors.secondary }}>
+      <DialogActions sx={{ p: 2, gap: 1, backgroundColor: dynamicColors.secondary }}>
         {!success && (
           <>
             <Button 
@@ -134,7 +137,7 @@ export default function AddPasskeyModal({
                 borderRadius: '0.5rem',
                 textTransform: 'none',
                 fontWeight: 600,
-                color: colors.foreground,
+                color: dynamicColors.foreground,
                 '&:hover': {
                   backgroundColor: 'rgba(255, 255, 255, 0.05)',
                 }

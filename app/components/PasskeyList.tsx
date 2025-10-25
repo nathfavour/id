@@ -1,4 +1,5 @@
 'use client';
+import { useColors } from '@/lib/theme-context';
 
 import { colors } from '@/lib/colors';
 import { useState } from 'react';
@@ -41,6 +42,7 @@ export default function PasskeyList({
   onUpdate,
   onRenameClick,
 }: PasskeyListProps) {
+  const dynamicColors = useColors();
   const [deleting, setDeleting] = useState<string | null>(null);
   const [disabling, setDisabling] = useState<string | null>(null);
   const [enabling, setEnabling] = useState<string | null>(null);
@@ -130,7 +132,7 @@ export default function PasskeyList({
               borderRadius: '0.75rem',
               boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
               border: '1px solid rgba(0, 0, 0, 0.08)',
-              backgroundColor: colors.secondary,
+              backgroundColor: dynamicColors.secondary,
               transition: 'box-shadow 0.2s, transform 0.2s',
               '&:hover': {
                 boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
@@ -164,11 +166,11 @@ export default function PasskeyList({
                     />
                   </Box>
                   <Stack spacing={0.5}>
-                    <Typography variant="caption" sx={{ color: colors.foreground }}>
+                    <Typography variant="caption" sx={{ color: dynamicColors.foreground }}>
                       Created: {new Date(passkey.createdAt).toLocaleDateString()}
                     </Typography>
                     {passkey.lastUsedAt && (
-                      <Typography variant="caption" sx={{ color: colors.foreground }}>
+                      <Typography variant="caption" sx={{ color: dynamicColors.foreground }}>
                         Last used: {new Date(passkey.lastUsedAt).toLocaleDateString()}
                       </Typography>
                     )}

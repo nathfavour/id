@@ -19,6 +19,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<ThemeMode>('system');
   const [isDark, setIsDark] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   // Detect system theme preference
   const getSystemTheme = useCallback((): boolean => {
@@ -28,6 +29,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   // Initialize theme on mount
   useEffect(() => {
+    setMounted(true);
     const initTheme = async () => {
       try {
         const { account } = await import('@/lib/appwrite');
@@ -53,7 +55,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   // Listen for system theme changes
   useEffect(() => {
-    if (theme !== 'system') return;
+    if (theme !== 'system' || !mounted) return;
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (e: MediaQueryListEvent) => {
@@ -62,7 +64,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [theme]);
+  }, [theme, mounted]);
 
   const setTheme = useCallback(async (newTheme: ThemeMode) => {
     try {
@@ -96,4 +98,13 @@ export function useTheme() {
     throw new Error('useTheme must be used within ThemeProvider');
   }
   return context;
+}
+
+export function useColors() {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    // Return default colors if context is not available
+    return colorsDark;
+  }
+  return context.colors;
 }
