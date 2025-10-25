@@ -1,7 +1,7 @@
 'use client';
 
-import { colors } from '@/lib/colors';
-import { useColors } from '@/lib/theme-context';
+import { colors, colorsDark } from '@/lib/colors';
+import { useColors, useTheme } from '@/lib/theme-context';
 import { useEffect, useState, Suspense } from 'react';
 import { account } from '@/lib/appwrite';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -52,8 +52,8 @@ interface Passkey {
 export default function SettingsPage() {
   return (
     <Suspense fallback={
-      <Box sx={{ minHeight: '100vh', backgroundColor: '#181711', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <CircularProgress sx={{ color: '#f9c806' }} />
+      <Box sx={{ minHeight: '100vh', backgroundColor: colorsDark.background, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <CircularProgress sx={{ color: colorsDark.primary }} />
       </Box>
     }>
       <SettingsContent />
@@ -63,6 +63,7 @@ export default function SettingsPage() {
 
 function SettingsContent() {
   const dynamicColors = useColors();
+  const { isDark } = useTheme();
   const [loading, setLoading] = useState(true);
   const [loadingPasskeys, setLoadingPasskeys] = useState(false);
   const [user, setUser] = useState<UserData | null>(null);
@@ -80,6 +81,11 @@ function SettingsContent() {
   const searchParams = useSearchParams();
   const { setSource, getBackUrl } = useSource();
   const appName = process.env.NEXT_PUBLIC_APP_NAME || 'Auth System';
+  
+  const borderColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+  const hoverBg = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
+  const hoverBgStrong = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+  const textColor = isDark ? 'white' : '#333333';
 
   const loadPasskeys = async (email: string) => {
     setLoadingPasskeys(true);
@@ -200,7 +206,7 @@ function SettingsContent() {
                   width: 40,
                   height: 40,
                   borderRadius: '50%',
-                  backgroundColor: '#3a3627',
+                  backgroundColor: dynamicColors.secondary,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -212,7 +218,7 @@ function SettingsContent() {
                 👤
               </Box>
               <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography sx={{ fontSize: '1rem', fontWeight: 500, color: 'white' }}>
+                <Typography sx={{ fontSize: '1rem', fontWeight: 500, color: textColor }}>
                   {user.name}
                 </Typography>
                 <Typography
@@ -242,7 +248,7 @@ function SettingsContent() {
                   cursor: 'pointer',
                   backgroundColor: 'transparent',
                   '&:hover': { 
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    backgroundColor: hoverBg,
                   },
                   transition: 'background-color 0.2s',
                 }}
@@ -259,7 +265,7 @@ function SettingsContent() {
                 </Typography>
               </Box>
 
-              <Divider sx={{ my: 1, borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+              <Divider sx={{ my: 1, borderColor: borderColor }} />
 
               {[
                 { id: 'profile', label: 'Profile', icon: Person },
@@ -286,7 +292,7 @@ function SettingsContent() {
                     backgroundColor: activeTab === id ? 'rgba(249, 200, 6, 0.2)' : 'transparent',
                     boxShadow: activeTab === id ? '0 1px 2px 0 rgb(0 0 0 / 0.2)' : 'none',
                     '&:hover': { 
-                      backgroundColor: activeTab === id ? 'rgba(249, 200, 6, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                      backgroundColor: activeTab === id ? 'rgba(249, 200, 6, 0.2)' : hoverBg,
                     },
                     transition: 'background-color 0.2s, box-shadow 0.2s',
                   }}
@@ -309,7 +315,7 @@ function SettingsContent() {
   );
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: dynamicColors.background, color: 'white', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ minHeight: '100vh', backgroundColor: dynamicColors.background, color: textColor, display: 'flex', flexDirection: 'column' }}>
       <Topbar
         userName={user.name}
         userEmail={user.email}
@@ -324,20 +330,20 @@ function SettingsContent() {
         sx={{
           display: { xs: 'flex', md: 'none' },
           p: 2,
-          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          borderBottom: `1px solid ${borderColor}`,
           backgroundColor: dynamicColors.background,
         }}
       >
         <IconButton
           onClick={() => setMobileSidebarOpen(true)}
           sx={{
-            color: 'white',
-            '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' },
+            color: textColor,
+            '&:hover': { backgroundColor: hoverBgStrong },
           }}
         >
           <MenuIcon />
         </IconButton>
-        <Typography sx={{ ml: 2, lineHeight: '40px', fontSize: '1.125rem', fontWeight: 600 }}>
+        <Typography sx={{ ml: 2, lineHeight: '40px', fontSize: '1.125rem', fontWeight: 600, color: textColor }}>
           {activeTab === 'profile' && 'Profile'}
           {activeTab === 'security' && 'Security'}
           {activeTab === 'sessions' && 'Sessions'}
@@ -356,7 +362,7 @@ function SettingsContent() {
             width: { xs: '0', md: '25%' },
             display: { xs: 'none', md: 'flex' },
             flexDirection: 'column',
-            borderRight: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRight: `1px solid ${borderColor}`,
             backgroundColor: dynamicColors.background,
             maxHeight: '100vh',
             overflowY: 'auto',
@@ -391,7 +397,7 @@ function SettingsContent() {
               sx={{
                 fontSize: '2.25rem',
                 fontWeight: 900,
-                color: 'white',
+                color: textColor,
                 lineHeight: 1.2,
                 letterSpacing: '-0.033em',
               }}
@@ -423,7 +429,7 @@ function SettingsContent() {
                   }}
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
-                    <Typography sx={{ fontSize: '1rem', color: 'white', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <Typography sx={{ fontSize: '1rem', color: textColor, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {user.name || user.email.split('@')[0]}
                     </Typography>
                   </Box>
@@ -453,7 +459,7 @@ function SettingsContent() {
                   p: 2,
                 }}
               >
-                <Typography sx={{ fontSize: '1rem', color: 'white' }}>
+                <Typography sx={{ fontSize: '1rem', color: textColor }}>
                   {user.email}
                 </Typography>
               </Box>
@@ -635,7 +641,7 @@ function SettingsContent() {
                     }}
                   >
                     <Box>
-                      <Typography sx={{ fontSize: '1rem', fontWeight: 500, color: 'white' }}>
+                      <Typography sx={{ fontSize: '1rem', fontWeight: 500, color: textColor }}>
                         Multi-Factor Authentication (MFA)
                       </Typography>
                       <Typography sx={{ fontSize: '0.875rem', color: dynamicColors.foreground, mt: 0.5 }}>
@@ -766,7 +772,7 @@ function SettingsContent() {
                 <Box sx={{ p: 2, borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Box>
-                      <Typography sx={{ fontSize: '1rem', fontWeight: 500, color: 'white' }}>
+                      <Typography sx={{ fontSize: '1rem', fontWeight: 500, color: textColor }}>
                         Export Data
                       </Typography>
                       <Typography sx={{ fontSize: '0.875rem', color: dynamicColors.foreground, mt: 0.5 }}>
@@ -776,7 +782,7 @@ function SettingsContent() {
                     <Button
                       variant="outlined"
                       sx={{
-                        color: 'white',
+                        color: textColor,
                         borderColor: 'rgba(255, 255, 255, 0.2)',
                         fontSize: '0.875rem',
                         fontWeight: 500,
@@ -797,7 +803,7 @@ function SettingsContent() {
                 <Box sx={{ p: 2 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Box>
-                      <Typography sx={{ fontSize: '1rem', fontWeight: 500, color: 'white' }}>
+                      <Typography sx={{ fontSize: '1rem', fontWeight: 500, color: textColor }}>
                         Delete Account
                       </Typography>
                       <Typography sx={{ fontSize: '0.875rem', color: dynamicColors.foreground, mt: 0.5 }}>

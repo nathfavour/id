@@ -1,5 +1,5 @@
 'use client';
-import { useColors } from '@/lib/theme-context';
+import { useColors, useTheme } from '@/lib/theme-context';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -28,10 +28,16 @@ interface TopbarProps {
 
 export default function Topbar({ userName, userEmail, onManageAccount, onSignOut, onSessionsClick, onActivityClick }: TopbarProps) {
   const dynamicColors = useColors();
+  const { isDark } = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const router = useRouter();
   const { getBackUrl } = useSource();
   const appName = process.env.NEXT_PUBLIC_APP_NAME || 'Auth System';
+  
+  const borderColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+  const hoverBg = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
+  const hoverBgStrong = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+  const textColor = isDark ? 'white' : '#333333';
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -104,7 +110,7 @@ export default function Topbar({ userName, userEmail, onManageAccount, onSignOut
     <Box
       sx={{
         backgroundColor: dynamicColors.background,
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        borderBottom: `1px solid ${borderColor}`,
         p: '0.75rem 1.5rem',
         display: 'flex',
         justifyContent: 'space-between',
@@ -130,7 +136,7 @@ export default function Topbar({ userName, userEmail, onManageAccount, onSignOut
           onClick={handleMenuOpen}
           sx={{
             p: '0.5rem',
-            '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' },
+            '&:hover': { backgroundColor: hoverBgStrong },
           }}
         >
           <Avatar
@@ -155,7 +161,7 @@ export default function Topbar({ userName, userEmail, onManageAccount, onSignOut
           sx={{
             '& .MuiPaper-root': {
               backgroundColor: dynamicColors.secondary,
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              border: `1px solid ${borderColor}`,
               mt: 1,
             },
           }}
@@ -177,7 +183,7 @@ export default function Topbar({ userName, userEmail, onManageAccount, onSignOut
                     {getInitials()}
                   </Avatar>
                   <Stack spacing={0.5}>
-                    <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: 'white' }}>
+                    <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: textColor }}>
                       {userName}
                     </Typography>
                     <Typography sx={{ fontSize: '0.75rem', color: dynamicColors.foreground }}>
@@ -196,7 +202,7 @@ export default function Topbar({ userName, userEmail, onManageAccount, onSignOut
             sx={{
               color: dynamicColors.primary,
               fontSize: '0.875rem',
-              '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
+              '&:hover': { backgroundColor: hoverBg },
             }}
           >
             <ArrowBack sx={{ mr: 1, fontSize: '1.25rem' }} />
@@ -206,9 +212,9 @@ export default function Topbar({ userName, userEmail, onManageAccount, onSignOut
           <MenuItem
             onClick={handleManageAccount}
             sx={{
-              color: 'white',
+              color: textColor,
               fontSize: '0.875rem',
-              '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
+              '&:hover': { backgroundColor: hoverBg },
             }}
           >
             <Settings sx={{ mr: 1, fontSize: '1.25rem' }} />
@@ -218,9 +224,9 @@ export default function Topbar({ userName, userEmail, onManageAccount, onSignOut
           <MenuItem
             onClick={handleSessions}
             sx={{
-              color: 'white',
+              color: textColor,
               fontSize: '0.875rem',
-              '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
+              '&:hover': { backgroundColor: hoverBg },
             }}
           >
             <Fingerprint sx={{ mr: 1, fontSize: '1.25rem' }} />
@@ -230,16 +236,16 @@ export default function Topbar({ userName, userEmail, onManageAccount, onSignOut
           <MenuItem
             onClick={handleActivity}
             sx={{
-              color: 'white',
+              color: textColor,
               fontSize: '0.875rem',
-              '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
+              '&:hover': { backgroundColor: hoverBg },
             }}
           >
             <History sx={{ mr: 1, fontSize: '1.25rem' }} />
             Activity
           </MenuItem>
 
-          <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)', my: 1 }} />
+          <Divider sx={{ borderColor: borderColor, my: 1 }} />
 
           <MenuItem
             onClick={handleSignOut}
