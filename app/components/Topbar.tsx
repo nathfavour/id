@@ -97,7 +97,7 @@ export default function Topbar({ userName, userEmail, onManageAccount, onSignOut
     for (let i = 0; i < email.length; i++) {
       hash = email.charCodeAt(i) + ((hash << 5) - hash);
     }
-    return colors[Math.abs(hash) % dynamicColors.length];
+    return colors[Math.abs(hash) % colors.length];
   };
 
   return (
