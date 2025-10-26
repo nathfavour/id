@@ -13,7 +13,7 @@ function HomeContent() {
   const dynamicColors = useColors();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { setSource } = useSource();
+  const { setSource, getBackUrl } = useSource();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -30,7 +30,7 @@ function HomeContent() {
             : `https://${source}`;
           router.replace(redirectUrl);
         } else if (userData) {
-          router.replace(getAppOrigin());
+          router.replace(getBackUrl());
         } else {
           router.replace('/login');
         }

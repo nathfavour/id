@@ -73,7 +73,7 @@ function LoginContent() {
   const searchParams = useSearchParams();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
-  const { setSource, getBackUrl } = useSource();
+  const { source, setSource, getBackUrl } = useSource();
   
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
@@ -94,10 +94,18 @@ function LoginContent() {
   useEffect(() => {
     const checkExistingSession = async () => {
       try {
+        const source = searchParams.get('source');
+        if (source) {
+          setSource(source);
+        }
+
         const user = await checkSession();
         if (user) {
-          // User is already logged in, redirect to app subdomain
-          router.replace(getAppOrigin());
+          // User is already logged in, redirect respecting source parameter
+          const redirectUrl = source 
+            ? (source.startsWith('http://') || source.startsWith('https://') ? source : `https://${source}`)
+            : getAppOrigin();
+          router.replace(redirectUrl);
           return;
         }
       } catch (error) {
@@ -109,9 +117,9 @@ function LoginContent() {
     };
 
     checkExistingSession();
-  }, [router]);
+  }, [router, searchParams, setSource]);
 
-  // Initialize source from URL
+  // Initialize source from URL (takes priority over localStorage)
   useEffect(() => {
     const source = searchParams.get('source');
     if (source) {
@@ -208,6 +216,11 @@ function LoginContent() {
     setMessage(null);
 
     try {
+      const urlSource = searchParams.get('source');
+      if (urlSource && !source) {
+        setSource(urlSource);
+      }
+
       if (!window.ethereum) {
         throw new Error('MetaMask not installed. Please install MetaMask.');
       }
@@ -255,6 +268,12 @@ function LoginContent() {
       setMessage('WebAuthn is not supported in this browser');
       return;
     }
+    
+    const urlSource = searchParams.get('source');
+    if (urlSource && !source) {
+      setSource(urlSource);
+    }
+    
     setLoading(true);
     try {
       const optRes = await fetch('/api/webauthn/auth/options', {
@@ -377,7 +396,7 @@ function LoginContent() {
       }
       if (regVerifyJson.token?.secret) {
         await safeCreateSession(regVerifyJson.token.userId || email, regVerifyJson.token.secret);
-        router.replace('/');
+        router.replace(getBackUrl());
         return;
       }
       setMessage('Registration successful. You can now sign in.');
@@ -424,7 +443,10 @@ function LoginContent() {
         {/* Close Button */}
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
           <IconButton
-            onClick={() => router.push('/')}
+            onClick={() => {
+              const source = searchParams.get('source');
+              router.push(source ? `/?source=${encodeURIComponent(source)}` : '/');
+            }}
             sx={{
               color: dynamicColors.foreground,
               '&:hover': { color: 'white' },

@@ -126,7 +126,8 @@ function SettingsContent() {
       } catch (err) {
         if (mounted) {
           setLoading(false);
-          router.replace('/login' + (searchParams.get('source') ? `?source=${encodeURIComponent(searchParams.get('source')!)}` : ''));
+          const source = searchParams.get('source');
+          router.replace('/login' + (source ? `?source=${encodeURIComponent(source)}` : ''));
         }
       }
     }
@@ -157,7 +158,8 @@ function SettingsContent() {
 
   const handleLogoutComplete = () => {
     localStorage.removeItem('id_redirect_source');
-    router.replace('/login');
+    const source = searchParams.get('source');
+    router.replace(source ? `/login?source=${encodeURIComponent(source)}` : '/login');
   };
 
   if (loading || !user) {
