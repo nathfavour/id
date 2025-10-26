@@ -7,8 +7,19 @@ export function getAppOrigin(): string {
   const subdomain = process.env.NEXT_PUBLIC_APP_ORIGIN_DEFAULT || 'app';
 
   if (!origin) {
-    // Fallback for development/testing
-    return 'https://app.whisperrnote.space';
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname;
+      const parts = hostname.split('.');
+      
+      if (parts.length >= 2) {
+        const domain = parts.slice(-2).join('.');
+        return `https://${subdomain}.${domain}`;
+      }
+      
+      return `https://${subdomain}.${hostname}`;
+    }
+    
+    return `https://${subdomain}.localhost:3000`;
   }
 
   // Remove protocol if present

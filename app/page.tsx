@@ -25,7 +25,10 @@ function HomeContent() {
 
         const userData = await account.get();
         if (userData && source) {
-          router.replace(source);
+          const redirectUrl = source.startsWith('http://') || source.startsWith('https://') 
+            ? source 
+            : `https://${source}`;
+          router.replace(redirectUrl);
         } else if (userData) {
           router.replace(getAppOrigin());
         } else {

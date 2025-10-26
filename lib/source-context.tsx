@@ -13,7 +13,15 @@ export function SourceProvider({ children }: { children: React.ReactNode }) {
   const [source, setSource] = useState<string | null>(null);
 
   const getBackUrl = useCallback(() => {
-    return source || getAppOrigin();
+    if (!source) {
+      return getAppOrigin();
+    }
+    
+    if (!source.startsWith('http://') && !source.startsWith('https://')) {
+      return `https://${source}`;
+    }
+    
+    return source;
   }, [source]);
 
   return (
