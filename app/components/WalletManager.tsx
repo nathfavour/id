@@ -111,14 +111,15 @@ export default function WalletManager({
     setDisconnectConfirm(false);
 
     try {
-      // Get current user
+      // Get current user and ALL prefs
       const user = await account.get();
+      const currentPrefs = user.prefs || {};
 
-      // Remove wallet from prefs
-      await account.updatePrefs({
-        ...user.prefs,
-        walletEth: undefined,
-      });
+      // Remove only the wallet pref, preserve all others
+      const updatedPrefs = { ...currentPrefs };
+      delete updatedPrefs.walletEth;
+
+      await account.updatePrefs(updatedPrefs);
 
       setSuccess('✓ Wallet disconnected successfully');
 

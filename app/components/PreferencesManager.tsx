@@ -68,6 +68,7 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
   const { setTheme } = useTheme();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [allPrefs, setAllPrefs] = useState<Record<string, any>>({});
   const [prefs, setPrefs] = useState<PrefsData>({
     language: 'en',
     timezone: 'UTC',
@@ -87,6 +88,7 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
       setLoading(true);
       setError(null);
       const appPrefs = await account.getPrefs();
+      setAllPrefs(appPrefs || {});
       setPrefs({
         language: appPrefs?.language || 'en',
         timezone: appPrefs?.timezone || 'UTC',
@@ -106,27 +108,39 @@ export default function PreferencesManager({ onSave }: PreferencesManagerProps) 
   const updatePreference = async (key: keyof PrefsData, value: any) => {
     try {
       setError(null);
-      const updatedPrefs = { ...prefs, [key]: value };
-      setPrefs(updatedPrefs);
-      await account.updatePrefs(updatedPrefs);
+      const updatedUIPrefs = { ...prefs, [key]: value };
+      setPrefs(updatedUIPrefs);
+      
+      // Merge with ALL existing prefs
+      const updatedAllPrefs = { ...allPrefs, [key]: value };
+      setAllPrefs(updatedAllPrefs);
+      
+      await account.updatePrefs(updatedAllPrefs);
       onSave?.();
     } catch (err) {
       setError((err as Error).message);
-      setPrefs(prefs);
+      // Reload from server on error
+      loadPreferences();
     }
   };
 
   const handleThemeChange = async (newTheme: 'light' | 'dark' | 'system') => {
     try {
       setError(null);
-      const updatedPrefs = { ...prefs, theme: newTheme };
-      setPrefs(updatedPrefs);
-      await account.updatePrefs(updatedPrefs);
+      const updatedUIPrefs = { ...prefs, theme: newTheme };
+      setPrefs(updatedUIPrefs);
+      
+      // Merge with ALL existing prefs
+      const updatedAllPrefs = { ...allPrefs, theme: newTheme };
+      setAllPrefs(updatedAllPrefs);
+      
+      await account.updatePrefs(updatedAllPrefs);
       await setTheme(newTheme);
       onSave?.();
     } catch (err) {
       setError((err as Error).message);
-      setPrefs(prefs);
+      // Reload from server on error
+      loadPreferences();
     }
   };
 

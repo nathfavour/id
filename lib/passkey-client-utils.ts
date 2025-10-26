@@ -99,13 +99,12 @@ export async function addPasskeyToAccount(email: string) {
     status: 'active'
   };
 
-  // Update prefs with new passkey
-  await account.updatePrefs({
-    ...currentPrefs,
-    passkey_credentials: JSON.stringify(credObj),
-    passkey_counter: JSON.stringify(counterObj),
-    passkey_metadata: JSON.stringify(metadataObj),
-  });
+  // Update prefs with new passkey (merge with all existing prefs)
+  const allPrefs = { ...currentPrefs };
+  allPrefs.passkey_credentials = JSON.stringify(credObj);
+  allPrefs.passkey_counter = JSON.stringify(counterObj);
+  allPrefs.passkey_metadata = JSON.stringify(metadataObj);
+  await account.updatePrefs(allPrefs);
 
   return { success: true, message: 'Passkey connected successfully. You can now sign in with it.' };
 }

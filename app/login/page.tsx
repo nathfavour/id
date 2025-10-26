@@ -6,6 +6,8 @@ import { Client, Account, OAuthProvider } from 'appwrite';
 import { Box, Typography, Stack, TextField, Button, Alert, CircularProgress, IconButton, Tabs, Tab, useMediaQuery, useTheme } from '@mui/material';
 import { Visibility, VisibilityOff, Close, Edit, VpnKey, Wallet } from '@mui/icons-material';
 import { safeCreateSession, safeDeleteCurrentSession } from '@/lib/safe-session';
+import { checkSession } from '@/lib/check-session';
+import { getAppOrigin } from '@/lib/app-origin';
 import { colors } from '@/lib/colors';
 import { useColors } from '@/lib/theme-context';
 import { useSource } from '@/lib/source-context';
@@ -84,8 +86,30 @@ function LoginContent() {
   const [emailTouched, setEmailTouched] = useState(false);
   const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
   const [authMethod, setAuthMethod] = useState(0);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
   
   const appName = process.env.NEXT_PUBLIC_APP_NAME || 'auth';
+
+  // Check for existing session on mount
+  useEffect(() => {
+    const checkExistingSession = async () => {
+      try {
+        const user = await checkSession();
+        if (user) {
+          // User is already logged in, redirect to app subdomain
+          router.replace(getAppOrigin());
+          return;
+        }
+      } catch (error) {
+        // Session check failed, allow page to load for retry
+        console.error('Session check error:', error);
+      } finally {
+        setIsCheckingSession(false);
+      }
+    };
+
+    checkExistingSession();
+  }, [router]);
 
   // Initialize source from URL
   useEffect(() => {
@@ -363,6 +387,15 @@ function LoginContent() {
       setLoading(false);
     }
   };
+
+  // Show loading state while checking session
+  if (isCheckingSession) {
+    return (
+      <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#181711' }}>
+        <CircularProgress sx={{ color: '#f9c806' }} />
+      </Box>
+    );
+  }
 
   return (
     <Box

@@ -69,7 +69,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const setTheme = useCallback(async (newTheme: ThemeMode) => {
     try {
       const { account } = await import('@/lib/appwrite');
-      await account.updatePrefs({ theme: newTheme });
+      const prefs = await account.getPrefs();
+      await account.updatePrefs({ ...prefs, theme: newTheme });
       setThemeState(newTheme);
       
       if (newTheme === 'system') {
