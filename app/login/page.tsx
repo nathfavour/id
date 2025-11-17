@@ -101,11 +101,11 @@ function LoginContent() {
 
         const user = await checkSession();
         if (user) {
-          // User is already logged in, redirect respecting source parameter
-          const redirectUrl = source 
-            ? (source.startsWith('http://') || source.startsWith('https://') ? source : `https://${source}`)
-            : getAppOrigin();
-          router.replace(redirectUrl);
+          // User is already logged in, only redirect if source is specified
+          if (source) {
+            const redirectUrl = source.startsWith('http://') || source.startsWith('https://') ? source : `https://${source}`;
+            router.replace(redirectUrl);
+          }
           return;
         }
       } catch (error) {
@@ -253,7 +253,10 @@ function LoginContent() {
       const { account } = await import('@/lib/appwrite');
       await safeCreateSession(response.userId, response.secret);
 
-      router.push(getBackUrl());
+      const backUrl = getBackUrl();
+      if (backUrl) {
+        router.push(backUrl);
+      }
       router.refresh();
     } catch (error: any) {
       setMessage(error.message || 'Wallet authentication failed');
@@ -336,7 +339,10 @@ function LoginContent() {
           } else {
             if (verifyJson.token?.secret) {
               await safeCreateSession(verifyJson.token.userId || email, verifyJson.token.secret);
-              router.replace(getBackUrl());
+              const backUrl = getBackUrl();
+              if (backUrl) {
+                router.replace(backUrl);
+              }
               return;
             }
             setMessage('Sign-in verified. No token returned.');
@@ -396,7 +402,10 @@ function LoginContent() {
       }
       if (regVerifyJson.token?.secret) {
         await safeCreateSession(regVerifyJson.token.userId || email, regVerifyJson.token.secret);
-        router.replace(getBackUrl());
+        const backUrl = getBackUrl();
+        if (backUrl) {
+          router.replace(backUrl);
+        }
         return;
       }
       setMessage('Registration successful. You can now sign in.');

@@ -159,7 +159,11 @@ function SettingsContent() {
   const handleLogoutComplete = () => {
     localStorage.removeItem('id_redirect_source');
     const source = searchParams.get('source');
-    router.replace(source ? `/login?source=${encodeURIComponent(source)}` : '/login');
+    if (source) {
+      router.replace(`/login?source=${encodeURIComponent(source)}`);
+    } else {
+      router.replace('/login');
+    }
   };
 
   if (loading || !user) {
@@ -239,35 +243,42 @@ function SettingsContent() {
             {/* Navigation Items */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 3 }}>
               {/* Back to App */}
-              <Box
-                onClick={() => window.location.href = getBackUrl()}
-                sx={{
-                  display: 'flex',
-                  gap: 2,
-                  alignItems: 'center',
-                  p: '0.5rem 0.75rem',
-                  borderRadius: '0.5rem',
-                  cursor: 'pointer',
-                  backgroundColor: 'transparent',
-                  '&:hover': { 
-                    backgroundColor: hoverBg,
-                  },
-                  transition: 'background-color 0.2s',
-                }}
-              >
-                <ArrowBack sx={{ color: dynamicColors.primary, fontSize: 20 }} />
-                <Typography
-                  sx={{
-                    fontSize: '0.875rem',
-                    fontWeight: 500,
-                    color: dynamicColors.primary,
-                  }}
-                >
-                  Back to App
-                </Typography>
-              </Box>
+              {getBackUrl() && (
+                <>
+                  <Box
+                    onClick={() => {
+                      const backUrl = getBackUrl();
+                      if (backUrl) window.location.href = backUrl;
+                    }}
+                    sx={{
+                      display: 'flex',
+                      gap: 2,
+                      alignItems: 'center',
+                      p: '0.5rem 0.75rem',
+                      borderRadius: '0.5rem',
+                      cursor: 'pointer',
+                      backgroundColor: 'transparent',
+                      '&:hover': { 
+                        backgroundColor: hoverBg,
+                      },
+                      transition: 'background-color 0.2s',
+                    }}
+                  >
+                    <ArrowBack sx={{ color: dynamicColors.primary, fontSize: 20 }} />
+                    <Typography
+                      sx={{
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                        color: dynamicColors.primary,
+                      }}
+                    >
+                      Back to App
+                    </Typography>
+                  </Box>
 
-              <Divider sx={{ my: 1, borderColor: borderColor }} />
+                  <Divider sx={{ my: 1, borderColor: borderColor }} />
+                </>
+              )}
 
               {[
                 { id: 'profile', label: 'Profile', icon: Person },

@@ -58,7 +58,10 @@ export default function Topbar({ userName, userEmail, onManageAccount, onSignOut
 
   const handleBackToApp = () => {
     handleMenuClose();
-    window.location.href = getBackUrl();
+    const backUrl = getBackUrl();
+    if (backUrl) {
+      window.location.href = backUrl;
+    }
   };
 
   const handleSignOut = () => {
@@ -197,17 +200,19 @@ export default function Topbar({ userName, userEmail, onManageAccount, onSignOut
           )}
 
           {/* Menu Items */}
-          <MenuItem
-            onClick={handleBackToApp}
-            sx={{
-              color: dynamicColors.primary,
-              fontSize: '0.875rem',
-              '&:hover': { backgroundColor: hoverBg },
-            }}
-          >
-            <ArrowBack sx={{ mr: 1, fontSize: '1.25rem' }} />
-            Back to App
-          </MenuItem>
+          {getBackUrl() && (
+            <MenuItem
+              onClick={handleBackToApp}
+              sx={{
+                color: dynamicColors.primary,
+                fontSize: '0.875rem',
+                '&:hover': { backgroundColor: hoverBg },
+              }}
+            >
+              <ArrowBack sx={{ mr: 1, fontSize: '1.25rem' }} />
+              Back to App
+            </MenuItem>
+          )}
 
           <MenuItem
             onClick={handleManageAccount}

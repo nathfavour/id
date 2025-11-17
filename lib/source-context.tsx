@@ -4,7 +4,7 @@ import { getAppOrigin } from './app-origin';
 interface SourceContextType {
   source: string | null;
   setSource: (source: string | null) => void;
-  getBackUrl: () => string;
+  getBackUrl: () => string | null;
 }
 
 const SourceContext = createContext<SourceContextType | undefined>(undefined);
@@ -34,7 +34,7 @@ export function SourceProvider({ children }: { children: React.ReactNode }) {
 
   const getBackUrl = useCallback(() => {
     if (!source) {
-      return getAppOrigin();
+      return null;
     }
     
     if (!source.startsWith('http://') && !source.startsWith('https://')) {

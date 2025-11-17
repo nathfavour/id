@@ -29,11 +29,10 @@ function HomeContent() {
             ? source 
             : `https://${source}`;
           router.replace(redirectUrl);
-        } else if (userData) {
-          router.replace(getBackUrl());
-        } else {
+        } else if (!userData) {
           router.replace('/login');
         }
+        // If user is logged in and no source, stay on home page
       } catch {
         router.replace('/login');
       }
