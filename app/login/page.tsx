@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense, useCallback } from 'react';
+import { useState, useEffect, Suspense, useCallback, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Client, Account, OAuthProvider } from 'appwrite';
 import { Box, Typography, Stack, TextField, Button, Alert, CircularProgress, IconButton, Tabs, Tab, useMediaQuery, useTheme } from '@mui/material';
@@ -55,6 +55,8 @@ function publicKeyCredentialToJSON(pubKeyCred: unknown): unknown {
   return pubKeyCred;
 }
 
+const IDM_AUTH_SUCCESS_EVENT = 'idm:auth-success';
+
 export default function LoginPage() {
   return (
     <Suspense fallback={
@@ -74,6 +76,7 @@ function LoginContent() {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
   const { source, setSource, getBackUrl } = useSource();
+  const hasNotifiedRef = useRef(false);
   
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
@@ -90,6 +93,15 @@ function LoginContent() {
   
   const appName = process.env.NEXT_PUBLIC_APP_NAME || 'auth';
 
+  const notifyOpenerAuthSuccess = useCallback((payload: Record<string, unknown> = {}) => {
+    if (hasNotifiedRef.current) return;
+    if (typeof window === 'undefined') return;
+    const opener = window.opener;
+    if (!opener || opener.closed) return;
+    opener.postMessage({ type: IDM_AUTH_SUCCESS_EVENT, ...payload }, '*');
+    hasNotifiedRef.current = true;
+  }, []);
+
   // Check for existing session on mount
   useEffect(() => {
     const checkExistingSession = async () => {
@@ -101,6 +113,7 @@ function LoginContent() {
 
         const user = await checkSession();
         if (user) {
+          notifyOpenerAuthSuccess({ userId: user.$id });
           // User is already logged in, only redirect if source is specified
           if (source) {
             const redirectUrl = source.startsWith('http://') || source.startsWith('https://') ? source : `https://${source}`;
@@ -181,6 +194,7 @@ function LoginContent() {
         const session = await account.getSession('current');
         const user = await account.get();
         if (session && user) {
+          notifyOpenerAuthSuccess({ userId: user.$id });
           // OAuth session established
         }
       } catch (e) {
@@ -252,6 +266,7 @@ function LoginContent() {
 
       const { account } = await import('@/lib/appwrite');
       await safeCreateSession(response.userId, response.secret);
+      notifyOpenerAuthSuccess({ userId: response.userId || address });
 
       const backUrl = getBackUrl();
       if (backUrl) {
@@ -339,6 +354,7 @@ function LoginContent() {
           } else {
             if (verifyJson.token?.secret) {
               await safeCreateSession(verifyJson.token.userId || email, verifyJson.token.secret);
+              notifyOpenerAuthSuccess({ userId: verifyJson.token.userId || email });
               const backUrl = getBackUrl();
               if (backUrl) {
                 router.replace(backUrl);
@@ -402,6 +418,7 @@ function LoginContent() {
       }
       if (regVerifyJson.token?.secret) {
         await safeCreateSession(regVerifyJson.token.userId || email, regVerifyJson.token.secret);
+        notifyOpenerAuthSuccess({ userId: regVerifyJson.token.userId || email });
         const backUrl = getBackUrl();
         if (backUrl) {
           router.replace(backUrl);
