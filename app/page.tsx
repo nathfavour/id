@@ -87,7 +87,7 @@ function HomeContent() {
         }}
       >
         <Typography variant="h4" sx={{ color: dynamicColors.primary, mb: 2, fontWeight: 700 }}>
-          IDM authentication finished
+           Authentication finished
         </Typography>
         <Typography sx={{ color: dynamicColors.foreground, mb: 1.5 }}>
           You can close this window or tab now and return to the application.
