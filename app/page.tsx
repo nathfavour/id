@@ -1,21 +1,31 @@
 'use client';
 
-import { useEffect, Suspense } from 'react';
+import { useEffect, Suspense, useState } from 'react';
 import { account } from '@/lib/appwrite';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSource } from '@/lib/source-context';
-import { Box, CircularProgress } from '@mui/material';
+import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import { colors } from '@/lib/colors';
 import { useColors } from '@/lib/theme-context';
-import { getAppOrigin } from '@/lib/app-origin';
 
 function HomeContent() {
   const dynamicColors = useColors();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { setSource, getBackUrl } = useSource();
+  const { setSource } = useSource();
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+    let hasResolved = false;
+
+    const markReady = () => {
+      if (!hasResolved && isMounted) {
+        hasResolved = true;
+        setIsChecking(false);
+      }
+    };
+
     const checkAuth = async () => {
       try {
         const source = searchParams.get('source');
@@ -25,25 +35,74 @@ function HomeContent() {
 
         const userData = await account.get();
         if (userData && source) {
-          const redirectUrl = source.startsWith('http://') || source.startsWith('https://') 
-            ? source 
+          const redirectUrl = source.startsWith('http://') || source.startsWith('https://')
+            ? source
             : `https://${source}`;
+          markReady();
           router.replace(redirectUrl);
-        } else if (!userData) {
-          router.replace('/login');
+          return;
         }
-        // If user is logged in and no source, stay on home page
-      } catch {
-        router.replace('/login');
+      } catch (error) {
+        console.error('IDM auth check failed:', error);
+      } finally {
+        markReady();
       }
     };
 
     checkAuth();
+
+    return () => {
+      isMounted = false;
+    };
   }, [router, searchParams, setSource]);
 
+  if (isChecking) {
+    return (
+      <Box sx={{ minHeight: '100vh', backgroundColor: dynamicColors.background, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <CircularProgress sx={{ color: dynamicColors.primary }} />
+      </Box>
+    );
+  }
+
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: dynamicColors.background, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <CircularProgress sx={{ color: dynamicColors.primary }} />
+    <Box
+      sx={{
+        minHeight: '100vh',
+        backgroundColor: dynamicColors.background,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        px: 3,
+      }}
+    >
+      <Box
+        sx={{
+          width: '100%',
+          maxWidth: 520,
+          textAlign: 'center',
+          p: 4,
+          borderRadius: '1rem',
+          backgroundColor: 'rgba(255, 255, 255, 0.03)',
+          border: `1px solid ${colors.border}`,
+        }}
+      >
+        <Typography variant="h4" sx={{ color: dynamicColors.primary, mb: 2, fontWeight: 700 }}>
+          IDM authentication finished
+        </Typography>
+        <Typography sx={{ color: dynamicColors.foreground, mb: 1.5 }}>
+          You can close this window or tab now and return to the application.
+        </Typography>
+        <Typography sx={{ color: dynamicColors.foreground, mb: 2 }}>
+          If things still look stale, refresh the application window you came from as a last resort.
+        </Typography>
+        <Button
+          variant="outlined"
+          onClick={() => router.refresh()}
+          sx={{ borderColor: dynamicColors.primary, color: dynamicColors.primary }}
+        >
+          Refresh this window
+        </Button>
+      </Box>
     </Box>
   );
 }
