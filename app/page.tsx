@@ -92,16 +92,9 @@ function HomeContent() {
         <Typography sx={{ color: dynamicColors.foreground, mb: 1.5 }}>
           You can close this window or tab now and return to the application.
         </Typography>
-        <Typography sx={{ color: dynamicColors.foreground, mb: 2 }}>
+        <Typography sx={{ color: dynamicColors.foreground }}>
           If things still look stale, refresh the application window you came from as a last resort.
         </Typography>
-        <Button
-          variant="outlined"
-          onClick={() => router.refresh()}
-          sx={{ borderColor: dynamicColors.primary, color: dynamicColors.primary }}
-        >
-          Refresh this window
-        </Button>
       </Box>
     </Box>
   );
